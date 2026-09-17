@@ -1,0 +1,51 @@
+# JavaScript / Electron build output
+.DS_Store
+.idea/
+.vscode/
+node_modules/
+dist/
+dist-electron/
+*.tsbuildinfo
+
+# Python build and test output
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+release/
+*.spec.local
+*.log
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+vault.json
+screenshots/
+ms-playwright/
+
+# Local visual smoke artifact
+peaks-electron.png
+
+# Private diagnostics, screenshots, game recordings, and local audit evidence.
+# Keep these on the device; release media belongs in the application asset tree.
+artifacts/
+
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.har
+*.pfx
+*.p12
+*.key
+*.pem
+.vault-pepper
+*.db
+*.db-shm
+*.db-wal

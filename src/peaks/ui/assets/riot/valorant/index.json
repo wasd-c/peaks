@@ -1,0 +1,336 @@
+{
+  "agents": [
+    {
+      "displayName": "Iso",
+      "uuid": "0e38b510-41a8-5780-5e8f-568b2a4f2d6c",
+      "path": "valorant/agents/0e38b510-41a8-5780-5e8f-568b2a4f2d6c.png",
+      "portraitPath": "valorant/portraits/0e38b510-41a8-5780-5e8f-568b2a4f2d6c.png"
+    },
+    {
+      "displayName": "Cypher",
+      "uuid": "117ed9e3-49f3-6512-3ccf-0cada7e3823b",
+      "path": "valorant/agents/117ed9e3-49f3-6512-3ccf-0cada7e3823b.png",
+      "portraitPath": "valorant/portraits/117ed9e3-49f3-6512-3ccf-0cada7e3823b.png"
+    },
+    {
+      "displayName": "Clove",
+      "uuid": "1dbf2edd-4729-0984-3115-daa5eed44993",
+      "path": "valorant/agents/1dbf2edd-4729-0984-3115-daa5eed44993.png",
+      "portraitPath": "valorant/portraits/1dbf2edd-4729-0984-3115-daa5eed44993.png"
+    },
+    {
+      "displayName": "Killjoy",
+      "uuid": "1e58de9c-4950-5125-93e9-a0aee9f98746",
+      "path": "valorant/agents/1e58de9c-4950-5125-93e9-a0aee9f98746.png",
+      "portraitPath": "valorant/portraits/1e58de9c-4950-5125-93e9-a0aee9f98746.png"
+    },
+    {
+      "displayName": "Chamber",
+      "uuid": "22697a3d-45bf-8dd7-4fec-84a9e28c69d7",
+      "path": "valorant/agents/22697a3d-45bf-8dd7-4fec-84a9e28c69d7.png",
+      "portraitPath": "valorant/portraits/22697a3d-45bf-8dd7-4fec-84a9e28c69d7.png"
+    },
+    {
+      "displayName": "Sova",
+      "uuid": "320b2a48-4d9b-a075-30f1-1f93a9b638fa",
+      "path": "valorant/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa.png",
+      "portraitPath": "valorant/portraits/320b2a48-4d9b-a075-30f1-1f93a9b638fa.png"
+    },
+    {
+      "displayName": "Astra",
+      "uuid": "41fb69c1-4189-7b37-f117-bcaf1e96f1bf",
+      "path": "valorant/agents/41fb69c1-4189-7b37-f117-bcaf1e96f1bf.png",
+      "portraitPath": "valorant/portraits/41fb69c1-4189-7b37-f117-bcaf1e96f1bf.png"
+    },
+    {
+      "displayName": "Sage",
+      "uuid": "569fdd95-4d10-43ab-ca70-79becc718b46",
+      "path": "valorant/agents/569fdd95-4d10-43ab-ca70-79becc718b46.png",
+      "portraitPath": "valorant/portraits/569fdd95-4d10-43ab-ca70-79becc718b46.png"
+    },
+    {
+      "displayName": "Breach",
+      "uuid": "5f8d3a7f-467b-97f3-062c-13acf203c006",
+      "path": "valorant/agents/5f8d3a7f-467b-97f3-062c-13acf203c006.png",
+      "portraitPath": "valorant/portraits/5f8d3a7f-467b-97f3-062c-13acf203c006.png"
+    },
+    {
+      "displayName": "KAY/O",
+      "uuid": "601dbbe7-43ce-be57-2a40-4abd24953621",
+      "path": "valorant/agents/601dbbe7-43ce-be57-2a40-4abd24953621.png",
+      "portraitPath": "valorant/portraits/601dbbe7-43ce-be57-2a40-4abd24953621.png"
+    },
+    {
+      "displayName": "Skye",
+      "uuid": "6f2a04ca-43e0-be17-7f36-b3908627744d",
+      "path": "valorant/agents/6f2a04ca-43e0-be17-7f36-b3908627744d.png",
+      "portraitPath": "valorant/portraits/6f2a04ca-43e0-be17-7f36-b3908627744d.png"
+    },
+    {
+      "displayName": "Viper",
+      "uuid": "707eab51-4836-f488-046a-cda6bf494859",
+      "path": "valorant/agents/707eab51-4836-f488-046a-cda6bf494859.png",
+      "portraitPath": "valorant/portraits/707eab51-4836-f488-046a-cda6bf494859.png"
+    },
+    {
+      "displayName": "Miks",
+      "uuid": "7c8a4701-4de6-9355-b254-e09bc2a34b72",
+      "path": "valorant/agents/7c8a4701-4de6-9355-b254-e09bc2a34b72.png",
+      "portraitPath": "valorant/portraits/7c8a4701-4de6-9355-b254-e09bc2a34b72.png"
+    },
+    {
+      "displayName": "Yoru",
+      "uuid": "7f94d92c-4234-0a36-9646-3a87eb8b5c89",
+      "path": "valorant/agents/7f94d92c-4234-0a36-9646-3a87eb8b5c89.png",
+      "portraitPath": "valorant/portraits/7f94d92c-4234-0a36-9646-3a87eb8b5c89.png"
+    },
+    {
+      "displayName": "Omen",
+      "uuid": "8e253930-4c05-31dd-1b6c-968525494517",
+      "path": "valorant/agents/8e253930-4c05-31dd-1b6c-968525494517.png",
+      "portraitPath": "valorant/portraits/8e253930-4c05-31dd-1b6c-968525494517.png"
+    },
+    {
+      "displayName": "Veto",
+      "uuid": "92eeef5d-43b5-1d4a-8d03-b3927a09034b",
+      "path": "valorant/agents/92eeef5d-43b5-1d4a-8d03-b3927a09034b.png",
+      "portraitPath": "valorant/portraits/92eeef5d-43b5-1d4a-8d03-b3927a09034b.png"
+    },
+    {
+      "displayName": "Harbor",
+      "uuid": "95b78ed7-4637-86d9-7e41-71ba8c293152",
+      "path": "valorant/agents/95b78ed7-4637-86d9-7e41-71ba8c293152.png",
+      "portraitPath": "valorant/portraits/95b78ed7-4637-86d9-7e41-71ba8c293152.png"
+    },
+    {
+      "displayName": "Brimstone",
+      "uuid": "9f0d8ba9-4140-b941-57d3-a7ad57c6b417",
+      "path": "valorant/agents/9f0d8ba9-4140-b941-57d3-a7ad57c6b417.png",
+      "portraitPath": "valorant/portraits/9f0d8ba9-4140-b941-57d3-a7ad57c6b417.png"
+    },
+    {
+      "displayName": "Reyna",
+      "uuid": "a3bfb853-43b2-7238-a4f1-ad90e9e46bcc",
+      "path": "valorant/agents/a3bfb853-43b2-7238-a4f1-ad90e9e46bcc.png",
+      "portraitPath": "valorant/portraits/a3bfb853-43b2-7238-a4f1-ad90e9e46bcc.png"
+    },
+    {
+      "displayName": "Jett",
+      "uuid": "add6443a-41bd-e414-f6ad-e58d267f4e95",
+      "path": "valorant/agents/add6443a-41bd-e414-f6ad-e58d267f4e95.png",
+      "portraitPath": "valorant/portraits/add6443a-41bd-e414-f6ad-e58d267f4e95.png"
+    },
+    {
+      "displayName": "Tejo",
+      "uuid": "b444168c-4e35-8076-db47-ef9bf368f384",
+      "path": "valorant/agents/b444168c-4e35-8076-db47-ef9bf368f384.png",
+      "portraitPath": "valorant/portraits/b444168c-4e35-8076-db47-ef9bf368f384.png"
+    },
+    {
+      "displayName": "Neon",
+      "uuid": "bb2a4828-46eb-8cd1-e765-15848195d751",
+      "path": "valorant/agents/bb2a4828-46eb-8cd1-e765-15848195d751.png",
+      "portraitPath": "valorant/portraits/bb2a4828-46eb-8cd1-e765-15848195d751.png"
+    },
+    {
+      "displayName": "Deadlock",
+      "uuid": "cc8b64c8-4b25-4ff9-6e7f-37b4da43d235",
+      "path": "valorant/agents/cc8b64c8-4b25-4ff9-6e7f-37b4da43d235.png",
+      "portraitPath": "valorant/portraits/cc8b64c8-4b25-4ff9-6e7f-37b4da43d235.png"
+    },
+    {
+      "displayName": "Fade",
+      "uuid": "dade69b4-4f5a-8528-247b-219e5a1facd6",
+      "path": "valorant/agents/dade69b4-4f5a-8528-247b-219e5a1facd6.png",
+      "portraitPath": "valorant/portraits/dade69b4-4f5a-8528-247b-219e5a1facd6.png"
+    },
+    {
+      "displayName": "Waylay",
+      "uuid": "df1cb487-4902-002e-5c17-d28e83e78588",
+      "path": "valorant/agents/df1cb487-4902-002e-5c17-d28e83e78588.png",
+      "portraitPath": "valorant/portraits/df1cb487-4902-002e-5c17-d28e83e78588.png"
+    },
+    {
+      "displayName": "Gekko",
+      "uuid": "e370fa57-4757-3604-3648-499e1f642d3f",
+      "path": "valorant/agents/e370fa57-4757-3604-3648-499e1f642d3f.png",
+      "portraitPath": "valorant/portraits/e370fa57-4757-3604-3648-499e1f642d3f.png"
+    },
+    {
+      "displayName": "Phoenix",
+      "uuid": "eb93336a-449b-9c1b-0a54-a891f7921d69",
+      "path": "valorant/agents/eb93336a-449b-9c1b-0a54-a891f7921d69.png",
+      "portraitPath": "valorant/portraits/eb93336a-449b-9c1b-0a54-a891f7921d69.png"
+    },
+    {
+      "displayName": "Vyse",
+      "uuid": "efba5359-4016-a1e5-7626-b1ae76895940",
+      "path": "valorant/agents/efba5359-4016-a1e5-7626-b1ae76895940.png",
+      "portraitPath": "valorant/portraits/efba5359-4016-a1e5-7626-b1ae76895940.png"
+    },
+    {
+      "displayName": "Raze",
+      "uuid": "f94c3b30-42be-e959-889c-5aa313dba261",
+      "path": "valorant/agents/f94c3b30-42be-e959-889c-5aa313dba261.png",
+      "portraitPath": "valorant/portraits/f94c3b30-42be-e959-889c-5aa313dba261.png"
+    }
+  ],
+  "maps": [
+    {
+      "displayName": "Kasbah",
+      "uuid": "12452a9d-48c3-0b02-e7eb-0381c3520404",
+      "path": "valorant/maps/12452a9d-48c3-0b02-e7eb-0381c3520404.png",
+      "mapUrl": "/Game/Maps/HURM/HURM_Bowl/HURM_Bowl"
+    },
+    {
+      "displayName": "Corrode",
+      "uuid": "1c18ab1f-420d-0d8b-71d0-77ad3c439115",
+      "path": "valorant/maps/1c18ab1f-420d-0d8b-71d0-77ad3c439115.png",
+      "mapUrl": "/Game/Maps/Rook/Rook"
+    },
+    {
+      "displayName": "Skirmish D",
+      "uuid": "1c7555fc-4bc6-3b98-9674-789d47ef6c50",
+      "path": "valorant/maps/1c7555fc-4bc6-3b98-9674-789d47ef6c50.png",
+      "mapUrl": "/Game/Maps/Duel/Duel_Platform/Skirmish_D"
+    },
+    {
+      "displayName": "Basic Training",
+      "uuid": "1f10dab3-4294-3827-fa35-c2aa00213cf3",
+      "path": "valorant/maps/1f10dab3-4294-3827-fa35-c2aa00213cf3.png",
+      "mapUrl": "/Game/Maps/NPEV2/NPEV2"
+    },
+    {
+      "displayName": "Abyss",
+      "uuid": "224b0a95-48b9-f703-1bd8-67aca101a61f",
+      "path": "valorant/maps/224b0a95-48b9-f703-1bd8-67aca101a61f.png",
+      "mapUrl": "/Game/Maps/Infinity/Infinity"
+    },
+    {
+      "displayName": "Haven",
+      "uuid": "2bee0dc9-4ffe-519b-1cbd-7fbe763a6047",
+      "path": "valorant/maps/2bee0dc9-4ffe-519b-1cbd-7fbe763a6047.png",
+      "mapUrl": "/Game/Maps/Triad/Triad"
+    },
+    {
+      "displayName": "Drift",
+      "uuid": "2c09d728-42d5-30d8-43dc-96a05cc7ee9d",
+      "path": "valorant/maps/2c09d728-42d5-30d8-43dc-96a05cc7ee9d.png",
+      "mapUrl": "/Game/Maps/HURM/HURM_Helix/HURM_Helix"
+    },
+    {
+      "displayName": "Bind",
+      "uuid": "2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba",
+      "path": "valorant/maps/2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba.png",
+      "mapUrl": "/Game/Maps/Duality/Duality"
+    },
+    {
+      "displayName": "Breeze",
+      "uuid": "2fb9a4fd-47b8-4e7d-a969-74b4046ebd53",
+      "path": "valorant/maps/2fb9a4fd-47b8-4e7d-a969-74b4046ebd53.png",
+      "mapUrl": "/Game/Maps/Foxtrot/Foxtrot"
+    },
+    {
+      "displayName": "Lotus",
+      "uuid": "2fe4ed3a-450a-948b-6d6b-e89a78e680a9",
+      "path": "valorant/maps/2fe4ed3a-450a-948b-6d6b-e89a78e680a9.png",
+      "mapUrl": "/Game/Maps/Jam/Jam"
+    },
+    {
+      "displayName": "Skirmish E",
+      "uuid": "4490f1d6-4818-bf5f-9b3a-9c9a8dbb52ed",
+      "path": "valorant/maps/4490f1d6-4818-bf5f-9b3a-9c9a8dbb52ed.png",
+      "mapUrl": "/Game/Maps/Duel/Duel_Heady/Skirmish_E"
+    },
+    {
+      "displayName": "The Range",
+      "uuid": "5914d1e0-40c4-cfdd-6b88-eba06347686c",
+      "path": "valorant/maps/5914d1e0-40c4-cfdd-6b88-eba06347686c.png",
+      "mapUrl": "/Game/Maps/PovegliaV2/RangeV2"
+    },
+    {
+      "displayName": "District",
+      "uuid": "690b3ed2-4dff-945b-8223-6da834e30d24",
+      "path": "valorant/maps/690b3ed2-4dff-945b-8223-6da834e30d24.png",
+      "mapUrl": "/Game/Maps/HURM/HURM_Alley/HURM_Alley"
+    },
+    {
+      "displayName": "Summit",
+      "uuid": "756da597-416b-c0f2-f47b-afbdf28670bc",
+      "path": "valorant/maps/756da597-416b-c0f2-f47b-afbdf28670bc.png",
+      "mapUrl": "/Game/Maps/Plummet/Plummet"
+    },
+    {
+      "displayName": "Ascent",
+      "uuid": "7eaecc1b-4337-bbf6-6ab9-04b8f06b3319",
+      "path": "valorant/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319.png",
+      "mapUrl": "/Game/Maps/Ascent/Ascent"
+    },
+    {
+      "displayName": "Sunset",
+      "uuid": "92584fbe-486a-b1b2-9faa-39b0f486b498",
+      "path": "valorant/maps/92584fbe-486a-b1b2-9faa-39b0f486b498.png",
+      "mapUrl": "/Game/Maps/Juliett/Juliett"
+    },
+    {
+      "displayName": "Skirmish C",
+      "uuid": "a264de0f-4a04-9c78-c97a-a6b192ce6e86",
+      "path": "valorant/maps/a264de0f-4a04-9c78-c97a-a6b192ce6e86.png",
+      "mapUrl": "/Game/Maps/Duel/Duel_3/Skirmish_C"
+    },
+    {
+      "displayName": "Skirmish B",
+      "uuid": "a38a3f9a-4042-844c-8970-a3ac2f7ce93d",
+      "path": "valorant/maps/a38a3f9a-4042-844c-8970-a3ac2f7ce93d.png",
+      "mapUrl": "/Game/Maps/Duel/Duel_2/Skirmish_B"
+    },
+    {
+      "displayName": "Skirmish A",
+      "uuid": "a9009649-421f-d5d5-f80c-0cbe02c125bb",
+      "path": "valorant/maps/a9009649-421f-d5d5-f80c-0cbe02c125bb.png",
+      "mapUrl": "/Game/Maps/Duel/Duel_1/Skirmish_A"
+    },
+    {
+      "displayName": "Fracture",
+      "uuid": "b529448b-4d60-346e-e89e-00a4c527a405",
+      "path": "valorant/maps/b529448b-4d60-346e-e89e-00a4c527a405.png",
+      "mapUrl": "/Game/Maps/Canyon/Canyon"
+    },
+    {
+      "displayName": "Glitch",
+      "uuid": "d6336a5a-428f-c591-98db-c8a291159134",
+      "path": "valorant/maps/d6336a5a-428f-c591-98db-c8a291159134.png",
+      "mapUrl": "/Game/Maps/HURM/HURM_HighTide/HURM_HighTide"
+    },
+    {
+      "displayName": "Split",
+      "uuid": "d960549e-485c-e861-8d71-aa9d1aed12a2",
+      "path": "valorant/maps/d960549e-485c-e861-8d71-aa9d1aed12a2.png",
+      "mapUrl": "/Game/Maps/Bonsai/Bonsai"
+    },
+    {
+      "displayName": "Piazza",
+      "uuid": "de28aa9b-4cbe-1003-320e-6cb3ec309557",
+      "path": "valorant/maps/de28aa9b-4cbe-1003-320e-6cb3ec309557.png",
+      "mapUrl": "/Game/Maps/HURM/HURM_Yard/HURM_Yard"
+    },
+    {
+      "displayName": "Icebox",
+      "uuid": "e2ad5c54-4114-a870-9641-8ea21279579a",
+      "path": "valorant/maps/e2ad5c54-4114-a870-9641-8ea21279579a.png",
+      "mapUrl": "/Game/Maps/Port/Port"
+    },
+    {
+      "displayName": "The Range",
+      "uuid": "ee613ee9-28b7-4beb-9666-08db13bb2244",
+      "path": "valorant/maps/ee613ee9-28b7-4beb-9666-08db13bb2244.png",
+      "mapUrl": "/Game/Maps/Poveglia/Range"
+    },
+    {
+      "displayName": "Pearl",
+      "uuid": "fd267378-4d1d-484f-ff52-77821ed10dc2",
+      "path": "valorant/maps/fd267378-4d1d-484f-ff52-77821ed10dc2.png",
+      "mapUrl": "/Game/Maps/Pitt/Pitt"
+    }
+  ]
+}

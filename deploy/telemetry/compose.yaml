@@ -1,0 +1,27 @@
+name: peaks-telemetry
+services:
+  ingest:
+    build: .
+    container_name: peaks-telemetry-ingest
+    restart: unless-stopped
+    env_file: telemetry.env
+    expose: ["3009"]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 64m
+    cpus: 0.25
+    pids_limit: 32
+    logging:
+      driver: json-file
+      options: {max-size: "1m", max-file: "2"}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3009/healthz', timeout=2).close()"]
+      interval: 30s
+      timeout: 4s
+      retries: 3
+    networks: [telemetry]
+networks:
+  telemetry:
+    external: true
+    name: ${TELEMETRY_NETWORK:-gemstudio-telemetry_telemetry}

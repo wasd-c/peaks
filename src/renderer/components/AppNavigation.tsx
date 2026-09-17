@@ -1,0 +1,36 @@
+import {Button} from '@astryxdesign/core/Button'
+import {Icon} from '@astryxdesign/core/Icon'
+import {SideNav, SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav'
+import {VStack} from '@astryxdesign/core/VStack'
+import {Crosshair, Fingerprint, LockKeyhole, Mountain, Search, Settings2, UsersRound} from 'lucide-react'
+import type {AppState} from '../types'
+import {SidebarUpdate} from './SidebarUpdate'
+
+export type Page = 'overview' | 'search' | 'watchlist' | 'current' | 'settings'
+interface AppNavigationProps {
+  page: Page
+  state: AppState
+  onPage: (page: Page) => void
+  onLock: () => void
+}
+export function AppNavigation({page, state, onPage, onLock}: AppNavigationProps) {
+  return (
+    <SideNav className="pd-navigation" aria-label="Main navigation"
+      collapsible={{isCollapsed: true, hasButton: false}}
+      header={<Button className="pd-navigation__brand" label="Peaks · Accounts" icon={<Icon icon={Mountain} size="lg" />} isIconOnly variant="ghost" onClick={() => onPage('overview')} />}
+      footer={<VStack gap={3} align="center" paddingBlock={4}>
+        <SidebarUpdate />
+        <SideNavItem label="Settings" icon={Settings2} isSelected={page === 'settings'} onClick={() => onPage('settings')} />
+        <Button label="Lock Peaks" tooltip="Lock Peaks" icon={<Icon icon={LockKeyhole} />} isIconOnly variant="ghost" onClick={onLock} />
+      </VStack>}>
+      <SideNavSection title="Accounts and players" isHeaderHidden>
+        <SideNavItem label="Accounts" icon={Fingerprint} isSelected={page === 'overview'} onClick={() => onPage('overview')} />
+        <SideNavItem label="Player search" icon={Search} isSelected={page === 'search'} onClick={() => onPage('search')} />
+        <SideNavItem label="Watchlist" icon={UsersRound} isSelected={page === 'watchlist'} onClick={() => onPage('watchlist')} />
+      </SideNavSection>
+      <SideNavSection title="Play" isHeaderHidden>
+        <SideNavItem className={state.gameDetected ? 'pd-navigation__live' : undefined} label="Current match" icon={Crosshair} isSelected={page === 'current'} onClick={() => onPage('current')} />
+      </SideNavSection>
+    </SideNav>
+  )
+}

@@ -1,0 +1,116 @@
+{
+  "name": "peaks-desktop",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Peaks desktop companion — Electron, Chromium, React, and Python",
+  "main": "dist-electron/main.js",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "postinstall": "install-electron",
+    "predev": "npm run build:electron",
+    "dev": "concurrently -k --success first \"vite --port 5173 --strictPort\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "dev:demo": "cross-env PEAKS_DEMO=1 npm run dev",
+    "predev:onboard": "npm run build:electron",
+    "dev:onboard": "concurrently -k --success first \"vite --port 5174 --strictPort\" \"wait-on tcp:5174 && cross-env PEAKS_DEMO=1 PEAKS_ONBOARD_PREVIEW=1 VITE_DEV_SERVER_URL=http://localhost:5174 electron .\"",
+    "build:electron": "tsc -p tsconfig.node.json",
+    "build:runtime": "uv run python scripts/build_electron_runtime.py --clean --smoke",
+    "build": "tsc -b && vite build && npm run build:runtime && electron-builder --dir",
+    "package:win": "tsc -b && vite build && npm run build:runtime && electron-builder --win nsis",
+    "build:web": "tsc -b && vite build",
+    "start": "electron .",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint . --max-warnings=0"
+  },
+  "dependencies": {
+    "@astryxdesign/cli": "^0.5.0",
+    "@astryxdesign/core": "^0.5.0",
+    "@astryxdesign/theme-neutral": "^0.5.0",
+    "@stylexjs/stylex": "^0.19.0",
+    "@vitejs/plugin-react": "latest",
+    "electron-updater": "6.8.9",
+    "lucide-react": "latest",
+    "ogl": "^1.0.11",
+    "react": "latest",
+    "react-dom": "latest",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/three": "^0.185.4",
+    "concurrently": "^9.2.4",
+    "cross-env": "latest",
+    "electron": "43.7.1",
+    "electron-builder": "latest",
+    "eslint": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "globals": "latest",
+    "typescript": "latest",
+    "typescript-eslint": "latest",
+    "vite": "latest",
+    "vitest": "latest",
+    "wait-on": "latest"
+  },
+  "build": {
+    "appId": "local.peaks.desktop",
+    "productName": "Peaks",
+    "electronDist": "node_modules/electron/dist",
+    "directories": {
+      "output": "release/electron"
+    },
+    "files": [
+      "dist/index.html",
+      "dist/assets/**",
+      "dist-electron/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "src/renderer/assets/peaks-mark.png",
+        "to": "brand/peaks-mark.png"
+      },
+      {
+        "from": "build/electron-runtime/backend/PeaksBridge",
+        "to": "backend"
+      },
+      {
+        "from": "build/electron-runtime/patchright-browsers",
+        "to": "patchright-browsers"
+      },
+      {
+        "from": "build/electron-runtime/runtime-manifest.json",
+        "to": "runtime-manifest.json"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/renderer/assets/peaks-mark.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/peaks/ui/assets/peaks.icns"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "wasd-c",
+      "repo": "peaks",
+      "private": false,
+      "releaseType": "release"
+    },
+    "nsis": {
+      "artifactName": "Peaks-Setup-${version}-${arch}.${ext}",
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wasd-c/peaks.git"
+  }
+}

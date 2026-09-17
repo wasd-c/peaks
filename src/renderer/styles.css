@@ -1,0 +1,727 @@
+:root {
+  font-family: var(--font-family-body);
+  color: var(--color-text-primary);
+  background: var(--color-background-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-background-body);
+}
+
+body {
+  min-width: calc(var(--spacing-12) * 16);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.boot-screen,
+.lock-screen {
+  color: var(--color-text-primary);
+  background:
+    radial-gradient(circle at 50% 0%, var(--color-background-muted), transparent 48%),
+    var(--color-background-body);
+}
+
+.peaks-app {
+  background: var(--color-background-body);
+}
+
+.peaks-app .astryx-app-shell-sidenav {
+  overflow-x: clip;
+}
+
+.screen-transition {
+  min-width: 0;
+  min-height: 0;
+  animation: screen-enter var(--duration-medium) var(--ease-standard) both;
+}
+
+.peaks-screen {
+  min-width: 0;
+  background: var(--color-background-surface);
+}
+
+.peaks-screen--enter {
+  animation: screen-content-enter var(--duration-medium) var(--ease-standard) both;
+}
+
+.peaks-screen__header {
+  min-height: var(--spacing-12);
+}
+
+.peaks-screen__actions {
+  flex-shrink: 0;
+}
+
+.peaks-screen__content {
+  scrollbar-color: var(--color-border-emphasized) transparent;
+  scrollbar-width: thin;
+}
+
+.peaks-metric-card,
+.peaks-rank-card,
+.peaks-account-identity,
+.peaks-search-panel,
+.peaks-privacy-note,
+.dialog-identity {
+  border: var(--border-width) solid var(--color-border);
+}
+
+.peaks-account-card {
+  min-height: 20rem;
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.peaks-account-card:hover {
+  transform: translateY(calc(var(--spacing-0-5) * -1));
+  border-color: var(--color-border-emphasized);
+  box-shadow: var(--shadow-med);
+}
+
+.peaks-account-card__rank {
+  min-height: 5rem;
+}
+
+.peaks-account-card__games,
+.peaks-dense-list,
+.peaks-settings-group {
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-card);
+}
+
+.peaks-account-list,
+.peaks-player-list,
+.peaks-match-list {
+  box-shadow: var(--shadow-low);
+}
+
+.peaks-media {
+  display: block;
+}
+
+.peaks-rank-media {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.peaks-settings-heading {
+  padding: var(--spacing-4);
+}
+
+.peaks-settings-group .astryx-list-item {
+  padding-block: var(--spacing-4);
+  padding-inline: var(--spacing-4);
+}
+
+.peaks-search-controls > :first-child {
+  flex: 1 1 22rem;
+}
+
+.peaks-search-controls > :nth-child(2) {
+  flex: 0 1 13rem;
+}
+
+.peaks-search-controls > :nth-child(3) {
+  flex: 0 1 7rem;
+}
+
+.peaks-search-panel {
+  box-shadow: var(--shadow-low);
+}
+
+.peaks-account-identity {
+  box-shadow: var(--shadow-low);
+}
+
+.peaks-account-panel {
+  animation: panel-enter var(--duration-fast) var(--ease-standard) both;
+}
+
+.peaks-security-note,
+.peaks-privacy-note {
+  border-inline-start-color: var(--color-border-emphasized);
+  border-inline-start-width: calc(var(--border-width) * 2);
+}
+
+.peaks-match-artwork {
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-page);
+  background: var(--color-background-muted);
+  box-shadow: var(--shadow-med);
+}
+
+.peaks-media--match {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.01);
+}
+
+.peaks-team-card {
+  overflow: hidden;
+  box-shadow: var(--shadow-low);
+}
+
+.peaks-live-player-list {
+  border: 0;
+  border-radius: 0;
+}
+
+.peaks-api-key-control > :first-child {
+  flex: 1 1 18rem;
+}
+
+.peaks-lock-now-button,
+.peaks-watch-button--selected {
+  box-shadow: inset 0 0 0 var(--border-width) var(--color-border-emphasized);
+}
+
+.dialog-identity {
+  padding: var(--spacing-4);
+  border-radius: var(--radius-element);
+  background: var(--color-background-muted);
+}
+
+.lock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  cursor: text;
+  user-select: none;
+}
+
+.lock-content {
+  position: relative;
+  text-align: center;
+}
+
+.lock-icon {
+  border: var(--border-width) solid var(--color-border-emphasized);
+  border-radius: var(--radius-full);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-low);
+}
+
+.overline {
+  letter-spacing: var(--peaks-tracking-label);
+}
+
+.lock-copy {
+  max-width: 28rem;
+}
+
+.passcode-dots {
+  padding-block: var(--spacing-3);
+}
+
+.passcode-dot {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  border-width: var(--border-width) !important;
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard) !important;
+}
+
+.passcode-dot > span {
+  display: none !important;
+}
+
+.passcode-input {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: auto !important;
+}
+
+.lock-status {
+  min-height: 2.75rem;
+}
+
+.forgot-code-button {
+  position: fixed;
+  right: var(--spacing-7);
+  bottom: var(--spacing-6);
+  z-index: 3;
+  cursor: pointer;
+}
+
+.lock-screen--invalid .passcode-dots {
+  animation: passcode-soft-shake var(--duration-fast) var(--ease-standard);
+}
+
+.lock-screen--wrong .passcode-dots {
+  animation: passcode-hard-shake var(--duration-medium) var(--ease-standard);
+  filter: contrast(1.8) brightness(1.25);
+}
+
+.lock-screen--wrong .passcode-dot {
+  transform: scale(1.08);
+  box-shadow: var(--shadow-low);
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after,
+[data-reduce-motion] *,
+[data-reduce-motion] *::before,
+[data-reduce-motion] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes screen-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-2));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes passcode-soft-shake {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(calc(var(--spacing-1) * -1)); }
+  70% { transform: translateX(var(--spacing-1)); }
+}
+
+@keyframes passcode-hard-shake {
+  0%, 100% { transform: translateX(0); }
+  18% { transform: translateX(calc(var(--spacing-3) * -1)); }
+  36% { transform: translateX(var(--spacing-3)); }
+  54% { transform: translateX(calc(var(--spacing-2) * -1)); }
+  72% { transform: translateX(var(--spacing-2)); }
+}
+
+@media (max-width: 70rem) {
+  .peaks-account-grid,
+  .peaks-team-grid,
+  .peaks-rank-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .peaks-metric-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .peaks-search-controls {
+    flex-wrap: wrap;
+  }
+
+  .peaks-player-row__metadata {
+    gap: var(--spacing-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
+}
+
+/* Client frame: fixed navigation, flexible content; every section shares one inset. */
+.peaks-navigation {
+  width: var(--peaks-sidebar-width);
+  min-width: var(--peaks-sidebar-width);
+  border-inline-end: var(--border-width) solid var(--color-border);
+  background: var(--color-background-body);
+}
+
+.peaks-navigation .astryx-side-nav-heading {
+  min-height: calc(var(--spacing-12) * 2);
+  padding: var(--spacing-6) var(--spacing-5);
+}
+
+.peaks-navigation .astryx-side-nav-heading .astryx-heading {
+  font-size: var(--font-size-2xl);
+  letter-spacing: var(--peaks-tracking-heading);
+}
+
+.peaks-navigation .astryx-side-nav-section {
+  padding-block: var(--spacing-4);
+}
+
+.peaks-navigation .astryx-side-nav-item {
+  min-height: var(--spacing-10);
+  margin-block: var(--spacing-1);
+  padding-inline: var(--spacing-3);
+}
+
+.peaks-navigation .astryx-side-nav-item[data-selected='true'] {
+  box-shadow: inset var(--spacing-0-5) 0 0 var(--color-text-primary);
+}
+
+.peaks-client-status {
+  margin-inline: var(--spacing-3);
+  background: var(--color-background-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+}
+
+.peaks-riot-mark {
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  object-fit: contain;
+}
+
+.peaks-brand-mark {
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  object-fit: contain;
+  mix-blend-mode: screen;
+}
+
+.peaks-screen {
+  background: var(--color-background-surface);
+}
+
+.peaks-screen > .astryx-layout-header {
+  background: var(--color-background-surface);
+}
+
+.peaks-screen__header h1 {
+  font-size: var(--font-size-3xl);
+  letter-spacing: var(--peaks-tracking-heading);
+}
+
+.peaks-screen__header > .astryx-vstack {
+  min-width: 0;
+}
+
+.peaks-eyebrow {
+  font-family: var(--font-family-code);
+  letter-spacing: var(--peaks-tracking-label);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.peaks-home-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: var(--peaks-hero-height);
+  background: var(--color-background-body);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+}
+
+.peaks-home-hero__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  opacity: var(--peaks-artwork-opacity);
+  filter: saturate(0.55);
+  z-index: -2;
+}
+
+.peaks-home-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, var(--color-background-body), color-mix(in srgb, var(--color-background-body) 88%, transparent) 28%, transparent 78%), linear-gradient(0deg, color-mix(in srgb, var(--color-background-body) 80%, transparent), transparent 55%);
+}
+
+.peaks-home-hero__content {
+  position: relative;
+  max-width: 70%;
+}
+
+.peaks-home-hero__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--peaks-hero-title-size);
+  line-height: 1;
+  letter-spacing: var(--peaks-tracking-heading);
+  font-weight: var(--font-weight-bold);
+}
+
+.peaks-home-hero__description {
+  max-width: calc(var(--spacing-12) * 8);
+}
+
+.peaks-home-hero__caption {
+  position: absolute;
+  right: var(--spacing-6);
+  bottom: var(--spacing-6);
+}
+
+.peaks-roster-summary {
+  padding-block-end: var(--spacing-5);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.peaks-roster-summary__privacy {
+  margin-inline-start: auto;
+}
+
+.peaks-roster-toolbar {
+  margin-block-end: var(--spacing-4);
+}
+
+.peaks-roster-tabs {
+  margin-block-end: var(--spacing-2);
+}
+
+.peaks-roster-table {
+  background: transparent;
+}
+
+.peaks-roster-table__identity {
+  width: var(--peaks-account-column);
+}
+
+.peaks-roster-table th {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--peaks-tracking-label);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+  padding-block: var(--spacing-3);
+}
+
+.peaks-roster-table td:first-child,
+.peaks-roster-table th:first-child {
+  padding-inline-start: 0;
+}
+
+.peaks-roster-table td:last-child,
+.peaks-roster-table th:last-child {
+  padding-inline-end: 0;
+}
+
+.peaks-roster-table__row {
+  cursor: pointer;
+}
+
+.peaks-roster-table__row:focus-within {
+  background: var(--color-overlay-hover);
+}
+
+.peaks-roster-rank {
+  white-space: nowrap;
+}
+
+.peaks-roster-rank .peaks-rank-media {
+  width: var(--spacing-9);
+  height: var(--spacing-9);
+  min-width: var(--spacing-9);
+  border-radius: 0;
+}
+
+.peaks-roster-rank .peaks-rank-media img {
+  object-fit: contain;
+}
+
+.peaks-roster-footer {
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.peaks-detail-hero {
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+}
+
+.peaks-stat-strip {
+  background: var(--color-background-card);
+  border-block: var(--border-width) solid var(--color-border);
+}
+
+.peaks-stat-strip > * + * {
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+
+.peaks-metric-value {
+  font-family: var(--font-family-heading);
+  letter-spacing: var(--peaks-tracking-heading);
+}
+
+.peaks-self-player {
+  background: var(--color-overlay-hover);
+}
+
+.peaks-dense-list {
+  box-shadow: none;
+  border-inline: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.peaks-roster-section .astryx-list-item,
+.peaks-match-list .astryx-list-item {
+  padding-block: var(--spacing-4);
+}
+
+.peaks-match-thumbnail {
+  width: calc(var(--spacing-12) * 1.5);
+  height: var(--spacing-10);
+  object-fit: cover;
+  border-radius: var(--radius-inner);
+  margin-inline-end: var(--spacing-2);
+}
+
+.peaks-search-panel {
+  border: 0;
+  box-shadow: none;
+}
+
+.peaks-settings-group {
+  border-inline: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.peaks-settings-heading {
+  padding-inline: 0;
+}
+
+.peaks-settings-key-entry {
+  padding: var(--spacing-4);
+}
+
+.peaks-dialog-actions {
+  border-block: var(--border-width) solid var(--color-border);
+}
+
+.peaks-dialog-actions .astryx-list-item {
+  padding-block: var(--spacing-4);
+}
+
+.peaks-qr-dropzone {
+  background: var(--color-background-body);
+  border-radius: var(--radius-container);
+}
+
+@media (max-width: 70rem) {
+  .peaks-navigation {
+    width: calc(var(--peaks-sidebar-width) - var(--spacing-8));
+    min-width: calc(var(--peaks-sidebar-width) - var(--spacing-8));
+  }
+
+  .peaks-home-hero__content {
+    max-width: 85%;
+  }
+
+  .peaks-roster-summary__privacy,
+  .peaks-roster-footer > :last-child {
+    display: none;
+  }
+
+  .peaks-roster-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .peaks-roster-table__identity {
+    width: auto;
+  }
+}
+
+/* Section's inset-aware wrappers inherit a zero bleed budget within page content. */
+.peaks-screen__content > .astryx-stack,
+.peaks-match-insights {
+  --container-padding-inline-start: var(--spacing-0);
+  --container-padding-inline-end: var(--spacing-0);
+  --container-padding-block-start: var(--spacing-0);
+  --container-padding-block-end: var(--spacing-0);
+}
+
+.peaks-eyebrow,
+.peaks-roster-table th {
+  font-size: var(--font-size-sm);
+}
+
+.peaks-roster-table td,
+.peaks-roster-table th {
+  max-width: none;
+}
+
+.peaks-roster-table td:first-child,
+.peaks-roster-table th:first-child {
+  min-width: var(--peaks-account-column);
+  width: var(--peaks-account-column);
+}
+
+.peaks-roster-table td:last-child,
+.peaks-roster-table th:last-child {
+  width: var(--spacing-10);
+}
+
+.peaks-navigation .astryx-side-nav-section {
+  padding-block: var(--spacing-2);
+}
+
+.peaks-navigation .astryx-side-nav-item {
+  margin-block: 0;
+}
+
+.peaks-client-status {
+  padding: var(--spacing-3);
+}
+
+.peaks-nav-footnote {
+  padding-block-end: var(--spacing-3);
+}
+
+.peaks-share-preview {
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+}

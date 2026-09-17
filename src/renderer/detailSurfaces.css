@@ -1,0 +1,338 @@
+/* Detail pages retain a compact record column and give the active workspace
+   the remaining width. Below the container breakpoint, the record moves above
+   the workspace; match rosters become a single, readable column. */
+.pd-detail {
+  container: detail / inline-size;
+  min-width: 0;
+  --container-padding-inline-start: var(--spacing-0);
+  --container-padding-inline-end: var(--spacing-0);
+  --container-padding-block-start: var(--spacing-0);
+  --container-padding-block-end: var(--spacing-0);
+}
+
+.pd-detail .pd-detail__identity {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  min-height: calc(var(--spacing-12) * 6.5);
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-body);
+}
+
+.pd-detail__identity-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  background: var(--color-background-body);
+}
+
+.pd-detail__eyebrow {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--peaks-tracking-label);
+  text-transform: uppercase;
+}
+
+.pd-detail__identity-name {
+  font-size: var(--font-size-5xl);
+  line-height: var(--text-display-2-leading);
+  letter-spacing: var(--peaks-tracking-heading);
+  overflow-wrap: anywhere;
+}
+
+.pd-detail__avatar.astryx-avatar {
+  width: calc(var(--spacing-10) * 1.5);
+  height: calc(var(--spacing-10) * 1.5);
+  border: var(--border-width) solid var(--color-border-emphasized);
+  border-radius: var(--radius-element);
+  background: var(--color-background-muted);
+}
+
+.pd-detail__art {
+  display: flex;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-background-body);
+}
+
+.pd-detail__art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, var(--color-background-body), color-mix(in srgb, var(--color-background-body) 25%, transparent) 75%), linear-gradient(to right, color-mix(in srgb, var(--color-background-body) 55%, transparent), transparent);
+}
+
+.pd-detail__identity-art::before {
+  background: linear-gradient(to top, var(--color-background-body), color-mix(in srgb, var(--color-background-body) 20%, transparent)), linear-gradient(to right, var(--color-background-body), transparent 45%);
+}
+
+.pd-detail__art > .astryx-section {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-detail__art-content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-detail__display {
+  font-size: var(--peaks-hero-title-size);
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--peaks-tracking-heading);
+  line-height: var(--text-display-1-leading);
+}
+
+.pd-detail .pd-detail__workspace {
+  grid-template-columns: minmax(0, calc(var(--spacing-12) * 5.5)) minmax(0, 1fr);
+  align-items: start;
+}
+
+.pd-detail__sidebar {
+  min-width: 0;
+  padding-block-start: var(--spacing-2);
+}
+
+.pd-detail__main {
+  min-width: 0;
+  padding-inline-start: var(--spacing-8);
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+
+.pd-detail__rank-list.astryx-list {
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: var(--radius-none);
+}
+
+.pd-detail__rank-list .astryx-list-item {
+  padding-inline: 0;
+  padding-block: var(--spacing-5);
+}
+
+.pd-detail__rank-list .peaks-rank-media {
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  min-width: var(--spacing-10);
+}
+
+.pd-detail__quiet-note {
+  overflow: hidden;
+  border-radius: var(--radius-element);
+}
+
+.pd-detail__tabs {
+  min-width: 0;
+}
+
+.pd-detail__tabs .astryx-tab {
+  padding-block: var(--spacing-3);
+}
+
+.pd-detail__panel {
+  min-width: 0;
+  animation: pd-detail-reveal var(--duration-medium) var(--ease-standard) both;
+}
+
+.pd-detail__latest {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-element);
+  overflow: hidden;
+}
+
+.pd-detail__footnote {
+  padding-block-start: var(--spacing-5);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.pd-detail .pd-match__hero {
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  min-height: calc(var(--spacing-12) * 6);
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-body);
+}
+
+.pd-match__score-panel {
+  min-width: 0;
+  background: var(--color-background-body);
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+
+.pd-match__score {
+  font-family: var(--font-family-heading);
+  font-size: calc(var(--font-size-5xl) * 1.6);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--peaks-tracking-heading);
+  line-height: var(--text-display-1-leading);
+  white-space: nowrap;
+}
+
+.pd-match__metadata {
+  padding-block-start: var(--spacing-5);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.pd-match__metric {
+  min-width: 0;
+}
+
+.pd-match__teams {
+  align-items: start;
+}
+
+.pd-match__team {
+  min-width: 0;
+}
+
+.pd-match__team-header {
+  padding-block: var(--spacing-3) var(--spacing-5);
+  border-bottom: var(--border-width) solid var(--color-border-emphasized);
+}
+
+.pd-match__team .astryx-list {
+  border: 0;
+  border-radius: var(--radius-none);
+  box-shadow: none;
+  background: transparent;
+}
+
+.pd-match__team .astryx-list-item {
+  min-width: 0;
+  padding-block: var(--spacing-4);
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.pd-match__team .peaks-self-player {
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  box-shadow: inset var(--spacing-0-5) 0 0 var(--color-text-primary);
+}
+
+.pd-match__agent.astryx-avatar {
+  border-radius: var(--radius-inner);
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+}
+
+.pd-profile__metric {
+  padding-block: var(--spacing-2) var(--spacing-5);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.pd-profile__metric .peaks-rank-media {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  min-width: var(--spacing-12);
+}
+
+.pd-live__standby {
+  min-height: calc(var(--spacing-12) * 8.5);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-container);
+}
+
+.pd-live__standby::before {
+  background: linear-gradient(to right, var(--color-background-body), color-mix(in srgb, var(--color-background-body) 70%, transparent) 40%, transparent), linear-gradient(to top, var(--color-background-body), transparent 75%);
+}
+
+.pd-live__standby-copy {
+  max-width: calc(var(--spacing-12) * 10);
+}
+
+.pd-live__readiness {
+  padding-block: var(--spacing-5);
+}
+
+.pd-live__readiness > * + * {
+  padding-inline-start: var(--spacing-6);
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+
+@container detail (max-width: 58rem) {
+  .pd-detail .pd-detail__workspace {
+    grid-template-columns: minmax(0, calc(var(--spacing-12) * 4.5)) minmax(0, 1fr);
+    gap: var(--spacing-6);
+  }
+
+  .pd-detail__main {
+    padding-inline-start: var(--spacing-6);
+  }
+
+  .pd-detail__identity-copy,
+  .pd-match__score-panel {
+    padding: var(--spacing-6);
+  }
+
+  .pd-detail__identity-name {
+    font-size: var(--font-size-4xl);
+  }
+
+  .pd-detail .pd-match__teams {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-match__score {
+    font-size: calc(var(--font-size-5xl) * 1.2);
+  }
+}
+
+@container detail (max-width: 44rem) {
+  .pd-detail .pd-detail__identity,
+  .pd-detail .pd-detail__workspace,
+  .pd-detail .pd-match__hero,
+  .pd-detail .pd-live__readiness {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-detail__identity-art {
+    min-height: calc(var(--spacing-12) * 3.5);
+  }
+
+  .pd-detail__identity-art::before {
+    background: linear-gradient(to top, var(--color-background-body), color-mix(in srgb, var(--color-background-body) 35%, transparent));
+  }
+
+  .pd-detail__main {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+
+  .pd-match__map {
+    min-height: calc(var(--spacing-12) * 5);
+  }
+
+  .pd-match__score-panel {
+    border-inline-start: 0;
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .pd-live__readiness > * + * {
+    padding-inline-start: 0;
+    padding-block-start: var(--spacing-6);
+    border-inline-start: 0;
+    border-top: var(--border-width) solid var(--color-border);
+  }
+}
+
+@keyframes pd-detail-reveal {
+  from { opacity: 0; transform: translateY(var(--spacing-2)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-detail__panel,
+  .pd-match__team .astryx-list-item {
+    animation: none;
+    transition: none;
+  }
+}
