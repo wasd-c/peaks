@@ -341,7 +341,9 @@ For each Windows release:
 2. Run `npm run package:win` on Windows. The build generates the installer,
    its `.blockmap`, and `release/electron/latest.yml` for the GitHub provider.
 3. Publish a non-draft, non-prerelease GitHub release tagged `v<version>` with
-   all three artifacts. Upload the installer using the **exact asset name in
+   the installer, blockmap, `latest.yml`, `SHA256SUMS.txt`, and
+   `installed-files-sha256.json`. The release workflow creates both checksum
+   manifests from that build. Upload the installer using the **exact asset name in
    `latest.yml` under `files[].url`**, and upload its blockmap using that same
    name plus `.blockmap`. For 0.3.0 this is `Peaks-Setup-0.3.0.exe` and
    `Peaks-Setup-0.3.0.exe.blockmap`; the local installer may instead be named
@@ -350,7 +352,9 @@ For each Windows release:
 4. Verify the public feed from an earlier installed version and exercise the
    complete download/install/restart flow. A synthetic preview or a passing
    unit test does not verify installation. Confirm the new executable version,
-   installed artifact hashes, preserved vault, and restarted process.
+   installed artifact hashes, preserved vault, and restarted process. For a CI
+   build, compare the installed files to that release's
+   `installed-files-sha256.json`, rather than an independently built local copy.
 
 The updater uses `electron-updater` with the Windows NSIS target. Release
 metadata and the downloaded installer are verified before installation;

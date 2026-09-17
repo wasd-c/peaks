@@ -75,13 +75,22 @@ uv run python scripts/verify_update_artifacts.py release/electron
 ```
 
 It checks the package version, installer size, SHA-512 hashes and blockmap, then
-writes `SHA256SUMS.txt`. Keep only the installer for the current version in that
-output directory. Upload the `.exe`, its `.exe.blockmap`, `latest.yml`, and
-`SHA256SUMS.txt` together without renaming them. Peaks reads public releases from
+writes `installed-files-sha256.json` from the three installed application files
+and creates `SHA256SUMS.txt`. Keep only the installer for the current version in
+that output directory. Upload the `.exe`, its `.exe.blockmap`, `latest.yml`,
+`installed-files-sha256.json`, and `SHA256SUMS.txt` together without renaming them.
+Peaks reads public releases from
 `wasd-c/peaks`; the application contains no GitHub credential.
 
 The CI package steps use `--publish never` and a read-only repository token.
-Publishing a release is a separate maintainer action. Signing is optional until
+Publishing a release is a separate maintainer action: create `v<version>` at the
+exact source commit, then manually dispatch **Peaks CI** with **publish** enabled.
+Only that explicitly requested publication job receives write permission. It
+waits for both platform checks, retries each upload up to three times, and keeps
+the release as a draft until all five assets have matching sizes and SHA-256
+hashes. It refuses to replace an already published release or a mismatched tag.
+Ordinary pushes, tags, pull requests, and manual runs with publish disabled never
+publish. Signing is optional until
 a certificate is configured through Electron Builder's `WIN_CSC_LINK` and
 `WIN_CSC_KEY_PASSWORD` secrets (Windows), or `CSC_LINK` and `CSC_KEY_PASSWORD`
 (macOS). Never commit certificate files or passwords. Unsigned builds remain

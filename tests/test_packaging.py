@@ -114,6 +114,10 @@ def test_ci_builds_verified_electron_updates_without_publishing() -> None:
         "latest.yml" in paths and "*.exe.blockmap" in paths and "*.exe" in paths
         for paths in uploads
     )
+    publication = workflow["jobs"]["publish-release"]
+    assert publication["if"] == "github.event_name == 'workflow_dispatch' && inputs.publish == true"
+    assert publication["needs"] == "verify-and-package"
+    assert publication["permissions"] == {"contents": "write", "actions": "read"}
 
 
 def test_electron_builder_embeds_only_the_frozen_runtime_browser_and_brand_icon() -> None:

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import ctypes
+
+import pytest
 import zxingcpp
 from PySide6.QtGui import QImage
 
@@ -46,3 +49,9 @@ def test_window_scan_targets_only_riot_client_and_is_windows_only() -> None:
     assert not _is_riot_client_window_title("League of Legends")
     assert not _is_riot_client_window_title("Riot Client help - Browser")
     assert _riot_client_window_ids(platform_name="Darwin") == ()
+
+
+def test_window_scan_without_windows_libraries_is_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delattr(ctypes, "windll", raising=False)
+
+    assert _riot_client_window_ids(platform_name="Windows") == ()

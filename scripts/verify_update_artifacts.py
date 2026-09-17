@@ -13,6 +13,7 @@ from urllib.parse import unquote
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+INSTALLED_FILES = ("Peaks.exe", "resources/app.asar", "resources/backend/PeaksBridge.exe")
 
 
 def _digest(path: Path, algorithm: str) -> bytes:
@@ -63,9 +64,19 @@ def main() -> None:
     args = parser.parse_args()
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
     files = verify(args.directory, package["version"])
+    installed = args.directory / "win-unpacked"
+    manifest = {
+        "version": package["version"],
+        "files": {name: _digest(installed / name, "sha256").hex() for name in INSTALLED_FILES},
+    }
+    manifest_path = args.directory / "installed-files-sha256.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    files.append(manifest_path)
     checksums = "".join(f"{_digest(path, 'sha256').hex()}  {path.name}\n" for path in files)
     (args.directory / "SHA256SUMS.txt").write_text(checksums, encoding="utf-8")
-    print(f"Verified Windows update {package['version']}: installer, blockmap, latest.yml")
+    print(
+        f"Verified Windows update {package['version']}: installer, blockmap, metadata, installed-file hashes"
+    )
 
 
 if __name__ == "__main__":

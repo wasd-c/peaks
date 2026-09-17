@@ -55,7 +55,10 @@ def _riot_client_window_ids(*, platform_name: str | None = None) -> tuple[int, .
     try:
         from ctypes import wintypes
 
-        user32 = ctypes.windll.user32
+        windows_libraries = getattr(ctypes, "windll", None)
+        if windows_libraries is None:
+            return ()
+        user32 = windows_libraries.user32
         callback_type = getattr(ctypes, "WINFUNCTYPE", ctypes.CFUNCTYPE)(
             wintypes.BOOL, wintypes.HWND, wintypes.LPARAM
         )
