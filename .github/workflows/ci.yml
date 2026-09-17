@@ -84,8 +84,8 @@ jobs:
       - name: Build and smoke-test frozen backend and browser
         run: npm run build:runtime
 
-      # Signing is optional until a release certificate is configured. Never
-      # publish from CI or pass a repository token into Electron Builder.
+      # Signing is optional until a release certificate is configured. Only the
+      # explicit publish job can publish; Electron Builder receives no token.
       - name: Package Windows NSIS update
         if: matrix.platform == 'windows'
         env:
@@ -98,7 +98,13 @@ jobs:
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: node node_modules/electron-builder/out/cli/cli.js --mac dmg zip --arm64 --publish never
+        run: |
+          # An absent secret becomes an empty environment variable in Actions.
+          # Electron Builder interprets a defined blank CSC_LINK as a file path.
+          if [[ -z "${CSC_LINK:-}" ]]; then
+            unset CSC_LINK CSC_KEY_PASSWORD
+          fi
+          node node_modules/electron-builder/out/cli/cli.js --mac dmg zip --arm64 --publish never
 
       - name: Smoke-test packaged Electron application
         run: uv run python scripts/smoke_electron.py
