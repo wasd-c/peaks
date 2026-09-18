@@ -1,4 +1,4 @@
-import type {Game, MatchPlayer, Player} from './types'
+import type {Account, Game, Match, MatchPlayer, Player, Rank} from './types'
 
 export const samePlayerIdentity = (left: Player, right: Player) => {
   const leftRiotId = left.riotId.trim()
@@ -15,6 +15,44 @@ export const playerIsWatched = (player: Player, followed: Player[]) => (
 
 /** Compatibility alias for existing state consumers. */
 export const playerIsFollowed = playerIsWatched
+
+const availableRank = (rank?: string) => Boolean(rank?.trim() && !/unavailable|unknown/i.test(rank))
+
+/** Merge only evidence for this Riot identity; a match's game remains context,
+ * never a filter on the identity's other games. Never borrow a teammate's data. */
+export function mergeRiotProfile(selected: Player, accounts: Account[], followed: Player[], fetched: Player[] = []): Player {
+  const identityMatches = (candidate: Player) => samePlayerIdentity(selected, candidate)
+  const accountProfiles: Player[] = accounts.filter(account => identityMatches(account)).map(account => ({
+    id: account.id, riotId: account.riotId, region: account.region, ranks: account.ranks,
+    peakRanks: account.peakRanks, matches: account.matches, lastUpdated: account.lastUpdated,
+  }))
+  const sources = [...followed.filter(identityMatches), ...accountProfiles, selected, ...fetched.filter(identityMatches)]
+  const ranks = new Map<Game, Rank>()
+  const peaks = new Map<Game, Rank>()
+  const games = new Set<Game>()
+  for (const source of sources) {
+    for (const game of source.games ?? []) games.add(game)
+    if (source.game) games.add(source.game)
+    for (const match of source.matches ?? []) games.add(match.game)
+    for (const rank of source.ranks ?? []) if (availableRank(rank.tier)) { ranks.set(rank.game, rank); games.add(rank.game) }
+    for (const peak of source.peakRanks ?? []) if (availableRank(peak.tier)) { peaks.set(peak.game, peak); games.add(peak.game) }
+    if (source.game && availableRank(source.currentRank) && !ranks.has(source.game)) ranks.set(source.game, {game: source.game, tier: source.currentRank!})
+    if (source.game && availableRank(source.peakRank) && !peaks.has(source.game)) peaks.set(source.game, {game: source.game, tier: source.peakRank!})
+  }
+  const matches = new Map<string, Match>()
+  for (const source of [...sources].reverse()) for (const match of source.matches ?? []) {
+    const key = JSON.stringify([match.game, match.id ?? [match.playedAt, match.map, match.mode, match.score, match.agent]])
+    if (!matches.has(key)) matches.set(key, match)
+  }
+  const recent = [...sources].reverse()
+  return {
+    ...selected,
+    region: recent.find(source => source.region && source.region !== 'GLOBAL')?.region ?? selected.region,
+    lastUpdated: recent.find(source => source.lastUpdated)?.lastUpdated,
+    lastGame: recent.find(source => source.lastGame)?.lastGame,
+    games: [...games], ranks: [...ranks.values()], peakRanks: [...peaks.values()], matches: [...matches.values()],
+  }
+}
 
 interface MatchPlayerProfileContext {
   game: Game

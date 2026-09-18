@@ -38,7 +38,7 @@ import {
   readOnboardingCompletion,
   shouldShowOnboarding,
 } from './onboarding'
-import {playerIsWatched} from './playerProfiles'
+import {mergeRiotProfile, playerIsWatched} from './playerProfiles'
 import {
   clearMatchReportLoading,
   matchReportNeedsRefresh,
@@ -410,6 +410,24 @@ function Workspace({
   const showToast = useToast()
   const {redact} = usePlayerPrivacy()
   const [stoppedReport, setStoppedReport] = useState<string | null>(null)
+  const [profileLookup, setProfileLookup] = useState<{riotId: string; players: Player[]; loading: boolean} | null>(null)
+  const profileRiotId = selectedPlayer?.riotId
+  useEffect(() => {
+    if (!profileRiotId) return
+    let cancelled = false
+    setProfileLookup({riotId: profileRiotId, players: [], loading: true})
+    // The existing keyless lookup uses connected Riot clients when available.
+    // Bind the response to this identity so a late response cannot replace
+    // another player's profile, or return after the workspace locks.
+    void invoke<Player[]>('search', {query: profileRiotId}).then(players => {
+      if (!cancelled) setProfileLookup({riotId: profileRiotId, players, loading: false})
+    }).catch(() => {
+      if (!cancelled) setProfileLookup({riotId: profileRiotId, players: [], loading: false})
+    })
+    return () => { cancelled = true }
+  }, [profileRiotId])
+  const lookup = profileLookup?.riotId === profileRiotId ? profileLookup : null
+  const riotProfile = selectedPlayer ? mergeRiotProfile(selectedPlayer, state.accounts, state.followed, lookup?.players) : null
 
   const action = useCallback(async (
     command: string,
@@ -487,16 +505,18 @@ function Workspace({
     ? clearMatchReportLoading(report.match)
     : report?.match
 
-  const screen = selectedPlayer ? (
+  const screen = riotProfile ? (
     <PlayerProfileScreen
-      watched={playerIsWatched(selectedPlayer, state.followed)}
+      key={riotProfile.riotId}
+      watched={playerIsWatched(riotProfile, state.followed)}
+      isLoading={Boolean(profileRiotId) && (lookup?.loading ?? true)}
       onBack={() => onSelectPlayer(null)}
       onSelectMatch={match => {
         onSelectPlayer(null)
-        onSelectMatch({match, region: selectedPlayer.region, source: 'player-profile'})
+        onSelectMatch({match, region: riotProfile.region, source: 'player-profile'})
       }}
-      onToggleWatchlist={() => action('toggle_watchlist', {player: selectedPlayer})}
-      player={selectedPlayer}
+      onToggleWatchlist={() => action('toggle_watchlist', {player: riotProfile})}
+      player={riotProfile}
     />
   ) : selectedMatch ? (
     <MatchDetailScreen

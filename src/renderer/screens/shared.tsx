@@ -120,6 +120,7 @@ interface AuthenticatedScreenProps {
   children: ReactNode
   screen: string
   contentWidth?: number | string
+  fitContent?: boolean
 }
 
 export function AuthenticatedScreen({
@@ -130,24 +131,25 @@ export function AuthenticatedScreen({
   children,
   screen,
   contentWidth = 'var(--peaks-content-width)',
+  fitContent = false,
 }: AuthenticatedScreenProps) {
   useLocale()
   return (
     <Layout
-      className={`peaks-screen peaks-screen--enter peaks-screen--${screen}`}
-      contentWidth={contentWidth}
-      padding={8}
+      className={`peaks-screen peaks-screen--enter peaks-screen--${screen}${fitContent ? ' peaks-screen--fit-roster' : ''}`}
+      contentWidth={fitContent ? '100%' : contentWidth}
+      padding={fitContent ? 4 : 8}
       header={
         <LayoutHeader padding={0}>
           <HStack
             align="center"
             className="peaks-screen__header"
             gap={4}
-            paddingInline={8}
-            paddingBlock={6}
+            paddingInline={fitContent ? 4 : 8}
+            paddingBlock={fitContent ? 2 : 6}
             justify="between">
             <VStack gap={1}>
-              {eyebrow ? <Text className="peaks-eyebrow" type="supporting">{eyebrow}</Text> : null}
+              {eyebrow && !fitContent ? <Text className="peaks-eyebrow" type="supporting">{eyebrow}</Text> : null}
               <Heading level={1} textWrap="balance">{title}</Heading>
               {description ? <Text color="secondary">{description}</Text> : null}
             </VStack>
@@ -160,7 +162,7 @@ export function AuthenticatedScreen({
         </LayoutHeader>
       }
       content={
-        <LayoutContent className="peaks-screen__content">
+        <LayoutContent className="peaks-screen__content" isScrollable={!fitContent}>
           {children}
         </LayoutContent>
       }
@@ -262,7 +264,7 @@ export function PlayerListItem({
     <ListItem
       description={
         <VStack gap={2}>
-          <Text type="supporting">{`${player.region} · ${displayText(player.game ?? 'Riot profile')}${player.lastUpdated ? ` · ${displayText(player.lastUpdated)}` : ''}`}</Text>
+          <Text type="supporting">{`${player.region} · ${t('Riot profile')}${player.lastUpdated ? ` · ${displayText(player.lastUpdated)}` : ''}`}</Text>
           {ranks.length > 0 ? <HStack align="start" gap={4} wrap="wrap">
             {ranks.map(rank => <HStack align="center" gap={2} key={rank.game}>
               <RankMedia rank={rank} />

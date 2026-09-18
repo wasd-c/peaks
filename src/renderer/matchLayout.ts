@@ -98,6 +98,13 @@ export function resolveMatchLayout(input: MatchLayoutInput): MatchLayout {
   }
 }
 
+/** Only bounded team rosters can occupy two fixed rows without losing players. */
+export function fitsValorantRoster(input: MatchLayoutInput): boolean {
+  const layout = resolveMatchLayout(input)
+  return input.game === 'VALORANT' && layout.kind === 'teams' && layout.groups.length === 2
+    && layout.groups.every(team => team.players.length > 0 && team.players.length <= 5)
+}
+
 /** Structural width belongs to Astryx Grid; CSS does not override its tracks. */
 export function matchGridColumns(playerCount: number, game?: Game): {minWidth: number; max: number; repeat: 'fit'} {
   const count = Number.isFinite(playerCount) ? Math.max(1, Math.floor(playerCount)) : 1

@@ -12,7 +12,6 @@ import {Text} from '@astryxdesign/core/Text'
 import {TextInput} from '@astryxdesign/core/TextInput'
 import {VStack} from '@astryxdesign/core/VStack'
 import {ArrowUpRight, ChevronRight, Clock3, Search as SearchIcon} from 'lucide-react'
-import {gameArtwork} from '../assets'
 import {playerIsWatched} from '../playerProfiles'
 import type {AppState, Player} from '../types'
 import {
@@ -76,8 +75,7 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
       screen="search"
       title={t("Player search")}>
       <VStack className="pd-search" gap={8}>
-        <Section className="pd-search-hero" padding={0} variant="transparent">
-          <img className="pd-search-art" src={gameArtwork('VALORANT')} alt="" />
+        <Section className="pd-search-hero pd-riot-surface" padding={0} variant="transparent">
           <VStack className="pd-search-form" gap={6}>
             <VStack gap={3}>
               <Heading level={2} type="display-3">{t("Find a player")}</Heading>

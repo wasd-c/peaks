@@ -74,3 +74,27 @@ describe('rank labels', () => {
     expect(rankLabel({game: 'Teamfight Tactics', tier: 'diamond', division: 'iv'})).toBe('Diamond IV')
   })
 })
+
+describe('neutral Riot profile', () => {
+  it.each(['VALORANT', 'League of Legends', 'Teamfight Tactics'] as const)('opens activity for a %s entry without adopting its game artwork', game => {
+    const html = renderToStaticMarkup(<LayerProvider><PlayerProfileScreen player={{...identity, game, currentRank: 'Gold III', context: {label: 'Live', character: 'Omen', map: 'Ascent'}}} onBack={noop} onSelectMatch={noop} /></LayerProvider>)
+    expect(html).toContain('Riot profile')
+    expect(html).toContain('id="profile-activity-panel"')
+    expect(html).not.toContain('id="profile-performance-panel"')
+    expect(html).not.toContain('/ PLAYER PROFILE')
+    expect(html).not.toContain('background-image')
+    expect(html).not.toContain('pd-detail__identity-art')
+    expect(html).not.toContain('Omen')
+  })
+
+  it('retains cross-game history and shows unknown ranks as unavailable, not unranked', () => {
+    const html = renderToStaticMarkup(<LayerProvider><PlayerProfileScreen player={{...identity, games: ['VALORANT', 'Teamfight Tactics'], matches: [
+      {id: 'v', game: 'VALORANT', map: 'Abyss', result: 'Win'},
+      {id: 'l', game: 'League of Legends', map: 'Howling Abyss', result: 'Loss'},
+      {id: 't', game: 'Teamfight Tactics', map: 'Current set', result: 'Top 4'},
+    ]}} onBack={noop} onSelectMatch={noop} /></LayerProvider>)
+    for (const map of ['Abyss', 'Howling Abyss', 'Current set']) expect(html).toContain(map)
+    expect(html).toContain('Rank unavailable')
+    expect(html).not.toContain('Unranked')
+  })
+})

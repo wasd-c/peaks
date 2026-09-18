@@ -10,7 +10,7 @@ const player = (index: number): MatchPlayer => ({
   accountLevel: 200, currentRank: 'Ascendant 2', peakRank: 'Immortal 1', peakRankSeason: 'V26:A1',
   overallStats: {matchesPlayed: 5, kills: 90, deaths: 60, assists: 40, roundsPlayed: 100, combatScore: 24000},
 })
-const render = (teams: MatchTeam[], completed = false, options: {game?: Game; phase?: SessionPhase; mode?: string; queueId?: string; teamMode?: 'duos'; freeForAll?: boolean; allowReorder?: boolean} = {}) => renderToStaticMarkup(
+const render = (teams: MatchTeam[], completed = false, options: {game?: Game; phase?: SessionPhase; mode?: string; queueId?: string; teamMode?: 'duos'; freeForAll?: boolean; allowReorder?: boolean; fitToHeight?: boolean} = {}) => renderToStaticMarkup(
   <LayerProvider><PlayerMatchCards teams={teams} game="VALORANT" label={completed ? 'Completed match' : 'Live match'} completed={completed} allowReorder={!completed} onSelectPlayer={() => undefined} {...options} /></LayerProvider>,
 )
 
@@ -29,6 +29,26 @@ const statisticCells = (html: string, label: string) => {
 }
 
 describe('player match cards', () => {
+  it.each([false, true])('preserves all ten identities and essential stats in a fitted roster, completed=%s', completed => {
+    const teams = Array.from({length: 2}, (_, team) => ({name: `Team ${team}`, players: Array.from({length: 5}, (_, index) => ({...player(team * 5 + index), stats: {kills: 12, deaths: 9, assists: 4, combatScore: 4000, roundsPlayed: 20}}))}))
+    const html = render(teams, completed, {fitToHeight: true})
+    expect(cardNames(html)).toHaveLength(10)
+    expect(html).toContain('pmc-lineup--fit')
+    expect(statisticCells(html, 'K/D/A')).toEqual(['12 / 9 / 4'])
+    expect(statisticCells(html, 'K/D')).toEqual(['1.5', '1.33'])
+    expect(statisticCells(html, 'ACS')).toEqual(['240', '200'])
+    expect(statisticCells(html, 'Kills')).toBeUndefined()
+    expect(html.includes('draggable="true"')).toBe(!completed)
+  })
+
+  it('keeps historical averages and an animated loading state distinct from live KDA in a fitted roster', () => {
+    const historical = render([{name: 'Blue', players: [player(0)]}, {name: 'Red', players: [player(1)]}], false, {fitToHeight: true, phase: 'pregame'})
+    expect(statisticCells(historical, 'Overall K/D/A')).toEqual(['18 / 12 / 8'])
+    const loading = render([{name: 'Blue', players: [{name: 'Loading#EU', statsLoading: true}]}, {name: 'Red', players: [{name: 'Hidden', hidden: true}]}], false, {fitToHeight: true})
+    expect(statisticCells(loading, 'Overall K/D/A')).toEqual(['Loading'])
+    expect(loading).not.toContain('0 / 0 / 0')
+    expect(loading).toContain('pmc-stat-skeleton')
+  })
   it.each([0, 76, 130])('renders actual TFT health %i without treating it as historical data', health => {
     const html = render([{name: 'Players', players: [{name: 'Self#TEST', self: true, stats: {health}}]}], false, {game: 'Teamfight Tactics', phase: 'live'})
     expect(statisticCells(html, 'HP')).toEqual(['—', String(health)])

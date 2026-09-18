@@ -18,7 +18,7 @@ import {Text} from '@astryxdesign/core/Text'
 import {Token} from '@astryxdesign/core/Token'
 import {VStack} from '@astryxdesign/core/VStack'
 import {ArrowLeft, ArrowUpRight, BarChart3, Copy, History, KeyRound, LayoutGrid, QrCode, Radio, RefreshCw, ShieldCheck, Swords, Trash2, Trophy} from 'lucide-react'
-import {gameArtwork, valorantAgentAsset, valorantMapName} from '../assets'
+import {valorantMapName} from '../assets'
 import {CompetitiveInsights} from '../components/CompetitiveInsights'
 import {PasteQrDialog} from '../components/PasteQrDialog'
 import type {QrImageRequest} from '../qrImage'
@@ -56,9 +56,6 @@ export function AccountDetailScreen({
   const [isPasteQrOpen, setPasteQrOpen] = useState(false)
   const connectionLabel = account.connected ? t('Connected') : t('Offline')
   const latestMatch = account.matches?.[0]
-  const latestAgent = latestMatch?.game === 'VALORANT'
-    ? latestMatch.teams?.flatMap(team => team.players).find(player => player.self)?.agent
-    : undefined
 
   const deleteAccount = async () => {
     setDeleting(true)
@@ -148,7 +145,7 @@ export function AccountDetailScreen({
                 <Text className="pd-detail__eyebrow" type="supporting">{t("PERSONAL ACCOUNT")}</Text>
               </HStack>
               <VStack gap={4}>
-                <Avatar className="pd-detail__avatar" name={displayName(account.riotId)} size="lg" src={valorantAgentAsset(latestAgent)} tooltip={false} />
+                <Avatar className="pd-detail__avatar" name={displayName(account.riotId)} size="lg" tooltip={false} />
                 <Heading className="pd-detail__identity-name" level={2} type="display-2">{displayName(account.riotId)}</Heading>
                 <HStack align="center" gap={3} wrap="wrap">
                   <Token color="gray" label={account.region} size="sm" />
@@ -157,7 +154,7 @@ export function AccountDetailScreen({
                 </HStack>
               </VStack>
           </VStack>
-          <Section className="pd-detail__identity-art pd-detail__art" padding={8} variant="transparent" style={{backgroundImage: `url("${gameArtwork(latestMatch?.game ?? 'VALORANT', latestMatch?.map)}")`}}>
+          <Section className="pd-detail__identity-art pd-detail__art pd-riot-surface" padding={8} variant="transparent">
             <VStack className="pd-detail__art-content" gap={8} justify="between">
               <HStack align="center" justify="end" gap={2}>
                 <StatusDot label={connectionLabel} variant={account.connected ? 'neutral' : 'warning'} />

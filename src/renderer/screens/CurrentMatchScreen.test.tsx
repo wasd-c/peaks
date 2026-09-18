@@ -22,6 +22,11 @@ const stages: [Game, SessionPhase, string][] = [
 ]
 
 describe('Current match session stages', () => {
+  it.each([true, false])('never uses a game artwork banner, detected=%s', detected => {
+    const html = render({game: 'VALORANT', map: 'Ascent', teams: []}, detected)
+    expect(html).not.toContain('background-image')
+    expect(html).toContain('pd-riot-surface')
+  })
   it.each(stages)('labels %s %s accurately', (game, phase, label) => {
     const html = render({game, phase, teams: []})
     expect(html).toContain(label.toUpperCase())

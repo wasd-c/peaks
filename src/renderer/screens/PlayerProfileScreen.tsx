@@ -10,19 +10,21 @@ import {HStack} from '@astryxdesign/core/HStack'
 import {Icon} from '@astryxdesign/core/Icon'
 import {List, ListItem} from '@astryxdesign/core/List'
 import {Section} from '@astryxdesign/core/Section'
+import {Skeleton} from '@astryxdesign/core/Skeleton'
 import {Tab, TabList} from '@astryxdesign/core/TabList'
 import {Text} from '@astryxdesign/core/Text'
-import {Thumbnail} from '@astryxdesign/core/Thumbnail'
 import {Token} from '@astryxdesign/core/Token'
 import {VStack} from '@astryxdesign/core/VStack'
 import {ArrowLeft, BarChart3, Gamepad2, History, Star, Trophy} from 'lucide-react'
-import {gameArtwork, hasExactValorantRankAsset, rankAsset, valorantAgentAsset, valorantMapName} from '../assets'
+import {valorantMapName} from '../assets'
 import {CompetitiveInsights} from '../components/CompetitiveInsights'
+import {mergeRiotProfile} from '../playerProfiles'
 import type {Match, Player, PlayerStats} from '../types'
-import {AuthenticatedScreen, MatchList, RankMedia, rankLabel, rankRatingLabel} from './shared'
+import {AuthenticatedScreen, GAMES, MatchList, RankMedia, rankLabel, rankRatingLabel} from './shared'
 
 export interface PlayerProfileScreenProps {
   player: Player
+  isLoading?: boolean
   watched?: boolean
   /** Compatibility prop for callers that have not migrated to watched yet. */
   followed?: boolean
@@ -48,23 +50,21 @@ const STAT_LABELS: Array<[keyof PlayerStats, string]> = [
   ['playersEliminated', 'Players eliminated'],
 ]
 
-function ProfileMetric({label, value, emblem}: {label: string; value: string; emblem?: string}) {
+function ProfileMetric({label, value}: {label: string; value: string}) {
   useLocale()
   return (
     <Section className="pd-profile__metric" padding={0} variant="transparent">
-      <HStack align="center" gap={3}>
-        {emblem ? <Thumbnail alt={t("{{value}} rank emblem", {value: value})} className="peaks-media peaks-rank-media" label={value} src={emblem} /> : null}
-        <VStack gap={2}>
-          <Text type="supporting">{label}</Text>
-          <Text type="large" weight="semibold">{displayText(value)}</Text>
-        </VStack>
-      </HStack>
+      <VStack gap={2}>
+        <Text type="supporting">{label}</Text>
+        <Text type="large" weight="semibold">{displayText(value)}</Text>
+      </VStack>
     </Section>
   )
 }
 
 export function PlayerProfileScreen({
   player,
+  isLoading = false,
   watched,
   followed,
   onBack,
@@ -74,10 +74,11 @@ export function PlayerProfileScreen({
 }: PlayerProfileScreenProps) {
   useLocale()
   const {displayName} = usePlayerPrivacy()
-  const [tab, setTab] = useState(player.context ? 'performance' : 'activity')
+  const [tab, setTab] = useState('activity')
   const isWatched = watched ?? followed ?? false
   const toggleWatchlist = onToggleWatchlist ?? onToggleFollow
-  const ranks = player.ranks?.filter(rank => rank.tier.trim()) ?? []
+  const profile = mergeRiotProfile(player, [], [])
+  const games = GAMES.filter(game => profile.games?.includes(game))
   const stats = player.context?.stats ?? {}
   const statRows = STAT_LABELS.flatMap(([key, label]) => {
     const value = stats[key]
@@ -94,69 +95,52 @@ export function PlayerProfileScreen({
           variant={isWatched ? 'secondary' : 'primary'}
         />
       }
-      description={`${player.region} · ${displayText(player.game ?? 'Riot profile')}${player.lastUpdated ? ` · ${displayText(player.lastUpdated)}` : ''}`}
+      description={`${player.region}${player.lastUpdated ? ` · ${displayText(player.lastUpdated)}` : ''}`}
       screen="player-profile"
-      title={t("Player profile")}>
+      title={t("Riot profile")}>
       <VStack className="pd-detail pd-profile" gap={6}>
         <HStack align="center" justify="between" gap={3}>
           <Button icon={<Icon icon={ArrowLeft} />} label={t("Back")} onClick={onBack} size="sm" variant="ghost" />
           <Text className="pd-detail__eyebrow" type="supporting">{player.region}</Text>
         </HStack>
 
-        <Grid className="pd-detail__identity" columns={2} gap={0}>
-          <VStack className="pd-detail__identity-copy" gap={8} justify="between" padding={8}>
-            <HStack align="center" gap={3} justify="between" wrap="wrap">
-              <Text className="pd-detail__eyebrow" type="supporting">{player.game ?? t("RIOT GAMES")} {t("/ PLAYER PROFILE")}</Text>
-              {isWatched ? <Token color="gray" label={t("On your watchlist")} size="sm" /> : null}
-            </HStack>
-            <VStack gap={4}>
+        <Section className="pd-profile__identity pd-riot-surface" padding={6} variant="transparent">
+          <HStack align="center" gap={6} justify="between" wrap="wrap">
+            <HStack align="center" gap={6}>
               <Avatar
                 className="pd-detail__avatar"
                 name={displayName(player.riotId)}
                 size="lg"
-                src={player.game === 'VALORANT' ? valorantAgentAsset(player.context?.character) : undefined}
                 tooltip={false}
               />
+              <VStack gap={3}>
+                <Text className="pd-detail__eyebrow" type="supporting">RIOT ID</Text>
                 <Heading className="pd-detail__identity-name" level={2} type="display-2">{displayName(player.riotId)}</Heading>
-                <HStack align="center" gap={3} wrap="wrap">
-                  <Token color="gray" label={player.region} size="sm" />
-                  {player.level != null ? <Text color="secondary">{t("Level")} {player.level}</Text> : null}
-                  {player.context?.character ? <Text color="secondary">{player.context.character}</Text> : null}
-                </HStack>
-            </VStack>
-          </VStack>
-          <Section className="pd-detail__identity-art pd-detail__art" padding={8} variant="transparent" style={player.game ? {backgroundImage: `url("${gameArtwork(player.game, player.context?.map ?? player.matches?.[0]?.map)}")`} : undefined}>
-            <VStack className="pd-detail__art-content" justify="end" align="end" gap={2}>
-              <Text className="pd-detail__eyebrow" type="supporting">{player.context?.map ? t("LAST ENCOUNTER") : t("COMPETITIVE PROFILE")}</Text>
-              <Heading level={3} type="display-3">{player.context?.map ? (player.game === 'VALORANT' ? valorantMapName(player.context.map) : player.context.map) : player.game ?? t("Riot Games")}</Heading>
-              {player.context?.label || player.lastGame ? <Text type="supporting">{displayText(player.context?.label ?? player.lastGame)}</Text> : null}
-            </VStack>
-          </Section>
-        </Grid>
+                <Text color="secondary">{player.region}</Text>
+              </VStack>
+            </HStack>
+            {isWatched ? <Token color="gray" label={t("On your watchlist")} size="sm" /> : null}
+          </HStack>
+        </Section>
 
         <Grid className="pd-detail__workspace" columns={2} gap={8}>
           <VStack className="pd-detail__sidebar" gap={5}>
             <HStack align="center" gap={2}><Icon icon={Trophy} color="secondary" /><Heading level={2}>{t("Competitive record")}</Heading></HStack>
-            {ranks.length > 0 ? <List aria-label={t("Current ranks")} density="balanced" hasDividers>
-              {ranks.map(rank => <ListItem
-                description={displayText(rankLabel(rank))}
-                endContent={rank.rating != null ? <Text hasTabularNumbers weight="semibold">{rankRatingLabel(rank.game, rank.rating)}</Text> : undefined}
-                key={rank.game}
-                label={rank.game}
-                startContent={<RankMedia rank={rank} />}
-              />)}
-            </List> : <>
-              <ProfileMetric
-                emblem={player.game === 'VALORANT' && player.currentRank && hasExactValorantRankAsset(player.currentRank) ? rankAsset('VALORANT', player.currentRank) : undefined}
-                label={t("CURRENT RANK")}
-                value={player.currentRank?.trim() || 'Rank unavailable'}
-              />
-              <ProfileMetric
-                emblem={player.game === 'VALORANT' && player.peakRank && hasExactValorantRankAsset(player.peakRank) ? rankAsset('VALORANT', player.peakRank) : undefined}
-                label={t("CAREER PEAK")}
-                value={player.peakRank?.trim() || 'Rank unavailable'}
-              />
-            </>}
+            {games.length > 0 ? <List aria-label={t("Current ranks")} aria-busy={isLoading} density="balanced" hasDividers>
+              {games.map(game => {
+                const rank = profile.ranks?.find(item => item.game === game)
+                const peak = profile.peakRanks?.find(item => item.game === game)
+                return <ListItem key={game} label={game}
+                  description={<VStack gap={1}>
+                    {rank ? <Text type="supporting">{displayText(rankLabel(rank))}{rank.rating != null ? ` · ${rankRatingLabel(game, rank.rating)}` : ''}</Text>
+                      : isLoading ? <Skeleton width="var(--spacing-24)" height="var(--spacing-3)" /> : <Text type="supporting">{t('Rank unavailable')}</Text>}
+                    {peak ? <Text type="supporting">{t('Peak')} · {displayText(rankLabel(peak))}</Text> : null}
+                    {player.game === game && player.level != null ? <Text type="supporting">{t('Level {{level}}', {level: player.level})}</Text> : null}
+                  </VStack>}
+                  startContent={rank ? <RankMedia rank={rank} /> : <Icon icon={Trophy} color="secondary" />}
+                />
+              })}
+            </List> : isLoading ? <Skeleton width="100%" height="var(--spacing-12)" /> : <Text color="secondary">{t('Rank unavailable')}</Text>}
             <ProfileMetric label={t("LAST SEEN")} value={player.lastGame ?? player.context?.label ?? 'Unknown'} />
           </VStack>
 
@@ -166,7 +150,9 @@ export function PlayerProfileScreen({
               <Tab icon={<Icon icon={BarChart3} />} label={t("Performance")} panelId="profile-performance-panel" value="performance" />
             </TabList>
 
-            {tab === 'activity' ? <VStack className="pd-detail__panel" aria-label={t("Activity")} gap={5} id="profile-activity-panel" role="tabpanel"><MatchList heading={t("Recent matches")} matches={player.matches ?? []} onSelect={onSelectMatch} /></VStack> : null}
+            {tab === 'activity' ? <VStack className="pd-detail__panel" aria-label={t("Activity")} gap={5} id="profile-activity-panel" role="tabpanel">
+              {isLoading && !player.matches?.length ? <VStack aria-label={t('Loading')} aria-busy gap={4}>{[0, 1, 2].map(index => <Skeleton key={index} index={index} width="100%" height="var(--spacing-12)" />)}</VStack> : <MatchList heading={t("Recent matches")} matches={player.matches ?? []} onSelect={onSelectMatch} />}
+            </VStack> : null}
 
             {tab === 'performance' ? <VStack className="pd-detail__panel" aria-label={t("Performance")} gap={6} id="profile-performance-panel" role="tabpanel">
 

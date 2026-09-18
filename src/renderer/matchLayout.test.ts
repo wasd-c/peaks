@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {matchGridColumns, resolveMatchLayout} from './matchLayout'
+import {fitsValorantRoster, matchGridColumns, resolveMatchLayout} from './matchLayout'
 import type {MatchTeam} from './types'
 
 const roster = (count: number, name = 'Team'): MatchTeam => ({
@@ -8,6 +8,15 @@ const roster = (count: number, name = 'Team'): MatchTeam => ({
 })
 
 describe('adaptive match layouts', () => {
+  it('fits bounded VALORANT teams without imposing a two-row frame on other modes', () => {
+    expect(fitsValorantRoster({game: 'VALORANT', teams: [roster(5), roster(5)]})).toBe(true)
+    expect(fitsValorantRoster({game: 'VALORANT', mode: 'Retake', teams: [roster(3), roster(3)]})).toBe(true)
+    expect(fitsValorantRoster({game: 'VALORANT', teams: [roster(5), roster(4)]})).toBe(true)
+    expect(fitsValorantRoster({game: 'VALORANT', mode: 'Deathmatch', teams: [roster(5), roster(5)]})).toBe(false)
+    expect(fitsValorantRoster({game: 'VALORANT', teams: [roster(6), roster(6)]})).toBe(false)
+    expect(fitsValorantRoster({game: 'VALORANT', teams: [roster(3), roster(3), roster(3), roster(3)]})).toBe(false)
+    expect(fitsValorantRoster({game: 'Teamfight Tactics', teams: [roster(4), roster(4)]})).toBe(false)
+  })
   it.each(['lobby', 'matchmaking', 'readycheck'] as const)('preserves parties before an FFA game during %s', phase => {
     const teams = [roster(3, 'Party')]
     const layout = resolveMatchLayout({game: 'VALORANT', mode: 'Deathmatch', freeForAll: true, phase, teams})

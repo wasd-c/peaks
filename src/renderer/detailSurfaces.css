@@ -10,6 +10,33 @@
   --container-padding-block-end: var(--spacing-0);
 }
 
+/* Shared Riot surfaces use neutral geometry, independent of the entry game. */
+.pd-riot-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  background: linear-gradient(115deg, var(--color-background-body), var(--color-background-surface) 65%, var(--color-background-muted));
+}
+
+.pd-riot-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: repeating-linear-gradient(125deg, transparent 0, transparent calc(var(--spacing-24) - var(--border-width)), var(--color-border) var(--spacing-24), transparent calc(var(--spacing-24) + var(--border-width)));
+  mask-image: linear-gradient(to right, transparent 30%, var(--color-on-dark));
+}
+
+.pd-profile__identity {
+  border-radius: var(--radius-container);
+}
+
+.pd-profile__identity > .astryx-section > .astryx-stack > .astryx-stack {
+  min-width: 0;
+}
+
 .pd-detail .pd-detail__identity {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   min-height: calc(var(--spacing-12) * 6.5);

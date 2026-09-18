@@ -129,6 +129,7 @@ export interface Player {
   initials?: string
   level?: number
   ranks?: Rank[]
+  peakRanks?: Rank[]
   matches?: Match[]
   context?: PlayerContext
 }

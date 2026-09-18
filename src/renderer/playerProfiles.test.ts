@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
-import {matchPlayerProfile, playerIsFollowed, playerIsWatched, samePlayerIdentity} from './playerProfiles'
-import type {Player} from './types'
+import {matchPlayerProfile, mergeRiotProfile, playerIsFollowed, playerIsWatched, samePlayerIdentity} from './playerProfiles'
+import type {Account, Player} from './types'
 
 describe('match player profiles', () => {
   it('builds a watchable profile for a visible Riot ID', () => {
@@ -52,5 +52,60 @@ describe('match player profiles', () => {
     const second = {id: 'shared-provider-id', riotId: 'Second#EUW', region: 'EUW'} as Player
 
     expect(samePlayerIdentity(first, second)).toBe(false)
+  })
+})
+
+describe('Riot identity profiles', () => {
+  const selected: Player = {
+    id: 'match-player', riotId: 'Visible#EUW', region: 'GLOBAL', game: 'VALORANT',
+    currentRank: 'Ascendant 2', peakRank: 'Immortal 1',
+    context: {label: 'Live', character: 'Sova', map: 'Ascent', stats: {kills: 12}},
+  }
+  const account: Account = {
+    id: 'owned', riotId: 'visible#euw', region: 'EUW',
+    ranks: [{game: 'Teamfight Tactics', tier: 'Gold III', rating: 0}],
+    peakRanks: [{game: 'Teamfight Tactics', tier: 'Platinum II'}],
+    matches: [{id: 'tft-1', game: 'Teamfight Tactics', result: 'Top 4'}],
+  }
+
+  it('combines owned, watched and fetched games while preserving the selected encounter', () => {
+    const watched: Player = {...selected, id: 'saved', matches: [{id: 'val-1', game: 'VALORANT', result: 'Win'}]}
+    const fetched: Player = {id: 'search', riotId: 'Visible#EUW', region: 'EUW', game: 'League of Legends', ranks: [{game: 'League of Legends', tier: 'Diamond IV', rating: 50}]}
+    const result = mergeRiotProfile(selected, [account], [watched], [fetched])
+    expect(result.ranks).toEqual(expect.arrayContaining([
+      {game: 'VALORANT', tier: 'Ascendant 2'},
+      {game: 'Teamfight Tactics', tier: 'Gold III', rating: 0},
+      {game: 'League of Legends', tier: 'Diamond IV', rating: 50},
+    ]))
+    expect(result.peakRanks).toHaveLength(2)
+    expect(result.matches?.map(match => match.id)).toEqual(['tft-1', 'val-1'])
+    expect(result.region).toBe('EUW')
+    expect(result.id).toBe(selected.id)
+    expect(result.game).toBe('VALORANT')
+    expect(result.context).toBe(selected.context)
+  })
+
+  it('never mixes other Riot identities even with reused local identifiers or a changed #tag', () => {
+    const result = mergeRiotProfile(selected, [{...account, riotId: 'Visible#OTHER'}], [{...selected, riotId: 'Other#EUW', ranks: [{game: 'League of Legends', tier: 'Challenger'}]}], [{...selected, riotId: 'Other#EUW', matches: account.matches}])
+    expect(result.games).toEqual(['VALORANT'])
+    expect(result.ranks).toEqual([{game: 'VALORANT', tier: 'Ascendant 2'}])
+    expect(result.matches).toEqual([])
+  })
+
+  it('retains known ranks on a partial refresh and deduplicates history within each game', () => {
+    const fetched: Player = {...selected, ranks: [{game: 'Teamfight Tactics', tier: 'Rank unavailable'}], matches: [
+      {id: 'tft-1', game: 'Teamfight Tactics', result: 'Top 4', score: '#2'},
+      {id: 'tft-1', game: 'VALORANT', result: 'Win'},
+    ]}
+    const result = mergeRiotProfile(selected, [account], [], [fetched])
+    expect(result.ranks).toContainEqual(account.ranks[0])
+    expect(result.matches).toHaveLength(2)
+    expect(result.matches?.[0].score).toBe('#2')
+  })
+
+  it('does not infer a game or an unranked status from an identity-only result', () => {
+    const result = mergeRiotProfile({id: 'identity', riotId: 'Identity#EU', region: 'GLOBAL'}, [], [])
+    expect(result.games).toEqual([])
+    expect(result.ranks).toEqual([])
   })
 })

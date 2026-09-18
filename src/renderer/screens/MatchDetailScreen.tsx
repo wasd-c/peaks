@@ -15,6 +15,7 @@ import {gameArtwork, valorantMapName} from '../assets'
 import {ShareMatchDialog} from '../components/ShareMatchDialog'
 import {MatchInsights} from '../components/MatchInsights'
 import {PlayerMatchCards} from '../components/PlayerMatchCards'
+import {fitsValorantRoster} from '../matchLayout'
 import type {Match, Player} from '../types'
 import {AuthenticatedScreen, resultColor, titleCase} from './shared'
 
@@ -32,26 +33,28 @@ export function MatchDetailScreen({match, region, onBack, onSelectPlayer}: Match
   const activeTab = match.game === 'VALORANT' ? tab : 'scoreboard'
   const map = match.game === 'VALORANT' ? valorantMapName(match.map) : match.map ?? 'Map unavailable'
   const teams = match.teams ?? []
+  const fitRoster = activeTab === 'scoreboard' && fitsValorantRoster({...match, teams})
 
   return <>
     <AuthenticatedScreen
-      actions={<Button icon={<Icon icon={Share2} />} label={t("Share match")} onClick={() => setShareOpen(true)} />}
+      fitContent={fitRoster}
+      actions={<HStack align="center" gap={3}>{fitRoster ? <><Token color={resultColor(match.result)} label={displayText(match.result)} /><Text hasTabularNumbers weight="bold">{match.score ?? '—'}</Text><Button icon={<Icon icon={ArrowLeft} />} label={t("Match history")} onClick={onBack} size="sm" variant="ghost" /></> : null}<Button icon={<Icon icon={Share2} />} label={t("Share match")} onClick={() => setShareOpen(true)} /></HStack>}
       description={`${displayText(titleCase(match.mode ?? 'Match'))} · ${displayText(match.playedAt ?? 'Time unavailable')}`}
       eyebrow={t("MATCH REPORT")}
       screen="match-detail"
-      title={t("Match report")}>
-      <VStack className="pd-detail pmc-match-screen" gap={5}>
-        <HStack align="center" justify="between" gap={3} wrap="wrap">
+      title={fitRoster ? displayText(map) : t("Match report")}>
+      <VStack className="pd-detail pmc-match-screen" height={fitRoster ? '100%' : undefined} gap={fitRoster ? 2 : 5}>
+        {!fitRoster ? <HStack align="center" justify="between" gap={3} wrap="wrap">
           <Button icon={<Icon icon={ArrowLeft} />} label={t("Match history")} onClick={onBack} size="sm" variant="ghost" />
-        </HStack>
+        </HStack> : null}
 
-        <Section className="pmc-match-banner" padding={5} variant="transparent" style={{backgroundImage: `url("${gameArtwork(match.game, match.map)}")`}}>
+        {!fitRoster ? <Section className="pmc-match-banner" padding={5} variant="transparent" style={{backgroundImage: `url("${gameArtwork(match.game, match.map)}")`}}>
           <HStack align="center" justify="between" gap={5} wrap="wrap">
             <VStack gap={1}><Text className="pd-detail__eyebrow" type="supporting">{match.game} · {displayText(titleCase(match.mode ?? 'Match'))}</Text><Heading className="pmc-match-banner__title" level={2}>{displayText(map)}</Heading></VStack>
             <HStack align="center" gap={4}><Token color={resultColor(match.result)} label={displayText(match.result)} /><Text className="pmc-match-banner__score" hasTabularNumbers weight="bold">{match.score ?? '—'}</Text></HStack>
             <VStack align="end" gap={1}><HStack align="center" gap={2}><Icon icon={Clock3} color="secondary" /><Text hasTabularNumbers>{match.duration ?? t("Duration unavailable")}</Text></HStack><Text type="supporting">{displayText(match.playedAt ?? 'Recent match')}</Text></VStack>
           </HStack>
-        </Section>
+        </Section> : null}
 
         <HStack className="pmc-match-toolbar" align="center" justify="between" gap={4}>
           <TabList className="pd-detail__tabs" aria-label={t("Match report views")} hasDivider onChange={setTab} role="tablist" value={activeTab}>
@@ -62,8 +65,8 @@ export function MatchDetailScreen({match, region, onBack, onSelectPlayer}: Match
         </HStack>
 
         {activeTab === 'performance' ? <Section className="pd-detail__panel" aria-label={t("Performance")} id="match-performance-panel" role="tabpanel" padding={0} variant="transparent"><MatchInsights match={match} /></Section> : <VStack className="pd-detail__panel" aria-label={t("Scoreboard")} gap={5} id="match-scoreboard-panel" role="tabpanel">
-          {teams.length > 0 ? <PlayerMatchCards teams={teams} game={match.game} mode={match.mode} map={match.map} matchId={match.id} result={match.result} label={displayText(match.playedAt ?? 'Recent match')} freeForAll={match.freeForAll} teamMode={match.teamMode} region={region} completed onSelectPlayer={onSelectPlayer} /> : <EmptyState description={t("Refresh the account to try again.")} icon={<Icon color="secondary" icon={UsersRound} />} title={t("Players unavailable")} />}
-          <Text color="secondary">{t("Select a Riot ID to open the player profile.")}</Text>
+          {teams.length > 0 ? <PlayerMatchCards teams={teams} game={match.game} mode={match.mode} map={match.map} matchId={match.id} result={match.result} label={displayText(match.playedAt ?? 'Recent match')} freeForAll={match.freeForAll} teamMode={match.teamMode} region={region} completed fitToHeight={fitRoster} onSelectPlayer={onSelectPlayer} /> : <EmptyState description={t("Refresh the account to try again.")} icon={<Icon color="secondary" icon={UsersRound} />} title={t("Players unavailable")} />}
+          {!fitRoster ? <Text color="secondary">{t("Select a Riot ID to open the player profile.")}</Text> : null}
         </VStack>}
       </VStack>
     </AuthenticatedScreen>

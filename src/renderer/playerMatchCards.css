@@ -189,6 +189,14 @@
   min-width: 0;
 }
 
+.pmc-rank:not(.pmc-rank--compact) {
+  flex-direction: column;
+}
+
+.pmc-rank__labels {
+  min-width: 0;
+}
+
 .pmc-rank__caption {
   color: var(--color-on-dark);
   font-family: var(--font-family-code);
@@ -398,5 +406,209 @@ body:has(.reduce-motion) [role='dialog'] .pmc-stat-skeleton.astryx-skeleton {
   .pmc-stat-skeleton.astryx-skeleton {
     background-position: center;
     animation: pmc-stat-pulse calc(var(--duration-slow-max) * 2) ease-in-out infinite both !important;
+  }
+}
+
+/* A bounded roster uses the actual available height, including Electron's
+   window chrome. Density changes remove secondary information, not players. */
+.peaks-screen--fit-roster .peaks-screen__header {
+  padding-block: var(--spacing-2);
+}
+
+.peaks-screen--fit-roster .peaks-screen__content {
+  padding-block: var(--spacing-2);
+}
+
+.peaks-screen--fit-roster .peaks-screen__header h1 {
+  font-size: var(--font-size-2xl);
+}
+
+.peaks-screen--fit-roster .peaks-screen__header .pmc-match-banner__score {
+  font-size: var(--font-size-2xl);
+}
+
+.peaks-screen--fit-roster .pmc-match-screen,
+.peaks-screen--fit-roster .pd-detail__panel,
+.pmc-lineup--fit,
+.pmc-lineup--fit .pmc-teams,
+.pmc-lineup--fit .pmc-team,
+.pmc-lineup--fit .pmc-team__cards {
+  min-height: 0;
+  flex: 1;
+}
+
+.pmc-lineup--fit .pmc-teams {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.pmc-lineup--fit .pmc-teams > * {
+  min-height: 0;
+}
+
+.pmc-lineup--fit .pmc-team {
+  height: 100%;
+  gap: var(--spacing-1);
+}
+
+.pmc-lineup--fit .pmc-team__header h2,
+.pmc-lineup--fit .pmc-team__score {
+  font-size: var(--font-size-base);
+}
+
+.pmc-lineup--fit .pmc-team__header {
+  min-height: var(--spacing-7);
+}
+
+.pmc-lineup--fit .pmc-card {
+  container: player-card / size;
+  min-height: 0;
+}
+
+.pmc-lineup--fit .pmc-card__content {
+  padding: var(--spacing-3);
+  gap: var(--spacing-2);
+}
+
+.pmc-lineup--fit .pmc-card__content > * {
+  flex-shrink: 0;
+}
+
+.pmc-lineup--fit .pmc-card__controls {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: var(--spacing-1);
+  inset-inline-end: var(--spacing-1);
+}
+
+.pmc-lineup--fit .pmc-card__side,
+.pmc-lineup--fit .pmc-card__party {
+  display: none;
+}
+
+.pmc-lineup--fit .pmc-card__name-button {
+  padding-block: 0;
+}
+
+.pmc-lineup--fit .pmc-card:has(.pmc-card__drag-handle) .pmc-card__name-button {
+  width: calc(100% - var(--spacing-6));
+}
+
+.pmc-lineup--fit .pmc-card__name {
+  font-size: var(--font-size-base);
+}
+
+.pmc-lineup--fit .pmc-card__ranks {
+  min-height: 0;
+  padding-block-start: 0;
+  margin-block-start: auto;
+  align-items: center;
+}
+
+.pmc-rank--compact .pmc-rank__image,
+.pmc-rank--compact .pmc-rank__placeholder {
+  flex-shrink: 0;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+}
+
+.pmc-rank--compact .pmc-rank__name {
+  font-size: var(--font-size-sm);
+  text-align: start;
+}
+
+.pmc-rank--compact .pmc-rank__caption {
+  font-size: var(--font-size-sm);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.pmc-lineup--fit .pmc-card__stats {
+  margin-block-start: 0;
+  gap: 0;
+  padding-block-start: var(--spacing-1);
+}
+
+.pmc-lineup--fit .pmc-card__kda {
+  min-height: var(--spacing-6);
+  color: var(--color-on-dark);
+}
+
+.pmc-lineup--fit .pmc-stat-row {
+  min-height: var(--spacing-5);
+  padding-block: 0;
+}
+
+.pmc-lineup--fit .pmc-stat-row > * {
+  font-size: var(--font-size-sm);
+}
+
+.pmc-lineup--fit .pmc-card__unavailable {
+  min-height: var(--spacing-6);
+}
+
+.pmc-lineup--fit .pmc-card__source {
+  display: none;
+}
+
+@container player-card (max-height: 24rem) {
+  .pmc-card__readiness {
+    display: none;
+  }
+
+  .pmc-lineup--fit .pmc-card__content {
+    padding: var(--spacing-2);
+    gap: var(--spacing-1);
+  }
+
+  .pmc-lineup--fit .pmc-card__tags {
+    flex-direction: row;
+    gap: var(--spacing-1);
+    min-height: var(--spacing-5);
+  }
+
+  .pmc-card__tags > * {
+    min-width: 0;
+    flex: 1;
+    flex-wrap: nowrap;
+  }
+
+  /* Tooltip surfaces are siblings of their triggers. Collapse extra triggers
+     only, so the first tag can still open its explanation in the top layer. */
+  .pmc-card__tags > * > :has(> .pmc-tag) ~ :has(> .pmc-tag) {
+    display: none;
+  }
+
+  .pmc-card__tags .pmc-tag {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .pmc-rank--compact .pmc-rank__image,
+  .pmc-rank--compact .pmc-rank__placeholder {
+    width: var(--spacing-6);
+    height: var(--spacing-6);
+  }
+}
+
+@container player-card (max-height: 17rem) {
+  .pmc-stat-row[data-stat='ADR'],
+  .pmc-stat-row[data-stat='HS%'] {
+    display: none;
+  }
+}
+
+@container player-card (max-height: 13rem) {
+  .pmc-card__tags {
+    display: none;
+  }
+
+  .pmc-lineup--fit .pmc-stat-row {
+    min-height: var(--spacing-4);
+  }
+}
+
+@container player-card (max-height: 11rem) {
+  .pmc-rank__name {
+    display: none;
   }
 }
