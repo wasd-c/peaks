@@ -1,3 +1,4 @@
+import {t, useLocale} from '../i18n'
 import {useEffect, useMemo, useState} from 'react'
 import {Button} from '@astryxdesign/core/Button'
 import {CommandPalette} from '@astryxdesign/core/CommandPalette'
@@ -25,14 +26,15 @@ export function WorkspaceBar({state, onPage, onSelect, onAdd, onLock}: {
   onAdd: () => void
   onLock: () => void
 }) {
+  const language = useLocale()
   const [open, setOpen] = useState(false)
   const {displayName, enabled} = usePlayerPrivacy()
   const source = useMemo(() => createStaticSource([
-    ...destinations.map(item => ({...item, auxiliaryData: {group: 'Go to'}})),
-    ...state.accounts.map(account => ({id: `account:${account.id}`, label: displayName(account.riotId), auxiliaryData: {group: 'Your accounts'}})),
-    {id: 'add', label: 'Add account', auxiliaryData: {group: 'Actions'}},
-    {id: 'lock', label: 'Lock Peaks', auxiliaryData: {group: 'Actions'}},
-  ]), [state.accounts, displayName])
+    ...destinations.map(item => ({...item, label: t(item.label, {lng: language}), auxiliaryData: {group: t('Go to')}})),
+    ...state.accounts.map(account => ({id: `account:${account.id}`, label: displayName(account.riotId), auxiliaryData: {group: t('Your accounts')}})),
+    {id: 'add', label: t('Add account'), auxiliaryData: {group: t('Actions')}},
+    {id: 'lock', label: t('Lock Peaks'), auxiliaryData: {group: t('Actions')}},
+  ]), [state.accounts, displayName, language])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -57,16 +59,16 @@ export function WorkspaceBar({state, onPage, onSelect, onAdd, onLock}: {
   }
 
   return <>
-    <TopNav className="pd-workspace-bar" label="App controls"
+    <TopNav className="pd-workspace-bar" label={t("App controls")}
       heading={<Text className="pd-wordmark" weight="bold">PEAKS</Text>}
       endContent={<HStack gap={5} align="center">
-        <HStack className="pd-client-indicator" gap={2} align="center"><StatusDot label={state.riotClient.detected ? 'Riot Client detected' : 'Riot Client offline'} variant={state.riotClient.detected ? 'accent' : 'neutral'} /><Text type="supporting">{state.riotClient.detected ? 'Client connected' : 'Client offline'}</Text></HStack>
-        <Button className="pd-command-trigger" label="Search accounts and commands" tooltip="Quick switch · Ctrl K" variant="secondary" onClick={() => setOpen(true)}>
-          <HStack gap={3} align="center"><Icon icon={Search} size="sm" /><Text color="secondary">Search…</Text><Text className="pd-key-hint" type="supporting">Ctrl K</Text></HStack>
+        <HStack className="pd-client-indicator" gap={2} align="center"><StatusDot label={state.riotClient.detected ? t("Riot Client detected") : t("Riot Client offline")} variant={state.riotClient.detected ? 'accent' : 'neutral'} /><Text type="supporting">{state.riotClient.detected ? t("Client connected") : t("Client offline")}</Text></HStack>
+        <Button className="pd-command-trigger" label={t("Search accounts and commands")} tooltip={t("Quick switch · Ctrl K")} variant="secondary" onClick={() => setOpen(true)}>
+          <HStack gap={3} align="center"><Icon icon={Search} size="sm" /><Text color="secondary">{t("Search…")}</Text><Text className="pd-key-hint" type="supporting">{t("Ctrl K")}</Text></HStack>
         </Button>
-        {state.settings.streamerMode ? <Icon icon={EyeOff} color="secondary" label="Streamer Mode enabled" /> : null}
+        {state.settings.streamerMode ? <Icon icon={EyeOff} color="secondary" label={t("Streamer Mode enabled")} /> : null}
       </HStack>}
     />
-    <CommandPalette key={enabled ? 'private' : 'visible'} isOpen={open} onOpenChange={setOpen} searchSource={source} onValueChange={select} label="Search accounts and commands" emptySearchText="No matching accounts or commands." />
+    <CommandPalette key={enabled ? 'private' : 'visible'} isOpen={open} onOpenChange={setOpen} searchSource={source} onValueChange={select} label={t("Search accounts and commands")} emptySearchText={t("No matching accounts or commands.")} />
   </>
 }

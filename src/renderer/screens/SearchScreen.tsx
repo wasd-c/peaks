@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 import {useRef, useState} from 'react'
 import {Button} from '@astryxdesign/core/Button'
@@ -29,6 +30,7 @@ export interface SearchScreenProps {
 }
 
 export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScreenProps) {
+  useLocale()
   const {displayName, enabled} = usePlayerPrivacy()
   const [query, setQuery] = useState('')
   const searchPending = useRef(false)
@@ -70,16 +72,16 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
 
   return (
     <AuthenticatedScreen
-      eyebrow="PLAYERS"
+      eyebrow={t("PLAYERS")}
       screen="search"
-      title="Player search">
+      title={t("Player search")}>
       <VStack className="pd-search" gap={8}>
         <Section className="pd-search-hero" padding={0} variant="transparent">
           <img className="pd-search-art" src={gameArtwork('VALORANT')} alt="" />
           <VStack className="pd-search-form" gap={6}>
             <VStack gap={3}>
-              <Heading level={2} type="display-3">Find a player</Heading>
-              <Text color="secondary">Enter their Riot ID to see their profile and ranks.</Text>
+              <Heading level={2} type="display-3">{t("Find a player")}</Heading>
+              <Text color="secondary">{t("Enter their Riot ID to see their profile and ranks.")}</Text>
             </VStack>
             <VStack gap={4}>
             <HStack align="end" className="pd-search-query" gap={2}>
@@ -98,26 +100,26 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
                 endContent={<Icon icon={ArrowUpRight} />}
                 isDisabled={!canSearch && !isSearching}
                 isLoading={isSearching}
-                label="Search"
+                label={t("Search")}
                 size="lg"
                 onClick={() => { void search() }}
                 variant="primary"
               />
             </HStack>
             </VStack>
-            {message ? <Text color="secondary" display="block" role="alert">{message}</Text> : null}
+            {message ? <Text color="secondary" display="block" role="alert">{displayText(message)}</Text> : null}
           </VStack>
         </Section>
 
         {visibleResults.length > 0 ? (
-          <PlayerList action={action} heading="Search results" onSelect={onSelectPlayer} players={visibleResults} />
+          <PlayerList action={action} heading={t("Search results")} onSelect={onSelectPlayer} players={visibleResults} />
         ) : null}
 
         {hasSearched && results.length === 0 && !message ? (
           <EmptyState
-            description="Check the name and #tag, then try again."
+            description={t("Check the name and #tag, then try again.")}
             icon={<Icon color="secondary" icon={SearchIcon} />}
-            title="No matching players"
+            title={t("No matching players")}
           />
         ) : null}
 
@@ -129,7 +131,7 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
               hasDividers
               header={
                 <HStack align="center" justify="between" gap={3}>
-                  <Heading level={2}>Recent searches</Heading>
+                  <Heading level={2}>{t("Recent searches")}</Heading>
                 </HStack>
               }>
               {state.searchHistory.map(entry => (
@@ -146,7 +148,7 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
           ) : (
             <HStack className="pd-search-history-empty" gap={4} align="center">
               <Icon color="secondary" icon={Clock3} size="lg" />
-              <VStack gap={1}><Heading level={2}>Recent searches</Heading><Text color="secondary">Your searches will appear here.</Text></VStack>
+              <VStack gap={1}><Heading level={2}>{t("Recent searches")}</Heading><Text color="secondary">{t("Your searches will appear here.")}</Text></VStack>
             </HStack>
           )}
         </Section>

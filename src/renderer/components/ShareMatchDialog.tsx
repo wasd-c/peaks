@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {useEffect, useMemo, useState} from 'react'
 import {AspectRatio} from '@astryxdesign/core/AspectRatio'
@@ -34,11 +35,12 @@ function blobDataUrl(blob: Blob): Promise<string> {
 }
 
 export function ShareMatchDialog({isOpen, onOpenChange, match, account}: ShareMatchDialogProps) {
+  const language = useLocale()
   const {displayName, enabled} = usePlayerPrivacy()
-  const summary = useMemo(() => matchShareSummary(match, account, displayName), [match, account, displayName])
-  const [generatedPoster, setPoster] = useState<{blob: Blob; url: string; summary: typeof summary} | null>(null)
+  const summary = useMemo(() => ({...matchShareSummary(match, account, displayName), language}), [match, account, displayName, language])
+  const [generatedPoster, setPoster] = useState<{blob: Blob; url: string; summary: typeof summary; language: string} | null>(null)
   // Never flash or export a poster generated before a privacy setting changed.
-  const poster = generatedPoster?.summary === summary ? generatedPoster : null
+  const poster = generatedPoster?.summary === summary && generatedPoster.language === language ? generatedPoster : null
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [attempt, setAttempt] = useState(0)
@@ -56,7 +58,7 @@ export function ShareMatchDialog({isOpen, onOpenChange, match, account}: ShareMa
     void renderMatchPoster(summary).then(blob => {
       if (cancelled) return
       previewUrl = URL.createObjectURL(blob)
-      setPoster({blob, url: previewUrl, summary})
+      setPoster({blob, url: previewUrl, summary, language})
     }).catch(() => {
       if (!cancelled) setError('The match image could not be created. Try again.')
     })
@@ -64,7 +66,7 @@ export function ShareMatchDialog({isOpen, onOpenChange, match, account}: ShareMa
       cancelled = true
       if (previewUrl) URL.revokeObjectURL(previewUrl)
     }
-  }, [isOpen, summary, attempt])
+  }, [isOpen, summary, attempt, language])
 
   const copyImage = async () => {
     if (!poster) return
@@ -98,7 +100,7 @@ export function ShareMatchDialog({isOpen, onOpenChange, match, account}: ShareMa
     try {
       await navigator.share({
         files: [new File([poster.blob], filename, {type: 'image/png'})],
-        title: `${summary.game} match recap`,
+        title: t('{{game}} match recap', {game: summary.game}),
         text: caption,
       })
       setNotice('Image handed to your chosen sharing app.')
@@ -134,24 +136,24 @@ export function ShareMatchDialog({isOpen, onOpenChange, match, account}: ShareMa
         header={<DialogHeader
           onOpenChange={onOpenChange}
           startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={Share2} /></HStack>}
-          subtitle={`${map} · ${summary.result}`}
-          title="Share your match"
+          subtitle={`${map} · ${displayText(summary.result)}`}
+          title={t("Share your match")}
         />}
         content={
           <LayoutContent isScrollable padding={6}>
             <VStack gap={3}>
               {enabled ? <HStack align="center" gap={2}>
                   <Icon icon={ShieldCheck} size="sm" color="secondary" />
-                  <Text type="supporting">Streamer Mode applied</Text>
+                  <Text type="supporting">{t("Streamer Mode applied")}</Text>
                 </HStack> : null}
               <VStack className="pd-share__preview" gap={0} width="100%">
                 <AspectRatio ratio={16 / 9}>
                   {poster ? (
-                    <img className="pd-share__image" alt={`${summary.result} on ${map}, ${summary.score}. Peaks match image preview.`} src={poster.url} />
+                    <img className="pd-share__image" alt={t("{{result}} on {{map}}, {{score}}. Peaks match image preview.", {result: displayText(summary.result), map: map, score: summary.score})} src={poster.url} />
                   ) : (
                     <VStack align="center" height="100%" justify="center" gap={3}>
-                      {error ? <Icon color="secondary" icon={ImagePlus} /> : <Spinner label="Creating your match image…" />}
-                      {error ? <Button label="Try again" onClick={() => setAttempt(value => value + 1)} size="sm" /> : null}
+                      {error ? <Icon color="secondary" icon={ImagePlus} /> : <Spinner label={t("Creating your match image…")} />}
+                      {error ? <Button label={t("Try again")} onClick={() => setAttempt(value => value + 1)} size="sm" /> : null}
                     </VStack>
                   )}
                 </AspectRatio>
@@ -164,17 +166,17 @@ export function ShareMatchDialog({isOpen, onOpenChange, match, account}: ShareMa
             <VStack gap={4} width="100%">
               <HStack align="center" gap={3} justify="between" wrap="wrap">
                 <HStack align="center" gap={2}>
-                  <Button endContent={<Icon icon={ArrowUpRight} />} href={`https://x.com/intent/post?text=${encodeURIComponent(caption)}`} isDisabled={!poster} label="X" rel="noopener noreferrer" target="_blank" variant="ghost" />
-                  <Button endContent={<Icon icon={ArrowUpRight} />} href={`https://www.reddit.com/submit?title=${encodeURIComponent(caption.replace(/\n/g, ' '))}`} isDisabled={!poster} label="Reddit" rel="noopener noreferrer" target="_blank" variant="ghost" />
+                  <Button endContent={<Icon icon={ArrowUpRight} />} href={`https://x.com/intent/post?text=${encodeURIComponent(caption)}`} isDisabled={!poster} label={t("X")} rel="noopener noreferrer" target="_blank" variant="ghost" />
+                  <Button endContent={<Icon icon={ArrowUpRight} />} href={`https://www.reddit.com/submit?title=${encodeURIComponent(caption.replace(/\n/g, ' '))}`} isDisabled={!poster} label={t("Reddit")} rel="noopener noreferrer" target="_blank" variant="ghost" />
                 </HStack>
                 <HStack align="center" gap={2} wrap="wrap">
-                  <Button icon={<Icon icon={Download} />} isDisabled={!poster} label="Save PNG" onClick={saveImage} />
-                  {canShareFile ? <Button clickAction={shareFile} icon={<Icon icon={Share2} />} label="Share…" /> : null}
-                  <Button clickAction={copyImage} icon={<Icon icon={Clipboard} />} isDisabled={!poster} label="Copy image" variant="primary" />
+                  <Button icon={<Icon icon={Download} />} isDisabled={!poster} label={t("Save PNG")} onClick={saveImage} />
+                  {canShareFile ? <Button clickAction={shareFile} icon={<Icon icon={Share2} />} label={t("Share…")} /> : null}
+                  <Button clickAction={copyImage} icon={<Icon icon={Clipboard} />} isDisabled={!poster} label={t("Copy image")} variant="primary" />
                 </HStack>
               </HStack>
-              {notice ? <HStack className="pd-share__notice" align="center" gap={2} padding={3}><Icon color="secondary" icon={Check} /><Text role="status">{notice}</Text></HStack> : null}
-              {error ? <Text className="pd-share__error" role="alert">{error}</Text> : null}
+              {notice ? <HStack className="pd-share__notice" align="center" gap={2} padding={3}><Icon color="secondary" icon={Check} /><Text role="status">{displayText(notice)}</Text></HStack> : null}
+              {error ? <Text className="pd-share__error" role="alert">{displayText(error)}</Text> : null}
             </VStack>
           </LayoutFooter>
         }

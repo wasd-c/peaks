@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {Button} from '@astryxdesign/core/Button'
 import {Dialog, DialogHeader} from '@astryxdesign/core/Dialog'
@@ -25,9 +26,10 @@ interface PostMatchReviewDialogProps {
 }
 
 function Metric({label, value}: {label: string; value: string}) {
+  useLocale()
   return (
     <VStack className="pd-recap__metric" gap={2} padding={5}>
-      <Text className="pd-dialog__eyebrow" type="supporting">{label}</Text>
+      <Text className="pd-dialog__eyebrow" type="supporting">{displayText(label)}</Text>
       <Text hasTabularNumbers type="display-3" weight="semibold">{value}</Text>
     </VStack>
   )
@@ -36,6 +38,7 @@ function Metric({label, value}: {label: string; value: string}) {
 export function PostMatchReviewDialog({
   review, isOpen, onDismiss, onOpenReport, onShare,
 }: PostMatchReviewDialogProps) {
+  useLocale()
   const {displayName} = usePlayerPrivacy()
   const {account, match} = review
   const self = match.teams?.flatMap(team => team.players).find(player => player.self && !player.hidden)
@@ -76,8 +79,8 @@ export function PostMatchReviewDialog({
           <DialogHeader
             onOpenChange={open => { if (!open) onDismiss() }}
             startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={Crosshair} /></HStack>}
-            endContent={<HStack align="center" gap={2}><StatusDot label="Match recorded" variant="neutral" /><Text type="supporting">RECORDED</Text></HStack>}
-            title="Match recap"
+            endContent={<HStack align="center" gap={2}><StatusDot label={t("Match recorded")} variant="neutral" /><Text type="supporting">{t("RECORDED")}</Text></HStack>}
+            title={t("Match recap")}
           />
         }
         content={
@@ -91,16 +94,16 @@ export function PostMatchReviewDialog({
                 <img className="pd-recap__art" src={gameArtwork(match.game, match.map)} alt="" />
                 <VStack className="pd-recap__hero-content" gap={6}>
                   <HStack align="center" justify="between" gap={4} wrap="wrap">
-                    <Text className="pd-dialog__eyebrow" type="supporting">{match.game} / {titleCase(match.mode ?? 'Match')}</Text>
-                    <HStack align="center" gap={2}><Icon icon={Clock3} size="sm" /><Text type="supporting">{match.playedAt ?? 'Just completed'}</Text></HStack>
+                    <Text className="pd-dialog__eyebrow" type="supporting">{match.game} / {displayText(titleCase(match.mode ?? 'Match'))}</Text>
+                    <HStack align="center" gap={2}><Icon icon={Clock3} size="sm" /><Text type="supporting">{displayText(match.playedAt ?? 'Just completed')}</Text></HStack>
                   </HStack>
                   <HStack align="end" gap={6} justify="between" wrap="wrap">
                     <VStack gap={2}>
-                      <Heading className="pd-recap__result" level={2} type="display-1">{headline}</Heading>
-                      <Text type="large">{map ?? 'Map unavailable'}</Text>
+                      <Heading className="pd-recap__result" level={2} type="display-1">{displayText(headline)}</Heading>
+                      <Text type="large">{map ?? t("Map unavailable")}</Text>
                     </VStack>
                     <VStack align="end" gap={1}>
-                      <Text className="pd-dialog__eyebrow" type="supporting">FINAL SCORE</Text>
+                      <Text className="pd-dialog__eyebrow" type="supporting">{t("FINAL SCORE")}</Text>
                       <Text className="pd-recap__score" hasTabularNumbers type="display-1" weight="semibold">{match.score ?? '—'}</Text>
                     </VStack>
                   </HStack>
@@ -108,21 +111,21 @@ export function PostMatchReviewDialog({
               </Section>
               <HStack className="pd-recap__identity" align="center" gap={4} justify="between" padding={5} wrap="wrap">
                 <VStack gap={0.5}>
-                  <Text className="pd-dialog__eyebrow" type="supporting">YOUR MATCH</Text>
+                  <Text className="pd-dialog__eyebrow" type="supporting">{t("YOUR MATCH")}</Text>
                   <Text weight="semibold">{displayName(account.riotId)}</Text>
                 </VStack>
                 <HStack align="center" gap={3}>
                   {rank ? <img className="pd-recap__rank" src={rankAsset(rank.game, rankLabel(rank))} alt="" /> : <Icon icon={Trophy} color="secondary" />}
                   <VStack align="end" gap={0.5}>
-                    <Text weight="semibold">{rankLabel(rank)}</Text>
+                    <Text weight="semibold">{displayText(rankLabel(rank))}</Text>
                     {delta ? <Text type="supporting">{delta}</Text> : null}
                   </VStack>
                 </HStack>
               </HStack>
               <Grid className="pd-recap__metrics" columns={3} gap={0}>
-                <Metric label="K / D / A" value={kda} />
+                <Metric label={t("K / D / A")} value={kda} />
                 <Metric label={secondaryLabel} value={secondaryStat} />
-                <Metric label="Duration" value={match.duration ?? '—'} />
+                <Metric label={t("Duration")} value={match.duration ?? '—'} />
               </Grid>
               <Section className="pd-recap__analysis" padding={6} variant="transparent">
                 <VStack gap={6}>
@@ -136,10 +139,10 @@ export function PostMatchReviewDialog({
         footer={
           <LayoutFooter padding={6}>
             <HStack align="center" gap={3} justify="between" width="100%" wrap="wrap">
-              <Button label="Back to Peaks" onClick={onDismiss} variant="ghost" />
+              <Button label={t("Back to Peaks")} onClick={onDismiss} variant="ghost" />
               <HStack gap={2} wrap="wrap">
-                <Button icon={<Icon icon={ArrowUpRight} />} label="Full match report" onClick={onOpenReport} />
-                <Button icon={<Icon icon={Share2} />} label="Share this match" onClick={onShare} variant="primary" />
+                <Button icon={<Icon icon={ArrowUpRight} />} label={t("Full match report")} onClick={onOpenReport} />
+                <Button icon={<Icon icon={Share2} />} label={t("Share this match")} onClick={onShare} variant="primary" />
               </HStack>
             </HStack>
           </LayoutFooter>

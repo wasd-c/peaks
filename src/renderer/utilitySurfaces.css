@@ -361,3 +361,15 @@
 @media (prefers-reduced-motion: reduce) {
   .pd-entry *, .pd-search * { animation: none !important; transition: none !important; }
 }
+.pd-entry-language {
+  position: absolute;
+  inset-block-start: var(--spacing-6);
+  inset-inline-end: var(--spacing-6);
+  z-index: 2;
+  min-width: var(--spacing-32);
+}
+
+html[lang="ko"] {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}

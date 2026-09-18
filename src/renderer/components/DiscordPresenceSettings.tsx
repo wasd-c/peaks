@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState, type ReactNode} from 'react'
 import {HStack} from '@astryxdesign/core/HStack'
 import {List, ListItem} from '@astryxdesign/core/List'
@@ -10,6 +11,7 @@ interface DiscordPresenceState {
 }
 
 export function DiscordPresenceSettings({header}: {header: ReactNode}) {
+  useLocale()
   const [connection, setConnection] = useState<DiscordPresenceState | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -32,7 +34,7 @@ export function DiscordPresenceSettings({header}: {header: ReactNode}) {
           setPollError('')
         } catch {
           if (!disposed && version === requestVersion.current) {
-            setPollError('Impossible de charger ce réglage. Nouvelle tentative en cours.')
+            setPollError('Could not load this preference. Retrying.')
           }
         } finally {
           if (!disposed) timer = setTimeout(() => { void refresh() }, 5000)
@@ -61,7 +63,7 @@ export function DiscordPresenceSettings({header}: {header: ReactNode}) {
       setConnection(result)
       setPollError('')
     } catch {
-      if (active.current) setError('Impossible d’enregistrer ce réglage. Réessayez.')
+      if (active.current) setError('Could not save this preference. Please try again.')
     } finally {
       saving.current = false
       if (active.current) setBusy(false)
@@ -72,11 +74,11 @@ export function DiscordPresenceSettings({header}: {header: ReactNode}) {
     <>
       <List density="spacious" hasDividers header={header}>
         <ListItem
-          label="Partage de l’activité Discord"
+          label={t('Share Discord activity')}
           endContent={<HStack gap={3} align="center">
-            <Text type="supporting">{connection ? connection.enabled ? 'Oui' : 'Non' : '…'}</Text>
+            <Text type="supporting">{connection ? connection.enabled ? t('Yes') : t('No') : '…'}</Text>
             <Switch
-              label="Partage de l’activité Discord"
+              label={t('Share Discord activity')}
               isLabelHidden
               size="sm"
               value={connection?.enabled ?? false}
@@ -87,7 +89,7 @@ export function DiscordPresenceSettings({header}: {header: ReactNode}) {
           </HStack>}
         />
       </List>
-      {error || pollError ? <Text role="alert">{error || pollError}</Text> : null}
+      {error || pollError ? <Text role="alert">{displayText(error || pollError)}</Text> : null}
     </>
   )
 }

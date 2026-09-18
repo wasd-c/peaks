@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {useState} from 'react'
 import {Button} from '@astryxdesign/core/Button'
 import {FormLayout} from '@astryxdesign/core/FormLayout'
@@ -16,11 +17,13 @@ import {ArrowUpRight, ClipboardCheck, EyeOff, KeyRound, LockKeyhole, Monitor, Ra
 import type {AppState} from '../types'
 import {DiscordPresenceSettings} from '../components/DiscordPresenceSettings'
 import {TelemetrySettings} from '../components/TelemetrySettings'
+import {LanguageSelector} from '../components/LanguageSelector'
+import {ReleaseNotesDialog} from '../components/ReleaseNotesDialog'
 import {passcodeErrorMessage} from '../passcodeMessages'
 import {AuthenticatedScreen, type ActionCallback} from './shared'
 
-const AUTO_LOCK_OPTIONS = [{label: 'Only when Peaks closes', value: '0'}, ...[1, 5, 15, 30, 60].map(minutes => ({
-  label: `${minutes} minute${minutes === 1 ? '' : 's'}`,
+const autoLockOptions = () => [{label: t('Only when Peaks closes'), value: '0'}, ...[1, 5, 15, 30, 60].map(minutes => ({
+  label: t('{{count}} minutes', {count: minutes}),
   value: String(minutes),
 }))]
 
@@ -30,6 +33,7 @@ export interface SettingsScreenProps {
 }
 
 function GroupHeading({icon, children, number, description}: {icon: typeof ShieldCheck; children: string; number: string; description?: string}) {
+  useLocale()
   return (
     <HStack align="start" className="pd-settings-heading" gap={4}>
       <Text className="pd-settings-number" type="supporting">{number}</Text>
@@ -45,12 +49,13 @@ function GroupHeading({icon, children, number, description}: {icon: typeof Shiel
 }
 
 function ApiKeyControl({action}: {action: ActionCallback}) {
+  useLocale()
   const [key, setKey] = useState('')
   return (
     <HStack align="end" className="pd-settings-api-control" gap={2}>
       <TextInput
         isLabelHidden
-        label="Riot developer API key"
+        label={t("Riot developer API key")}
         onChange={setKey}
         placeholder="RGAPI-••••••••"
         type="password"
@@ -63,13 +68,14 @@ function ApiKeyControl({action}: {action: ActionCallback}) {
         }}
         icon={<Icon icon={KeyRound} />}
         isDisabled={!key.trim()}
-        label="Save key"
+        label={t("Save key")}
       />
     </HStack>
   )
 }
 
 export function ChangeSecurityCode({action}: {action: ActionCallback}) {
+  useLocale()
   const [editing, setEditing] = useState(false)
   const [oldPin, setOldPin] = useState('')
   const [newPin, setNewPin] = useState('')
@@ -90,97 +96,99 @@ export function ChangeSecurityCode({action}: {action: ActionCallback}) {
       setEditing(false)
     } catch (failure) {
       setOldPin('')
-      setError(passcodeErrorMessage(failure, 'Impossible de modifier le mot de passe. Réessaie.'))
+      setError(passcodeErrorMessage(failure, 'Could not change the password. Try again.'))
     } finally {
       setBusy(false)
     }
   }
   if (!editing) return (
-    <Button icon={<Icon icon={KeyRound} />} label="Change security code" clickAction={() => setEditing(true)} />
+    <Button icon={<Icon icon={KeyRound} />} label={t("Change security code")} clickAction={() => setEditing(true)} />
   )
   return (
     <VStack gap={4}>
       <FormLayout>
-        <TextInput label="Current security code" type="password"
+        <TextInput label={t("Current security code")} type="password"
           isDisabled={busy} value={oldPin} onChange={value => { if (/^[0-9]{0,4}$/.test(value)) setOldPin(value) }} />
-        <TextInput label="New security code" type="password"
-          description="Choose four digits." isDisabled={busy} value={newPin} onChange={value => { if (/^[0-9]{0,4}$/.test(value)) setNewPin(value) }} />
-        <TextInput label="Confirm new security code" type="password"
+        <TextInput label={t("New security code")} type="password"
+          description={t("Choose four digits.")} isDisabled={busy} value={newPin} onChange={value => { if (/^[0-9]{0,4}$/.test(value)) setNewPin(value) }} />
+        <TextInput label={t("Confirm new security code")} type="password"
           isDisabled={busy} value={confirmPin} onChange={value => { if (/^[0-9]{0,4}$/.test(value)) setConfirmPin(value) }} onEnter={() => { void save() }} />
       </FormLayout>
-      {error ? <Text role="alert">{error}</Text> : null}
+      {error ? <Text role="alert">{displayText(error)}</Text> : null}
       <HStack gap={2}>
-        <Button label="Save new code" variant="primary" isDisabled={!valid} isLoading={busy} clickAction={save} />
-        <Button label="Cancel" variant="ghost" isDisabled={busy} clickAction={() => { clear(); setEditing(false) }} />
+        <Button label={t("Save new code")} variant="primary" isDisabled={!valid} isLoading={busy} clickAction={save} />
+        <Button label={t("Cancel")} variant="ghost" isDisabled={busy} clickAction={() => { clear(); setEditing(false) }} />
       </HStack>
     </VStack>
   )
 }
 
 export function SettingsScreen({state, action}: SettingsScreenProps) {
+  useLocale()
+  const [notesOpen, setNotesOpen] = useState(false)
   const settings = state.settings
   return (
     <AuthenticatedScreen
       screen="settings"
-      title="Settings"
-      actions={<Button clickAction={() => action('lock')} icon={<Icon icon={LockKeyhole} />} label="Lock Peaks" />}>
+      title={t("Settings")}
+      actions={<Button clickAction={() => action('lock')} icon={<Icon icon={LockKeyhole} />} label={t("Lock Peaks")} />}>
       <HStack className="pd-settings-layout" align="start" gap={10}>
-        <VStack as="nav" aria-label="Preference sections" className="pd-settings-index" gap={2}>
-          <Text className="peaks-eyebrow" color="secondary" type="supporting">ON THIS PAGE</Text>
+        <VStack as="nav" aria-label={t("Preference sections")} className="pd-settings-index" gap={2}>
+          <Text className="peaks-eyebrow" color="secondary" type="supporting">{t("ON THIS PAGE")}</Text>
           {[
             {id: 'privacy', label: 'Privacy & security', icon: ShieldCheck},
             {id: 'appearance', label: 'Appearance', icon: Monitor},
             {id: 'data', label: 'Riot data', icon: Radio},
             {id: 'discord', label: 'Discord', icon: Radio},
-          ].map(item => <Button key={item.id} className="pd-settings-index-link" label={item.label} variant="ghost" icon={<Icon icon={item.icon} />} endContent={<Icon icon={ArrowUpRight} size="sm" />} onClick={() => document.getElementById(`pd-settings-${item.id}`)?.scrollIntoView({behavior: settings.reduceMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start'})} />)}
+          ].map(item => <Button key={item.id} className="pd-settings-index-link" label={t(item.label)} variant="ghost" icon={<Icon icon={item.icon} />} endContent={<Icon icon={ArrowUpRight} size="sm" />} onClick={() => document.getElementById(`pd-settings-${item.id}`)?.scrollIntoView({behavior: settings.reduceMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start'})} />)}
         </VStack>
       <VStack className="pd-settings-sections" gap={10}>
         <Section id="pd-settings-privacy" className="pd-settings-group" padding={0} variant="transparent">
           <List
             density="spacious"
             hasDividers
-            header={<GroupHeading icon={ShieldCheck} number="01">Privacy & security</GroupHeading>}>
+            header={<GroupHeading icon={ShieldCheck} number="01">{t("Privacy & security")}</GroupHeading>}>
             <ListItem
               startContent={<Icon icon={LockKeyhole} color="secondary" />}
               description={<Text color="secondary">{settings.autoLockMinutes === 0
-                ? 'Stay unlocked until you close Peaks. You can still lock it manually.'
-                : 'Lock Peaks after this period without interaction.'}</Text>}
+                ? t("Stay unlocked until you close Peaks. You can still lock it manually.")
+                : t("Lock Peaks after this period without interaction.")}</Text>}
               endContent={
                 <Selector
                   isLabelHidden
-                  label="Automatic lock interval"
+                  label={t("Automatic lock interval")}
                   onChange={value => { void action('settings', {autoLockMinutes: Number(value)}) }}
-                  options={AUTO_LOCK_OPTIONS}
+                  options={autoLockOptions()}
                   size="sm"
                   value={String(settings.autoLockMinutes)}
                 />
               }
-              label="Automatic lock"
+              label={t("Automatic lock")}
             />
             <ListItem
               startContent={<Icon icon={EyeOff} color="secondary" />}
-              label="Streamer Mode"
-              description={<Text color="secondary">Replace everyone’s names with Player 1, Player 2, and so on throughout Peaks.</Text>}
-              endContent={<Switch label="Streamer Mode" isLabelHidden size="sm"
+              label={t("Streamer Mode")}
+              description={<Text color="secondary">{t("Replace everyone’s names with Player 1, Player 2, and so on throughout Peaks.")}</Text>}
+              endContent={<Switch label={t("Streamer Mode")} isLabelHidden size="sm"
                 value={Boolean(settings.streamerMode)}
                 changeAction={value => action('settings', {streamerMode: value}, true)} />}
             />
             <ListItem
               startContent={<Icon icon={ClipboardCheck} color="secondary" />}
-              description={<Text color="secondary">Copied authentication codes clear after {settings.clipboardClearSeconds} seconds.</Text>}
+              description={<Text color="secondary">{t('Copied authentication codes clear after {{count}} seconds.', {count: settings.clipboardClearSeconds})}</Text>}
               endContent={
                 <HStack align="center" gap={2}>
-                  <StatusDot label="Clipboard safety enabled" variant="neutral" />
-                  <Text type="supporting">Always on</Text>
+                  <StatusDot label={t("Clipboard safety enabled")} variant="neutral" />
+                  <Text type="supporting">{t("Always on")}</Text>
                 </HStack>
               }
-              label="Clipboard safety"
+              label={t("Clipboard safety")}
             />
             <TelemetrySettings />
           </List>
           <VStack className="pd-settings-inset" gap={3}>
-            <Text weight="semibold">Security code</Text>
-            <Text color="secondary">Change the four-digit code that unlocks Peaks.</Text>
+            <Text weight="semibold">{t("Security code")}</Text>
+            <Text color="secondary">{t("Change the four-digit code that unlocks Peaks.")}</Text>
             <ChangeSecurityCode action={action} />
           </VStack>
         </Section>
@@ -189,19 +197,22 @@ export function SettingsScreen({state, action}: SettingsScreenProps) {
           <List
             density="spacious"
             hasDividers
-            header={<GroupHeading icon={Monitor} number="02">Appearance</GroupHeading>}>
+            header={<GroupHeading icon={Monitor} number="02">{t("Appearance")}</GroupHeading>}>
+            <ListItem label={t('Language')}
+              description={t('Choose the language used in Peaks.')}
+              endContent={<LanguageSelector isLabelHidden />} />
             <ListItem
-              description={<Text color="secondary">Limit animations and ambient effects.</Text>}
+              description={<Text color="secondary">{t("Limit animations and ambient effects.")}</Text>}
               endContent={
                 <Switch
                   changeAction={value => action('settings', {reduceMotion: value})}
                   isLabelHidden
-                  label="Reduce motion"
+                  label={t("Reduce motion")}
                   size="sm"
                   value={settings.reduceMotion}
                 />
               }
-              label="Reduce motion"
+              label={t("Reduce motion")}
             />
           </List>
         </Section>
@@ -210,43 +221,45 @@ export function SettingsScreen({state, action}: SettingsScreenProps) {
           <List
             density="spacious"
             hasDividers
-            header={<GroupHeading icon={Radio} number="03">Riot data</GroupHeading>}>
+            header={<GroupHeading icon={Radio} number="03">{t("Riot data")}</GroupHeading>}>
             <ListItem
-              description={<Text color="secondary">Use your signed-in Riot client.</Text>}
+              description={<Text color="secondary">{t("Use your signed-in Riot client.")}</Text>}
               endContent={
                 <HStack align="center" gap={2}>
-                  <StatusDot label="Keyless player search available" variant="neutral" />
-                  <Text type="supporting">No key required</Text>
+                  <StatusDot label={t("Keyless player search available")} variant="neutral" />
+                  <Text type="supporting">{t("No key required")}</Text>
                 </HStack>
               }
-              label="Player search"
+              label={t("Player search")}
             />
             <ListItem
               description={
                 <Text color="secondary">
                   {settings.riotApiConfigured
-                    ? 'An API key is configured for League and TFT statistics.'
-                    : 'Add an optional key for more League and TFT statistics.'}
+                    ? t("An API key is configured for League and TFT statistics.")
+                    : t("Add an optional key for more League and TFT statistics.")}
                 </Text>
               }
               endContent={
                 <HStack align="center" gap={2}>
-                  <StatusDot label={settings.riotApiConfigured ? 'Configured' : 'Optional'} variant="neutral" />
-                  <Text type="supporting">{settings.riotApiConfigured ? 'Configured' : 'Optional'}</Text>
+                  <StatusDot label={settings.riotApiConfigured ? t("Configured") : t("Optional")} variant="neutral" />
+                  <Text type="supporting">{settings.riotApiConfigured ? t("Configured") : t("Optional")}</Text>
                 </HStack>
               }
-              label="Developer API key"
+              label={t("Developer API key")}
             />
           </List>
           <VStack className="pd-settings-inset" gap={3}>
-            <Text weight="semibold">{settings.riotApiConfigured ? 'Replace API key' : 'Add API key'}</Text>
+            <Text weight="semibold">{settings.riotApiConfigured ? t("Replace API key") : t("Add API key")}</Text>
             <ApiKeyControl action={action} />
           </VStack>
         </Section>
 
         <Section id="pd-settings-discord" className="pd-settings-group" padding={0} variant="transparent">
-          <DiscordPresenceSettings header={<GroupHeading icon={Radio} number="04">Discord</GroupHeading>} />
+          <DiscordPresenceSettings header={<GroupHeading icon={Radio} number="04">{t("Discord")}</GroupHeading>} />
         </Section>
+        <HStack><Button label={t('What’s new in Peaks')} onClick={() => setNotesOpen(true)} variant="ghost" /></HStack>
+        <ReleaseNotesDialog isOpen={notesOpen} onClose={() => setNotesOpen(false)} />
 
       </VStack>
       </HStack>

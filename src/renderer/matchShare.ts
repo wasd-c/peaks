@@ -1,5 +1,6 @@
 import type {Account, Match, MatchPlayer} from './types'
 import {historicalPerformanceTags, playerPerformanceTags} from './matchAnalytics'
+import {displayText, t} from './i18n'
 
 export interface MatchShareTag {
   label: string
@@ -86,7 +87,10 @@ export function matchShareSummary(
 }
 
 export function matchShareCaption(summary: MatchShareSummary, map: string): string {
-  return `${summary.result} on ${map} · ${summary.score}${summary.kda ? ` · ${summary.kda} K/D/A` : ''}\n${summary.game} match recap, made with Peaks.`
+  return t('{{result}} on {{map}} · {{score}}{{performance}}\n{{game}} match recap, made with Peaks.', {
+    result: displayText(summary.result), map, score: summary.score,
+    performance: summary.kda ? ` · ${summary.kda} K/D/A` : '', game: summary.game,
+  })
 }
 
 export function matchShareFilename(summary: MatchShareSummary): string {

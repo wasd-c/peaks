@@ -30,6 +30,16 @@ current-game detection, and automatic login are explicitly marked Windows-only.
 
 ## Privacy and security settings
 
+Peaks supports **English, French and Korean**. On first use it follows the
+device's preferred languages, with English as the fallback. You can change the
+language from onboarding, the lock screen or **Settings → Appearance**. A manual
+choice is saved locally and takes precedence over device preferences.
+
+After an update, Peaks shows the bundled changelog once you unlock the app:
+summary, new features, bug fixes, changes, then removals when applicable. Dismissed
+notes stay dismissed for that version; **What's new in Peaks** in Settings opens
+them again. New installations go through onboarding without an update notice.
+
 In **Settings**, choose **Only when Peaks closes** under **Automatic lock** to
 disable inactivity locking. Every new application session still starts locked,
 and **Lock Peaks** remains available at any time.
@@ -280,6 +290,19 @@ npm run dev:demo
 
 The demo passcode is `2580`. Demo records are held in memory and are never
 written to the production profile.
+
+UI translations are bundled in `src/renderer/i18n/locales/{en,fr,ko}.json`.
+Keep the same keys and interpolation fields in all three catalogs, subscribe
+with `useLocale()` in translated components, and translate display labels rather
+than Riot identities, queue IDs or values used for game/asset lookups. Language
+selection is available before unlocking and does not change vault settings.
+
+Before preparing an authorized release, update `src/renderer/releaseNotes.ts`
+and its translations alongside the version. Notes are bundled with that build,
+work offline, and display in summary/added/fixed/changed/removed order. In a
+browser-only development preview, `?firstRun=1` shows onboarding and
+`?changelogPreview=1` shows the update modal after unlocking. Development and
+demo runs never acknowledge the installed app's pending changelog.
 
 Run the verification suite with:
 

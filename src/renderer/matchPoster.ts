@@ -1,6 +1,7 @@
 import {gameArtwork, valorantAgentName, valorantAgentPortraitAsset, valorantMapName} from './assets'
 import type {MatchShareSummary} from './matchShare'
 import {loadPosterFonts} from './posterFonts'
+import {displayText, t} from './i18n'
 
 const brandMarks = import.meta.glob<string>('./assets/peaks-mark.png', {
   eager: true,
@@ -63,9 +64,9 @@ function fittedText(context: CanvasRenderingContext2D, text: string, x: number, 
 }
 
 export function matchPosterResult(result: string): string {
-  if (/^(win|victory)$/i.test(result)) return 'VICTORY'
-  if (/^(loss|defeat)$/i.test(result)) return 'DEFEAT'
-  return result.toLocaleUpperCase()
+  if (/^(win|victory)$/i.test(result)) return t('VICTORY')
+  if (/^(loss|defeat)$/i.test(result)) return t('DEFEAT')
+  return displayText(result).toLocaleUpperCase()
 }
 
 /** A small, stable texture avoids flat gradients without changing between exports. */
@@ -205,7 +206,7 @@ export async function renderMatchPoster(summary: MatchShareSummary): Promise<Blo
   context.fillStyle = foreground
   context.font = `600 22px ${fonts.mono}`
   context.letterSpacing = '1px'
-  fittedText(context, [summary.mode, map].filter(Boolean).join(' / ').toLocaleUpperCase(), 76, 81, 1120)
+  fittedText(context, [displayText(summary.mode), map].filter(Boolean).join(' / ').toLocaleUpperCase(), 76, 81, 1120)
   context.letterSpacing = '0px'
   if (mark) context.drawImage(mark, 1350, 46, 40, 40)
   context.font = `800 38px ${fonts.display}`
@@ -227,7 +228,7 @@ export async function renderMatchPoster(summary: MatchShareSummary): Promise<Blo
   fittedText(context, summary.score.replace(/\s*[:–]\s*/g, ' — '), 74, 394, 480)
   context.font = `400 15px ${fonts.mono}`
   context.fillStyle = secondary
-  context.fillText('FINAL SCORE', 80, 423)
+  context.fillText(t('FINAL SCORE'), 80, 423)
 
   context.fillStyle = foreground
   if (summary.playerName) {
@@ -239,7 +240,7 @@ export async function renderMatchPoster(summary: MatchShareSummary): Promise<Blo
     fittedText(context, summary.kda, 72, 614, 710)
     context.font = `400 16px ${fonts.mono}`
     context.fillStyle = secondary
-    context.fillText(summary.kda.split('/').length === 3 ? 'KILLS / DEATHS / ASSISTS' : 'PERFORMANCE', 80, 649)
+    context.fillText(summary.kda.split('/').length === 3 ? t('KILLS / DEATHS / ASSISTS') : t('PERFORMANCE'), 80, 649)
   }
 
   const metrics = [
@@ -253,7 +254,7 @@ export async function renderMatchPoster(summary: MatchShareSummary): Promise<Blo
     fittedText(context, metric.value!, x, 733, 220)
     context.fillStyle = secondary
     context.font = `400 17px ${fonts.mono}`
-    context.fillText(metric.label, x + 1, 758)
+    fittedText(context, t(metric.label), x + 1, 758, 250)
   })
 
   // Match-earned tags are black with white type; history tags use the inverse.

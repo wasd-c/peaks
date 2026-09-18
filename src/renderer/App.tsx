@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from './i18n'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {AppShell} from '@astryxdesign/core/AppShell'
 import {Button} from '@astryxdesign/core/Button'
@@ -14,6 +15,7 @@ import {LockScreen} from './components/LockScreen'
 import {OnboardingScreen} from './components/OnboardingScreen'
 import {PostMatchReviewDialog} from './components/PostMatchReviewDialog'
 import {ShareMatchDialog} from './components/ShareMatchDialog'
+import {ReleaseNotesDialog, useReleaseNotes} from './components/ReleaseNotesDialog'
 import {PlayerPrivacyProvider, usePlayerPrivacy} from './components/PlayerPrivacy'
 import {AutoLockCoordinator, type AutoLockReason, pausesAutoLock} from './autoLock'
 import {RESET_APPLICATION_CONFIRMATION, invoke} from './bridge'
@@ -57,6 +59,7 @@ import {
 import type {Account, AppState, Player, TotpSetupProposal, TotpSetupResult} from './types'
 
 export function App() {
+  useLocale()
   const [state, setState] = useState<AppState | null>(null)
   const [loadError, setLoadError] = useState('')
   const previewFirstRun = typeof window !== 'undefined' && isFirstRunPreview(window.location.search)
@@ -102,14 +105,14 @@ export function App() {
       <Center className="boot-screen" minHeight="100dvh" padding={6}>
         {loadError ? (
           <VStack gap={3} align="center">
-            <Heading level={1}>Peaks could not start</Heading>
-            <Text color="secondary">{loadError}</Text>
-            <Button label="Try again" onClick={() => void load()} variant="primary" />
+            <Heading level={1}>{t("Peaks could not start")}</Heading>
+            <Text color="secondary">{displayText(loadError)}</Text>
+            <Button label={t("Try again")} onClick={() => void load()} variant="primary" />
           </VStack>
         ) : (
           <VStack gap={3} align="center">
-            <Spinner size="md" />
-            <Text color="secondary">Opening Peaks…</Text>
+            <Spinner size="md" label={t('Opening Peaks…')} />
+            <Text color="secondary">{t("Opening Peaks…")}</Text>
           </VStack>
         )}
       </Center>
@@ -149,6 +152,8 @@ interface AuthenticatedAppProps {
 }
 
 function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
+  const release = useReleaseNotes()
+  useLocale()
   const [page, setPage] = useState<Page>('overview')
   const [view, setView] = useState<AuthenticatedView>('grid')
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
@@ -268,7 +273,7 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
     account.id === review.account.id && account.owned !== false
   )))
   const isShareMatchOpen = Boolean(postMatchReview && sharedReviewKey === postMatchReview.key)
-  const canShowPostMatch = !isAddOpen && !connectAccount
+  const canShowPostMatch = !isAddOpen && !connectAccount && !release.pending
 
   const dismissPostMatch = () => {
     if (postMatchReview) persistReviewedMatch(getReviewStorage(), postMatchReview.key)
@@ -332,6 +337,8 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
         view={view}
         onView={setView}
       />
+      <ReleaseNotesDialog isOpen={release.pending && !isAddOpen && !connectAccount} onClose={() => { void release.dismiss() }}
+        currentVersion={release.currentVersion} busy={release.busy} error={release.error} />
       {postMatchReview ? (
         <>
           <PostMatchReviewDialog
@@ -399,6 +406,7 @@ function Workspace({
   view,
   onView,
 }: WorkspaceProps) {
+  useLocale()
   const showToast = useToast()
   const {redact} = usePlayerPrivacy()
   const [stoppedReport, setStoppedReport] = useState<string | null>(null)
@@ -430,7 +438,7 @@ function Workspace({
         const successMessage = next.operationNotice ?? successMessages[command]
         if (successMessage && !quiet) {
           showToast({
-            body: redact(successMessage),
+            body: redact(displayText(successMessage)),
             type: next.operationNotice ? 'info' : undefined,
             uniqueID: command,
           })
@@ -440,7 +448,7 @@ function Workspace({
           // A failed vault write may lock the service; mirror that state.
           setState(await invoke<AppState>('state'))
         }
-        const message = redact(error instanceof Error ? error.message : 'That action could not be completed')
+        const message = redact(displayText(error instanceof Error ? error.message : 'That action could not be completed'))
         if (!quiet) showToast({body: message, type: 'error', isAutoHide: true, uniqueID: `error-${command}`})
         if (propagateError) {
           throw error instanceof Error ? error : new Error(message)
@@ -565,7 +573,7 @@ function Workspace({
             })
             setState(result.state)
             showToast({
-              body: redact(result.warning ?? 'Riot authenticator added'),
+              body: redact(displayText(result.warning ?? 'Riot authenticator added')),
               type: result.warning ? 'info' : undefined,
               isAutoHide: !result.warning,
               uniqueID: 'totp-setup',

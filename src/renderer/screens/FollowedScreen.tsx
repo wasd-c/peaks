@@ -1,3 +1,4 @@
+import {t, useLocale} from '../i18n'
 import {useState} from 'react'
 import {Button} from '@astryxdesign/core/Button'
 import {EmptyState} from '@astryxdesign/core/EmptyState'
@@ -18,6 +19,7 @@ export interface WatchlistScreenProps {
 }
 
 export function WatchlistScreen({state, action, onSelectPlayer}: WatchlistScreenProps) {
+  useLocale()
   const {displayName} = usePlayerPrivacy()
   const [query, setQuery] = useState('')
   const players = state.followed.filter(player => (
@@ -26,33 +28,33 @@ export function WatchlistScreen({state, action, onSelectPlayer}: WatchlistScreen
   return (
     <AuthenticatedScreen
       screen="watchlist"
-      title="Watchlist">
+      title={t("Watchlist")}>
       <VStack className="pd-watch" gap={6}>
       <HStack className="pd-watch-summary" gap={6} align="center" justify="between">
         <HStack align="center" gap={4}>
           <Icon icon={UsersRound} size="lg" />
-          <VStack gap={1}><Text className="pd-watch-count" weight="semibold">{state.followed.length}</Text><Text color="secondary" type="supporting">Watched players</Text></VStack>
+          <VStack gap={1}><Text className="pd-watch-count" weight="semibold">{state.followed.length}</Text><Text color="secondary" type="supporting">{t("Watched players")}</Text></VStack>
         </HStack>
       </HStack>
       {state.followed.length > 0 ? (
         <VStack gap={5}>
           <HStack className="pd-watch-toolbar" align="end" gap={3}>
-            <TextInput label="Filter watched players" isLabelHidden placeholder="Find a watched player" startIcon={Search} hasClear value={query} onChange={setQuery} />
+            <TextInput label={t("Filter watched players")} isLabelHidden placeholder={t("Find a watched player")} startIcon={Search} hasClear value={query} onChange={setQuery} />
           </HStack>
           {players.length ? (
         <PlayerList
           action={action}
-          heading={`${players.length} watched player${players.length === 1 ? '' : 's'}`}
+          heading={t('{{count}} watched players', {count: players.length})}
           onSelect={onSelectPlayer}
           players={players.map(player => ({...player, followed: true}))}
         />
-          ) : <EmptyState title="No players found" description="Try another name." icon={<Icon icon={Search} />} actions={<Button label="Clear search" onClick={() => setQuery('')} />} />}
+          ) : <EmptyState title={t("No players found")} description={t("Try another name.")} icon={<Icon icon={Search} />} actions={<Button label={t("Clear search")} onClick={() => setQuery('')} />} />}
         </VStack>
       ) : (
         <EmptyState
-          description="Find a player in Search, then select Watch to add them here."
+          description={t("Find a player in Search, then select Watch to add them here.")}
           icon={<Icon color="secondary" icon={Star} />}
-          title="No watched players yet"
+          title={t("No watched players yet")}
         />
       )}
       </VStack>

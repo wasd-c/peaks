@@ -30,10 +30,12 @@
     "@stylexjs/stylex": "^0.19.0",
     "@vitejs/plugin-react": "latest",
     "electron-updater": "6.8.9",
+    "i18next": "26.4.2",
     "lucide-react": "latest",
     "ogl": "^1.0.11",
     "react": "latest",
     "react-dom": "latest",
+    "react-i18next": "17.0.14",
     "three": "^0.185.1"
   },
   "devDependencies": {

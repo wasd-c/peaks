@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState} from 'react'
 import {Button} from '@astryxdesign/core/Button'
 import {Icon} from '@astryxdesign/core/Icon'
@@ -8,15 +9,16 @@ import {Download, RefreshCw, RotateCcw} from 'lucide-react'
 import {updateControl, type UpdateState} from '../updateState'
 
 export function UpdateControl({state, onAction}: {state: UpdateState; onAction: () => void}) {
+  useLocale()
   const control = updateControl(state)
   if (!control.visible) return null
   const progress = state.phase === 'downloading'
   const restarting = state.phase === 'ready' || state.phase === 'installing'
   return (
-    <VStack gap={1} align="center" width="100%" paddingInline={3} aria-label="Peaks updates">
+    <VStack gap={1} align="center" width="100%" paddingInline={3} aria-label={t("Peaks updates")}>
       <Button
-        label={control.busy ? state.message : control.label}
-        tooltip={state.message}
+        label={displayText(control.busy ? state.message : control.label)}
+        tooltip={displayText(state.message)}
         isIconOnly
         icon={<Icon icon={state.phase === 'error' ? RotateCcw : control.install ? Download : RefreshCw} />}
         variant={control.install ? 'primary' : 'ghost'}
@@ -24,13 +26,14 @@ export function UpdateControl({state, onAction}: {state: UpdateState; onAction: 
         isDisabled={control.busy}
         onClick={onAction}
       />
-      {progress ? <VStack width="100%"><ProgressBar label="Downloading Peaks update" isLabelHidden value={state.percent ?? 0} variant="neutral" /></VStack> : null}
-      {control.caption ? <Text type="supporting" size="2xs" color={control.install ? 'primary' : 'secondary'} hasTabularNumbers role="status" aria-live={progress ? 'off' : 'polite'}>{restarting ? 'Restarting' : control.caption}</Text> : null}
+      {progress ? <VStack width="100%"><ProgressBar label={t("Downloading Peaks update")} isLabelHidden value={state.percent ?? 0} variant="neutral" /></VStack> : null}
+      {control.caption ? <Text type="supporting" size="2xs" color={control.install ? 'primary' : 'secondary'} hasTabularNumbers role="status" aria-live={progress ? 'off' : 'polite'}>{restarting ? t("Restarting") : displayText(control.caption)}</Text> : null}
     </VStack>
   )
 }
 
 export function SidebarUpdate() {
+  useLocale()
   const [preview] = useState<'available' | 'downloading' | 'error' | null>(() => {
     if (!import.meta.env.DEV || typeof window === 'undefined' || window.peaks) return null
     const phase = new URLSearchParams(window.location.search).get('updatePreview')

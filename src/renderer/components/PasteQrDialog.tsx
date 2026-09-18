@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {Dialog, DialogHeader} from '@astryxdesign/core/Dialog'
@@ -38,6 +39,7 @@ export function PasteQrDialog({
   onConnect,
   onOpenChange,
 }: PasteQrDialogProps) {
+  useLocale()
   const {displayName, redact} = usePlayerPrivacy()
   const [file, setFile] = useState<File | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
@@ -117,7 +119,7 @@ export function PasteQrDialog({
         padding={6}
         header={
           <DialogHeader
-            title="Connect with a QR image"
+            title={t("Connect with a QR image")}
             startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={QrCode} /></HStack>}
             onOpenChange={isConnecting ? undefined : closeDialog}
           />
@@ -128,7 +130,7 @@ export function PasteQrDialog({
               <HStack className="pd-dialog__identity" align="center" gap={3} padding={4}>
                 <Icon icon={Fingerprint} color="secondary" />
                 <VStack gap={0.5}>
-                  <Text className="pd-dialog__eyebrow" type="supporting">CONNECTING AS</Text>
+                  <Text className="pd-dialog__eyebrow" type="supporting">{t("CONNECTING AS")}</Text>
                   <Text weight="semibold">{displayName(accountRiotId)}</Text>
                 </VStack>
               </HStack>
@@ -136,26 +138,26 @@ export function PasteQrDialog({
                 <VStack gap={4} align="center">
                   <HStack className="pd-qr__scan-mark" align="center" justify="center"><Icon icon={QrCode} size="lg" /></HStack>
                   <VStack gap={1} align="center">
-                    <Heading level={2}>Add a QR screenshot</Heading>
-                    <Text color="secondary" justify="center">Screenshot the sign-in code in Riot Client.</Text>
+                    <Heading level={2}>{t("Add a QR screenshot")}</Heading>
+                    <Text color="secondary" justify="center">{t("Screenshot the sign-in code in Riot Client.")}</Text>
                   </VStack>
               <FileInput
                 accept={QR_IMAGE_ACCEPT}
                 changeAction={connectFile}
                 className="pd-qr__dropzone"
-                description="PNG, JPEG, WebP or BMP · Up to 8 MB"
+                description={t("PNG, JPEG, WebP or BMP · Up to 8 MB")}
                 isDisabled={isConnecting}
                 isLabelHidden
                 isLoading={isConnecting}
-                label="Riot Client QR image"
+                label={t("Riot Client QR image")}
                 maxSize={QR_IMAGE_MAX_BYTES}
                 mode="dropzone"
                 onChange={selectFile}
-                placeholder="Drop a QR screenshot or choose an image"
+                placeholder={t("Drop a QR screenshot or choose an image")}
                 status={errorMessage
-                  ? {type: 'error', message: redact(errorMessage)}
+                  ? {type: 'error', message: redact(displayText(errorMessage))}
                   : file && !isConnecting
-                    ? {type: 'success', message: 'QR image received'}
+                    ? {type: 'success', message: t('QR image received')}
                     : undefined}
                 statusVariant="detached"
                 value={file}
@@ -166,11 +168,10 @@ export function PasteQrDialog({
 
               {isConnecting ? (
                 <HStack className="pd-dialog__progress-track" align="start" gap={3} padding={4}>
-                  <Spinner aria-label="Connecting pasted Riot QR" size="md" />
+                  <Spinner aria-label={t("Connecting pasted Riot QR")} size="md" />
                   <VStack gap={1}>
-                    <Text weight="semibold">Connecting your account…</Text>
-                    <Text color="secondary" role="status">
-                      Verifying this QR for {displayName(accountRiotId)}.
+                    <Text weight="semibold">{t("Connecting your account…")}</Text>
+                    <Text color="secondary" role="status">{t('Verifying this QR for {{name}}.', {name: displayName(accountRiotId)})}
                     </Text>
                   </VStack>
                 </HStack>
@@ -180,13 +181,11 @@ export function PasteQrDialog({
                 <HStack align="center" gap={3}>
                 <Icon color="secondary" icon={ClipboardPaste} />
                 <VStack gap={1}>
-                  <Text weight="semibold">Paste from clipboard</Text>
-                  <Text color="secondary">
-                    Paste, drop or choose to connect immediately.
-                  </Text>
+                  <Text weight="semibold">{t("Paste from clipboard")}</Text>
+                  <Text color="secondary">{t("Paste, drop or choose to connect immediately.")}</Text>
                 </VStack>
                 </HStack>
-                <Text className="pd-qr__shortcut" type="supporting">Ctrl + V</Text>
+                <Text className="pd-qr__shortcut" type="supporting">{t("Ctrl + V")}</Text>
               </HStack>
 
             </VStack>

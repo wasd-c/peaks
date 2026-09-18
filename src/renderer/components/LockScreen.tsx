@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState} from 'react'
 import {AlertDialog} from '@astryxdesign/core/AlertDialog'
 import {Button} from '@astryxdesign/core/Button'
@@ -11,6 +12,7 @@ import {TextInput} from '@astryxdesign/core/TextInput'
 import {VStack} from '@astryxdesign/core/VStack'
 import {LockKeyhole, Mountain} from 'lucide-react'
 import {passcodeErrorMessage} from '../passcodeMessages'
+import {LanguageSelector} from './LanguageSelector'
 import type {AppState} from '../types'
 
 type Feedback = 'idle' | 'invalid' | 'wrong'
@@ -56,6 +58,7 @@ const copy = {
 } as const
 
 export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: LockScreenProps) {
+  useLocale()
   const [pin, setPin] = useState('')
   const [feedback, setFeedback] = useState<Feedback>('idle')
   const [message, setMessage] = useState('')
@@ -104,7 +107,7 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
     } catch (error) {
       if (mountedRef.current) {
         setFeedback('wrong')
-        setMessage(passcodeErrorMessage(error, 'Impossible de vérifier le mot de passe. Réessaie.'))
+        setMessage(passcodeErrorMessage(error, 'Could not check the password. Try again.'))
         clearTimer()
         resetTimer.current = window.setTimeout(() => {
           setPin('')
@@ -156,8 +159,8 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
     ? RESET_PROMPTS.confirmation
     : RESET_PROMPTS.warning
   const resetDescription = resetError
-    ? `${RESET_PROMPTS.confirmation.description} Reset failed: ${resetError}`
-    : resetPrompt.description
+    ? `${t(RESET_PROMPTS.confirmation.description)} ${t('Reset failed: {{error}}', {error: displayText(resetError)})}`
+    : t(resetPrompt.description)
 
   return (
     <Center
@@ -167,21 +170,24 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
       padding={6}
       onPointerDown={() => inputRef.current?.focus()}>
       <HStack className="pd-entry-brand" align="center" gap={2}><Icon icon={Mountain} size="lg" /><Text weight="semibold">PEAKS</Text></HStack>
+      <HStack className="pd-entry-language" onPointerDown={event => event.stopPropagation()}>
+        <LanguageSelector isLabelHidden />
+      </HStack>
       <VStack className="lock-content pd-entry-lock-content" gap={6} align="center" maxWidth="calc(var(--spacing-10) * 12)">
         <Center className="lock-icon pd-entry-lock-icon" width="calc(var(--spacing-10) * 2)" height="calc(var(--spacing-10) * 2)">
-          <Icon icon={LockKeyhole} size="lg" label="Passcode" />
+          <Icon icon={LockKeyhole} size="lg" label={t("Passcode")} />
         </Center>
 
         <VStack gap={2} align="center">
           <Heading level={1} type="display-2" justify="center">
-            {content.title}
+            {t(content.title)}
           </Heading>
           <Text className="lock-copy" type="body" color="secondary" justify="center">
-            {content.body}
+            {t(content.body)}
           </Text>
         </VStack>
 
-        <HStack className="passcode-dots" data-feedback={feedback} gap={5} align="center" aria-label={`${pin.length} of 4 digits entered`}>
+        <HStack className="passcode-dots" data-feedback={feedback} gap={5} align="center" aria-label={t("{{length}} of 4 digits entered", {length: pin.length})}>
           {[0, 1, 2, 3].map(index => (
             <RadioIndicator
               className="passcode-dot"
@@ -197,7 +203,7 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
         <TextInput
           ref={inputRef}
           className="passcode-input"
-          label="Four-digit passcode"
+          label={t("Four-digit passcode")}
           isLabelHidden
           type="password"
           value={pin}
@@ -208,10 +214,10 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
 
         <VStack className="lock-status" gap={1} align="center">
           <Text role="status" type="supporting" color={message ? 'primary' : 'secondary'}>
-            {message || (isSubmitting ? 'Checking…' : 'Type anywhere to enter')}
+            {displayText(message || (isSubmitting ? 'Checking…' : 'Type anywhere to enter'))}
           </Text>
           {typeof window !== 'undefined' && !window.peaks && mode === 'unlock' && (
-            <Text type="supporting" color="secondary">Demo passcode · 2580</Text>
+            <Text type="supporting" color="secondary">{t("Demo passcode · 2580")}</Text>
           )}
         </VStack>
 
@@ -220,7 +226,7 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
       {mode === 'unlock' && (
         <Button
           className="forgot-code-button"
-          label={FORGOT_CODE_LABEL}
+          label={t(FORGOT_CODE_LABEL)}
           size="sm"
           variant="ghost"
           isDisabled={isSubmitting}
@@ -241,11 +247,11 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
             setResetStep('closed')
           }
         }}
-        title={resetPrompt.title}
+        title={t(resetPrompt.title)}
         description={resetDescription}
-        actionLabel={resetPrompt.actionLabel}
+        actionLabel={t(resetPrompt.actionLabel)}
         actionVariant={resetStep === 'confirmation' ? 'destructive' : 'secondary'}
-        cancelLabel={resetPrompt.cancelLabel}
+        cancelLabel={t(resetPrompt.cancelLabel)}
         isActionLoading={isResetting}
         onAction={resetStep === 'confirmation'
           ? () => void resetApplication()

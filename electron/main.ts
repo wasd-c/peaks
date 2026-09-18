@@ -20,6 +20,7 @@ import {DiscordActivityHeartbeat} from './discordActivityHeartbeat'
 import {Telemetry} from './telemetry'
 import {CancellationToken, NsisUpdater} from 'electron-updater'
 import {PEAKS_RELEASE_PROVIDER, PeaksUpdater} from './appUpdater'
+import {ReleaseHistory} from './releaseHistory'
 
 let window: BrowserWindow | null = null
 let backend: ChildProcessWithoutNullStreams | null = null
@@ -28,6 +29,7 @@ let discordPresence: DiscordPresence | null = null
 let discordHeartbeat: DiscordActivityHeartbeat | null = null
 let telemetry: Telemetry | null = null
 let appUpdater: PeaksUpdater | null = null
+let releaseHistory: ReleaseHistory | null = null
 let activityRequest: {epoch: number | undefined; promise: Promise<unknown>} | null = null
 const totpClipboard = createSensitiveClipboard(clipboard)
 const pending = new Map<number, {resolve: (value: unknown) => void, reject: (error: Error) => void, presenceEpoch: number | undefined}>()
@@ -242,6 +244,12 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  const userData = app.getPath('userData')
+  // Detect upgrades from builds that predate release-history.json before any
+  // services or renderer create preferences. Inspect file existence only.
+  const existingInstallation = ['discord-presence.json', 'telemetry.json', path.join('Local Storage', 'leveldb', 'CURRENT')]
+    .some(filename => existsSync(path.join(userData, filename)))
+  releaseHistory = new ReleaseHistory(path.join(userData, 'release-history.json'), app.getVersion(), app.isPackaged && process.env.PEAKS_DEMO !== '1', existingInstallation)
   telemetry = new Telemetry({filename: path.join(app.getPath('userData'), 'telemetry.json'), version: app.getVersion(), platform: process.platform, available: app.isPackaged && process.env.PEAKS_DEMO !== '1'})
   appUpdater = new PeaksUpdater(app.isPackaged && process.platform === 'win32' ? new NsisUpdater(PEAKS_RELEASE_PROVIDER) : null, app.getVersion(), () => new CancellationToken(), phase => telemetry?.track('update.state', {state: phase === 'ready' ? 'downloaded' : phase}))
   appUpdater.start()
@@ -260,6 +268,7 @@ app.whenReady().then(() => {
   if (command === 'discord_presence') return discordPresence!.handle(payload ?? {})
   if (command === 'telemetry_settings') return telemetry!.handle(payload ?? {})
   if (command === 'update_status' || command === 'update_check' || command === 'update_install') return appUpdater!.handle(command, payload)
+  if (command === 'release_history' || command === 'release_history_ack') return releaseHistory!.handle(command, payload ?? {})
   if (command === 'copy_match_image') {
     const imageBytes = decodeMatchImagePayload(payload)
     const image = nativeImage.createFromBuffer(imageBytes)

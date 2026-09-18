@@ -1,3 +1,4 @@
+import {t, useLocale} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {Avatar} from '@astryxdesign/core/Avatar'
 import {Grid} from '@astryxdesign/core/Grid'
@@ -17,6 +18,7 @@ import {matchAnalytics, playerPerformanceTags} from '../matchAnalytics'
 import type {Game, Match, MatchPlayer} from '../types'
 
 export function PlayerPerformanceTags({player, game}: {player: MatchPlayer; game: Game}) {
+  useLocale()
   const tags = playerPerformanceTags(player, game)
   if (tags.length === 0) return null
   return (
@@ -31,6 +33,7 @@ export function PlayerPerformanceTags({player, game}: {player: MatchPlayer; game
 }
 
 export function MatchStandouts({match, riotId}: {match: Match; riotId?: string}) {
+  useLocale()
   const {displayName} = usePlayerPrivacy()
   if (match.game !== 'VALORANT') return null
   const owner = riotId?.trim().toLocaleLowerCase()
@@ -50,7 +53,7 @@ export function MatchStandouts({match, riotId}: {match: Match; riotId?: string})
       header={
         <HStack align="center" gap={2}>
           <Icon color="secondary" icon={UsersRound} />
-          <Heading level={2}>Around the lobby</Heading>
+          <Heading level={2}>{t("Around the lobby")}</Heading>
         </HStack>
       }>
       {players.map((player, index) => {
@@ -63,14 +66,14 @@ export function MatchStandouts({match, riotId}: {match: Match; riotId?: string})
           <ListItem
             description={
               <VStack gap={1}>
-                <Text type="supporting">{player.agent ?? 'Agent unavailable'}</Text>
+                <Text type="supporting">{player.agent ?? t("Agent unavailable")}</Text>
                 <PlayerPerformanceTags game={match.game} player={player} />
               </VStack>
             }
             endContent={kda ? (
               <VStack align="end" gap={0.5}>
                 <Text hasTabularNumbers weight="semibold">{kda}</Text>
-                <Text type="supporting">K / D / A</Text>
+                <Text type="supporting">{t("K / D / A")}</Text>
               </VStack>
             ) : undefined}
             key={`${player.riotId ?? player.name}-${index}`}
@@ -84,6 +87,7 @@ export function MatchStandouts({match, riotId}: {match: Match; riotId?: string})
 }
 
 export function PerformanceBreakdownPanel({matches, riotId}: {matches: Match[]; riotId?: string}) {
+  useLocale()
   const analytics = matchAnalytics(matches, riotId)
   return (
     <VStack className="peaks-match-insights" gap={5}>
@@ -91,30 +95,30 @@ export function PerformanceBreakdownPanel({matches, riotId}: {matches: Match[]; 
         <HStack align="center" gap={2} justify="between" wrap="wrap">
           <HStack align="center" gap={2}>
             <Icon color="secondary" icon={ScanLine} />
-            <Heading level={2}>Aim breakdown</Heading>
+            <Heading level={2}>{t("Aim breakdown")}</Heading>
           </HStack>
           <Text type="supporting">
-            {analytics.totalHits > 0 ? `${analytics.totalHits} landed hits${matches.length > 1 ? ` · ${analytics.hitMatches} matches with hit data` : ''}` : 'Hit-location data unavailable'}
+            {analytics.totalHits > 0 ? t("{{totalHits}} landed hits{{value2}}", {totalHits: analytics.totalHits, value2: matches.length > 1 ? t(' · {{count}} matches with hit data', {count: analytics.hitMatches}) : ''}) : t("Hit-location data unavailable")}
           </Text>
         </HStack>
         <Grid className="peaks-stat-strip peaks-hit-distribution" columns={3} gap={0}>
           {analytics.hitDistribution.map(location => (
             <Section key={location.label} padding={4} variant="transparent">
               <VStack gap={2}>
-                <Text type="supporting">{location.label.toUpperCase()}</Text>
+                <Text type="supporting">{t(location.label).toLocaleUpperCase()}</Text>
                 <Text className="peaks-metric-value" hasTabularNumbers type="display-3" weight="semibold">
                   {location.percentage == null ? '—' : `${location.percentage.toFixed(1)}%`}
                 </Text>
                 {location.percentage != null ? (
                   <ProgressBar
                     isLabelHidden
-                    label={`${location.label}: share of landed hits`}
+                    label={t("{{label}}: share of landed hits", {label: t(location.label)})}
                     max={100}
                     value={location.percentage}
                     variant="neutral"
                   />
                 ) : null}
-                <Text type="supporting">{analytics.totalHits > 0 ? `${location.hits} hits` : 'Not available'}</Text>
+                <Text type="supporting">{analytics.totalHits > 0 ? t("{{hits}} hits", {hits: location.hits}) : t("Not available")}</Text>
               </VStack>
             </Section>
           ))}
@@ -127,19 +131,19 @@ export function PerformanceBreakdownPanel({matches, riotId}: {matches: Match[]; 
           hasDividers
           header={
             <HStack align="center" gap={2} justify="between" wrap="wrap">
-              <HStack align="center" gap={2}><Icon color="secondary" icon={Crosshair} /><Heading level={2}>Weapon usage</Heading></HStack>
-              <Text type="supporting">SHARE OF RECORDED WEAPON KILLS</Text>
+              <HStack align="center" gap={2}><Icon color="secondary" icon={Crosshair} /><Heading level={2}>{t("Weapon usage")}</Heading></HStack>
+              <Text type="supporting">{t("SHARE OF RECORDED WEAPON KILLS")}</Text>
             </HStack>
           }>
           {analytics.weapons.length > 0 ? analytics.weapons.map(weapon => (
             <ListItem
               description={
                 <VStack gap={2} paddingBlockEnd={1}>
-                  <Text type="supporting">{weapon.kills} {weapon.kills === 1 ? 'kill' : 'kills'}</Text>
+                  <Text type="supporting">{t('{{count}} kills', {count: weapon.kills})}</Text>
                   {weapon.percentage != null ? (
                     <ProgressBar
                       isLabelHidden
-                      label={`${weapon.weapon}: share of recorded weapon kills`}
+                      label={t("{{weapon}}: share of recorded weapon kills", {weapon: weapon.weapon})}
                       max={100}
                       value={weapon.percentage}
                       variant="neutral"
@@ -154,8 +158,8 @@ export function PerformanceBreakdownPanel({matches, riotId}: {matches: Match[]; 
             />
           )) : (
             <ListItem
-              description={analytics.weaponMatches > 0 ? 'No weapon kills were recorded in this window.' : 'Available when Riot returns the detailed match events.'}
-              label={analytics.weaponMatches > 0 ? 'No recorded weapon kills' : 'Weapon details unavailable'}
+              description={analytics.weaponMatches > 0 ? t("No weapon kills were recorded in this window.") : t("Available when Riot returns the detailed match events.")}
+              label={analytics.weaponMatches > 0 ? t("No recorded weapon kills") : t("Weapon details unavailable")}
               startContent={<Icon color="secondary" icon={Crosshair} />}
             />
           )}
@@ -164,7 +168,7 @@ export function PerformanceBreakdownPanel({matches, riotId}: {matches: Match[]; 
       <VStack gap={3}>
         <HStack align="center" gap={2}>
           <Icon color="secondary" icon={Sparkles} />
-          <Heading level={2}>Performance tags</Heading>
+          <Heading level={2}>{t("Performance tags")}</Heading>
         </HStack>
         {analytics.tags.length > 0 ? analytics.tags.map(tag => (
           <HStack align="center" gap={3} key={tag.label} wrap="wrap">
@@ -173,7 +177,7 @@ export function PerformanceBreakdownPanel({matches, riotId}: {matches: Match[]; 
           </HStack>
         )) : (
           <Text color="secondary">
-            {analytics.roundMatches > 0 ? 'No standout round tags in this window.' : 'Round highlights appear when detailed match events are available.'}
+            {analytics.roundMatches > 0 ? t("No standout round tags in this window.") : t("Round highlights appear when detailed match events are available.")}
           </Text>
         )}
       </VStack>
@@ -182,5 +186,6 @@ export function PerformanceBreakdownPanel({matches, riotId}: {matches: Match[]; 
 }
 
 export function MatchInsights({match, riotId}: {match: Match; riotId?: string}) {
+  useLocale()
   return match.game === 'VALORANT' ? <PerformanceBreakdownPanel matches={[match]} riotId={riotId} /> : null
 }

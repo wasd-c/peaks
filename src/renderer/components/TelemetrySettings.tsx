@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState} from 'react'
 import {HStack} from '@astryxdesign/core/HStack'
 import {ListItem} from '@astryxdesign/core/List'
@@ -8,6 +9,7 @@ import {invoke} from '../bridge'
 interface TelemetryStatus {enabled: boolean; available: boolean}
 
 export function TelemetrySettings() {
+  useLocale()
   const [status, setStatus] = useState<TelemetryStatus | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -43,11 +45,11 @@ export function TelemetrySettings() {
     }
   }
   return <ListItem
-    label="Share app diagnostics"
-    description={<Text color="secondary">{error || 'Help improve Peaks with performance and error counts. No account or match data is sent.'}</Text>}
+    label={t("Share app diagnostics")}
+    description={<Text color="secondary">{displayText(error) || t("Help improve Peaks with performance and error counts. No account or match data is sent.")}</Text>}
     endContent={<HStack gap={3} align="center">
-      <Text type="supporting">{status ? status.enabled ? 'On' : 'Off' : '…'}</Text>
-      <Switch label="Share app diagnostics" isLabelHidden size="sm" value={status?.enabled ?? false}
+      <Text type="supporting">{status ? status.enabled ? t("On") : t("Off") : '…'}</Text>
+      <Switch label={t("Share app diagnostics")} isLabelHidden size="sm" value={status?.enabled ?? false}
         isDisabled={!status || busy || !status.available} isLoading={busy || (!status && !error)} changeAction={update} />
     </HStack>}
   />

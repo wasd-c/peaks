@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {matchShareSummary, type MatchShareSummary} from './matchShare'
 import {renderMatchPoster} from './matchPoster'
+import {i18n} from './i18n'
 
 vi.mock('./assets', () => ({
   gameArtwork: () => 'map-art',
@@ -58,9 +59,20 @@ function canvasHarness(failImages = false, failExport = false) {
 }
 
 beforeEach(() => vi.clearAllMocks())
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => { vi.unstubAllGlobals(); void i18n.changeLanguage('en') })
 
 describe('match poster export', () => {
+  it.each([
+    ['fr', 'VICTOIRE', 'COMPÉTITION / HAVEN', 'SCORE FINAL'],
+    ['ko', '승리', '경쟁전 / HAVEN', '최종 점수'],
+  ])('exports captions in %s without translating identities or changing match data', async (language, result, title, score) => {
+    await i18n.changeLanguage(language)
+    const harness = canvasHarness()
+    await renderMatchPoster({...summary, playerName: 'Example#EUW'})
+    expect(harness.text()).toEqual(expect.arrayContaining([result, title, score, 'Example#EUW', '24 / 15 / 4', '13 — 9']))
+    expect(harness.text()).not.toContain('FINAL SCORE')
+  })
+
   it('renders the selected performance and standing agent into a widescreen PNG', async () => {
     const harness = canvasHarness()
     const blob = await renderMatchPoster(summary)

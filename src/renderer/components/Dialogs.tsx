@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {Avatar} from '@astryxdesign/core/Avatar'
@@ -36,6 +37,7 @@ const userFacingError = (error: unknown, fallback: string) => (
 )
 
 export function AddAccountDialog({isOpen, onOpenChange, onConnect}: AddAccountDialogProps) {
+  useLocale()
   const {redact} = usePlayerPrivacy()
   const [connectionState, setConnectionState] = useState<AccountConnectionState>('connecting')
   const [errorMessage, setErrorMessage] = useState('')
@@ -86,7 +88,7 @@ export function AddAccountDialog({isOpen, onOpenChange, onConnect}: AddAccountDi
         padding={6}
         header={
           <DialogHeader
-            title="Add a Riot account"
+            title={t("Add a Riot account")}
             startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={Fingerprint} /></HStack>}
             onOpenChange={connectionState === 'error' ? onOpenChange : undefined}
           />
@@ -98,31 +100,31 @@ export function AddAccountDialog({isOpen, onOpenChange, onConnect}: AddAccountDi
                 <VStack gap={4} align="center">
                   <HStack className="pd-dialog__orbit" align="center" justify="center">
                     {connectionState === 'connecting' ? (
-                      <Spinner size="lg" aria-label="Connecting Riot account" />
+                      <Spinner size="lg" aria-label={t("Connecting Riot account")} />
                     ) : (
                       <Icon icon="error" color="error" size="lg" />
                     )}
                   </HStack>
                   <VStack gap={2} align="center">
-                  <Text className="pd-dialog__eyebrow" type="supporting">{connectionState === 'connecting' ? 'RIOT SIGN-IN' : 'CONNECTION PAUSED'}</Text>
+                  <Text className="pd-dialog__eyebrow" type="supporting">{connectionState === 'connecting' ? t("RIOT SIGN-IN") : t("CONNECTION PAUSED")}</Text>
                   <Heading level={2} type="display-3" justify="center" role={connectionState === 'error' ? 'alert' : 'status'}>
                     {connectionState === 'connecting'
-                      ? 'Connecting your account…'
-                      : 'Could not add the account'}
+                      ? t("Connecting your account…")
+                      : t("Could not add the account")}
                   </Heading>
                   <Text color="secondary" justify="center">
                     {connectionState === 'connecting'
-                      ? 'Keep Peaks open. Complete sign-in in the Riot window if one appears.'
-                      : redact(errorMessage)}
+                      ? t("Keep Peaks open. Complete sign-in in the Riot window if one appears.")
+                      : redact(displayText(errorMessage))}
                   </Text>
                   </VStack>
                 </VStack>
               </Section>
 
               <List className="pd-dialog__steps" density="spacious" hasDividers>
-                <ListItem label="Already in VALORANT?" description="We’ll find the account signed in on this PC."
+                <ListItem label={t("Already in VALORANT?")} description={t("We’ll find the account signed in on this PC.")}
                   startContent={<Icon icon={Gamepad2} color="secondary" />} />
-                <ListItem label="Or sign in with Riot" description="Use the Riot window. Your account appears here automatically."
+                <ListItem label={t("Or sign in with Riot")} description={t("Use the Riot window. Your account appears here automatically.")}
                   startContent={<Icon icon={ExternalLink} color="secondary" />} />
               </List>
             </VStack>
@@ -131,8 +133,8 @@ export function AddAccountDialog({isOpen, onOpenChange, onConnect}: AddAccountDi
         footer={connectionState === 'error' ? (
           <LayoutFooter hasDivider padding={6}>
             <HStack gap={2} justify="end">
-              <Button label="Cancel" variant="ghost" onClick={() => onOpenChange(false)} />
-              <Button label="Try again" variant="primary" endContent={<Icon icon={ArrowUpRight} />} clickAction={connect} />
+              <Button label={t("Cancel")} variant="ghost" onClick={() => onOpenChange(false)} />
+              <Button label={t("Try again")} variant="primary" endContent={<Icon icon={ArrowUpRight} />} clickAction={connect} />
             </HStack>
           </LayoutFooter>
         ) : undefined}
@@ -164,6 +166,7 @@ export function ConnectDialog({
   onConfirmTotp,
   onPrepareTotp,
 }: ConnectDialogProps) {
+  useLocale()
   const {displayName, redact} = usePlayerPrivacy()
   const [totpState, setTotpState] = useState<TotpDialogState>('choices')
   const [proposal, setProposal] = useState<TotpSetupProposal | null>(null)
@@ -285,18 +288,18 @@ export function ConnectDialog({
             startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={confirming ? ShieldCheck : Fingerprint} /></HStack>}
             title={totpState === 'connecting' || totpState === 'preparing'
               ? totpState === 'preparing'
-                ? 'Preparing Riot authenticator…'
-                : 'Connecting Riot account…'
+                ? t("Preparing Riot authenticator…")
+                : t("Connecting Riot account…")
               : confirming
-                ? 'Enable Riot Mobile authenticator?'
+                ? t("Enable Riot Mobile authenticator?")
                 : canConnectQr
-                  ? 'Connect your account'
-                  : 'Reconnect your account'}
+                  ? t("Connect your account")
+                  : t("Reconnect your account")}
             subtitle={confirming
-              ? 'Review the account and security change before continuing.'
+              ? t("Review the account and security change before continuing.")
               : canConnectQr
-                ? 'Choose how to connect this account to Riot Client.'
-                : 'Sign in to Riot to enable QR connection for this account.'}
+                ? t("Choose how to connect this account to Riot Client.")
+                : t("Sign in to Riot to enable QR connection for this account.")}
             onOpenChange={busy || confirming ? undefined : closeDialog}
           />
         }
@@ -308,7 +311,7 @@ export function ConnectDialog({
                   <HStack gap={3} align="center">
                     <Avatar name={displayName(account.riotId)} src={account.avatar} size="lg" tooltip={false} />
                     <VStack gap={0.5}>
-                      <Text className="pd-dialog__eyebrow" type="supporting">SELECTED ACCOUNT · {account.region.toUpperCase()}</Text>
+                      <Text className="pd-dialog__eyebrow" type="supporting">{t("SELECTED ACCOUNT ·")} {account.region.toUpperCase()}</Text>
                       <Text type="large" weight="semibold">{displayName(account.riotId)}</Text>
                     </VStack>
                   </HStack>
@@ -323,43 +326,41 @@ export function ConnectDialog({
                     <Spinner
                       size="md"
                       aria-label={totpState === 'preparing'
-                        ? 'Preparing Riot authenticator setup'
-                        : 'Connecting Riot account'}
+                        ? t("Preparing Riot authenticator setup")
+                        : t("Connecting Riot account")}
                     />
                     </HStack>
                     <VStack gap={1}>
                       <Text type="large" weight="semibold">
                         {totpState === 'preparing'
-                          ? 'Checking Riot authenticator settings…'
+                          ? t("Checking Riot authenticator settings…")
                           : connectionKind === 'session'
-                            ? 'Waiting for Riot sign-in…'
-                            : 'Scanning the Riot Client sign-in QR…'}
+                            ? t("Waiting for Riot sign-in…")
+                            : t("Scanning the Riot Client sign-in QR…")}
                       </Text>
                       <Text color="secondary" role="status">
                         {totpState === 'preparing'
-                          ? 'Complete Riot sign-in if prompted. Review and confirm the security change here before it is applied.'
+                          ? t("Complete Riot sign-in if prompted. Review and confirm the security change here before it is applied.")
                           : connectionKind === 'session'
-                            ? 'Finish signing in through the Riot window opened by Peaks. Use the selected account shown above.'
-                            : 'Keep Riot Client open on its QR sign-in screen. Peaks will connect the account shown above.'}
+                            ? t("Finish signing in through the Riot window opened by Peaks. Use the selected account shown above.")
+                            : t("Keep Riot Client open on its QR sign-in screen. Peaks will connect the account shown above.")}
                       </Text>
                     </VStack>
                   </HStack>
                   <HStack className="pd-dialog__progress-track" gap={2} align="center">
-                    <StatusDot label="Connection in progress" variant="neutral" isPulsing />
-                    <Text type="supporting">Keep the Riot window open</Text>
+                    <StatusDot label={t("Connection in progress")} variant="neutral" isPulsing />
+                    <Text type="supporting">{t("Keep the Riot window open")}</Text>
                   </HStack>
                   {totpState === 'connecting' && connectionKind === 'session' && account?.hasTotp ? (
                     <VStack gap={1}>
                       <Button
-                        label="Copy authenticator code"
+                        label={t("Copy authenticator code")}
                         variant="secondary"
                         icon={<Icon icon={KeyRound} />}
                         isInterruptible
                         clickAction={() => onCopyTotp(account)}
                       />
-                      <Text type="supporting" color="secondary">
-                        Paste it in the Riot sign-in window. The clipboard clears automatically.
-                      </Text>
+                      <Text type="supporting" color="secondary">{t("Paste it in the Riot sign-in window. The clipboard clears automatically.")}</Text>
                     </VStack>
                   ) : null}
                 </VStack>
@@ -368,24 +369,20 @@ export function ConnectDialog({
                   <HStack gap={3} align="start">
                     <Icon icon={TriangleAlert} color="warning" />
                     <VStack gap={1}>
-                      <Text className="pd-dialog__eyebrow" type="supporting">REVIEW SECURITY CHANGE</Text>
-                      <Heading level={2}>Enable your authenticator.</Heading>
-                      <Text weight="semibold">This changes your Riot account security</Text>
-                      <Text color="secondary">
-                        Peaks will enable Riot Mobile authentication for {displayName(proposal?.riotId ?? account?.riotId ?? 'Selected player')}, save the issued secret in your encrypted vault, then verify it with Riot.
-                      </Text>
+                      <Text className="pd-dialog__eyebrow" type="supporting">{t("REVIEW SECURITY CHANGE")}</Text>
+                      <Heading level={2}>{t("Enable your authenticator.")}</Heading>
+                      <Text weight="semibold">{t("This changes your Riot account security")}</Text>
+                      <Text color="secondary">{t('Peaks will enable Riot Mobile authentication for {{name}}, save the issued secret in your encrypted vault, then verify it with Riot.', {name: displayName(proposal?.riotId ?? account?.riotId ?? 'Selected player')})}</Text>
                     </VStack>
                   </HStack>
-                  <Text type="supporting" color="secondary">
-                    Email MFA must already be enabled. Peaks refuses to replace an existing Riot Mobile factor. If verification fails after Riot issues a secret, Peaks keeps that secret so you are not locked out.
-                  </Text>
+                  <Text type="supporting" color="secondary">{t("Email MFA must already be enabled. Peaks refuses to replace an existing Riot Mobile factor. If verification fails after Riot issues a secret, Peaks keeps that secret so you are not locked out.")}</Text>
                 </VStack>
               ) : totpState === 'partial' ? (
                 <HStack className="pd-dialog__notice" gap={3} align="start" padding={4}>
                   <Icon icon={TriangleAlert} color="warning" />
                   <VStack gap={1}>
-                    <Text weight="semibold">Saved, but Riot verification needs attention</Text>
-                    <Text color="secondary" role="alert">{redact(totpWarning)}</Text>
+                    <Text weight="semibold">{t("Saved, but Riot verification needs attention")}</Text>
+                    <Text color="secondary" role="alert">{redact(displayText(totpWarning))}</Text>
                   </VStack>
                 </HStack>
               ) : (
@@ -393,7 +390,7 @@ export function ConnectDialog({
                   {totpError && (
                     <HStack className="pd-dialog__notice" gap={3} align="start" padding={4}>
                       <Icon icon="error" color="error" />
-                      <Text color="secondary" role="alert">{redact(totpError)}</Text>
+                      <Text color="secondary" role="alert">{redact(displayText(totpError))}</Text>
                     </HStack>
                   )}
 
@@ -401,11 +398,11 @@ export function ConnectDialog({
                     className="pd-dialog__actions"
                     density="spacious"
                     hasDividers
-                    header={<Text className="pd-dialog__eyebrow" type="supporting">CONNECTION OPTIONS</Text>}>
+                    header={<Text className="pd-dialog__eyebrow" type="supporting">{t("CONNECTION OPTIONS")}</Text>}>
                     {canConnectQr ? (
                       <ListItem
-                        label="Scan Riot Client QR"
-                        description={<Text color="secondary">Connect using the QR shown in Riot Client.</Text>}
+                        label={t("Scan Riot Client QR")}
+                        description={<Text color="secondary">{t("Connect using the QR shown in Riot Client.")}</Text>}
                         startContent={<Icon icon={QrCode} color="primary" />}
                         endContent={<Icon icon={ChevronRight} size="sm" color="secondary" />}
                         onClick={() => void connectQr()}
@@ -413,8 +410,8 @@ export function ConnectDialog({
                     ) : null}
                     {canSaveRiotSession ? (
                       <ListItem
-                        label={canConnectQr ? 'Refresh Riot sign-in' : 'Sign in to Riot again'}
-                        description={<Text color="secondary">Save a fresh connection for this account.</Text>}
+                        label={canConnectQr ? t("Refresh Riot sign-in") : t("Sign in to Riot again")}
+                        description={<Text color="secondary">{t("Save a fresh connection for this account.")}</Text>}
                         startContent={<Icon icon={ShieldCheck} color="primary" />}
                         endContent={<Icon icon={ChevronRight} size="sm" color="secondary" />}
                         onClick={() => void choose()}
@@ -422,8 +419,8 @@ export function ConnectDialog({
                     ) : null}
                     {canSetupMfa ? (
                       <ListItem
-                        label="Add Riot MFA"
-                        description={<Text color="secondary">Set up authentication codes. You’ll review the change first.</Text>}
+                        label={t("Add Riot MFA")}
+                        description={<Text color="secondary">{t("Set up authentication codes. You’ll review the change first.")}</Text>}
                         startContent={<Icon icon={KeyRound} color="primary" />}
                         endContent={<Icon icon={ChevronRight} size="sm" color="secondary" />}
                         onClick={() => void prepareTotp()}
@@ -434,16 +431,12 @@ export function ConnectDialog({
                   {!canSetupMfa && account?.hasTotp ? (
                     <HStack gap={2} align="center">
                       <Icon icon={ShieldCheck} color="secondary" />
-                      <Text type="supporting" color="secondary">
-                        Authenticator ready. Copy a code from the account actions menu.
-                      </Text>
+                      <Text type="supporting" color="secondary">{t("Authenticator ready. Copy a code from the account actions menu.")}</Text>
                     </HStack>
                   ) : !canSetupMfa ? (
                     <HStack gap={2} align="center">
                       <Icon icon={KeyRound} color="secondary" />
-                      <Text type="supporting" color="secondary">
-                        Sign in to Riot before setting up an authenticator.
-                      </Text>
+                      <Text type="supporting" color="secondary">{t("Sign in to Riot before setting up an authenticator.")}</Text>
                     </HStack>
                   ) : null}
 
@@ -455,14 +448,14 @@ export function ConnectDialog({
         footer={confirming ? (
           <LayoutFooter hasDivider padding={6}>
             <HStack gap={2} justify="end">
-              <Button label="Cancel" variant="ghost" isDisabled={busy} clickAction={cancelTotp} />
-              <Button label="Enable and save" icon={<Icon icon={ShieldCheck} />} variant="primary" isLoading={totpState === 'saving'} clickAction={confirmTotp} />
+              <Button label={t("Cancel")} variant="ghost" isDisabled={busy} clickAction={cancelTotp} />
+              <Button label={t("Enable and save")} icon={<Icon icon={ShieldCheck} />} variant="primary" isLoading={totpState === 'saving'} clickAction={confirmTotp} />
             </HStack>
           </LayoutFooter>
         ) : totpState === 'partial' ? (
           <LayoutFooter hasDivider padding={6}>
             <HStack justify="end">
-              <Button label="Done" variant="primary" onClick={() => onOpenChange(false)} />
+              <Button label={t("Done")} variant="primary" onClick={() => onOpenChange(false)} />
             </HStack>
           </LayoutFooter>
         ) : undefined}

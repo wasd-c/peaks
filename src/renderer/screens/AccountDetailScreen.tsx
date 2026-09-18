@@ -1,3 +1,4 @@
+import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 import {useState} from 'react'
 import {AlertDialog} from '@astryxdesign/core/AlertDialog'
@@ -47,12 +48,13 @@ export function AccountDetailScreen({
   onRefresh,
   onSelectMatch,
 }: AccountDetailScreenProps) {
+  useLocale()
   const {displayName} = usePlayerPrivacy()
   const [tab, setTab] = useState<AccountTab>('overview')
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [isDeleting, setDeleting] = useState(false)
   const [isPasteQrOpen, setPasteQrOpen] = useState(false)
-  const connectionLabel = account.connected ? 'Connected' : 'Offline'
+  const connectionLabel = account.connected ? t('Connected') : t('Offline')
   const latestMatch = account.matches?.[0]
   const latestAgent = latestMatch?.game === 'VALORANT'
     ? latestMatch.teams?.flatMap(team => team.players).find(player => player.self)?.agent
@@ -79,14 +81,14 @@ export function AccountDetailScreen({
               clickAction={async () => { await onRefresh() }}
               icon={<Icon icon={RefreshCw} />}
               isIconOnly
-              label="Refresh data"
-              tooltip="Refresh account data"
+              label={t("Refresh data")}
+              tooltip={t("Refresh account data")}
               variant="ghost"
             />
-            <ButtonGroup label="Riot account actions">
+            <ButtonGroup label={t("Riot account actions")}>
               <Button
                 icon={<Icon icon={Radio} />}
-                label={(account.canConnectQr ?? account.connected) ? 'Connect Riot Client' : 'Sign in to Riot again'}
+                label={(account.canConnectQr ?? account.connected) ? t("Connect Riot Client") : t("Sign in to Riot again")}
                 onClick={onConnect}
                 variant="primary"
               />
@@ -95,63 +97,63 @@ export function AccountDetailScreen({
                 items={[
                   ...((account.canConnectQr ?? account.connected) ? [{
                     id: 'paste-qr',
-                    label: 'Paste a QR',
-                    description: 'Drop a Riot QR image or paste one with Ctrl+V',
+                    label: t('Paste a QR'),
+                    description: t('Drop a Riot QR image or paste one with Ctrl+V'),
                     icon: <Icon icon={QrCode} />,
                     onClick: () => setPasteQrOpen(true),
                   }] : []),
                   {
                     id: 'copy-totp',
-                    label: 'Copy TOTP Code',
+                    label: t('Copy authenticator code'),
                     description: account.hasTotp
-                      ? 'Copy the current code and clear it automatically'
-                      : 'No authenticator secret is stored for this account',
+                      ? t('Copy the current code and clear it automatically')
+                      : t('No authenticator secret is stored for this account'),
                     icon: <Icon icon={Copy} />,
                     isDisabled: !account.hasTotp,
                     onClick: () => { void onCopy() },
                   },
                   {
                     id: 'delete-account',
-                    label: 'Delete account',
+                    label: t('Delete account'),
                     icon: <Icon icon={Trash2} />,
                     onClick: () => setDeleteOpen(true),
                   },
                 ]}
-                label="More Riot account actions"
+                label={t("More Riot account actions")}
                 placement="below"
                 variant="primary"
               />
             </ButtonGroup>
           </>
         }
-        description={`${account.region} · Level ${account.level ?? '—'} · ${account.lastUpdated ?? 'Last synced just now'}`}
+        description={t("{{region}} · Level {{value2}} · {{value3}}", {region: account.region, value2: account.level ?? '—', value3: displayText(account.lastUpdated ?? 'Last synced just now')})}
         screen="account-detail"
-        title="Account details">
+        title={t("Account details")}>
         <VStack className="pd-detail" gap={6}>
         <HStack align="center" justify="between" gap={3}>
           <Button
             icon={<Icon icon={ArrowLeft} />}
-            label="All accounts"
+            label={t("All accounts")}
             onClick={onBack}
             size="sm"
             variant="ghost"
           />
-          <Text className="pd-detail__eyebrow" type="supporting">YOUR ACCOUNT / {account.region}</Text>
+          <Text className="pd-detail__eyebrow" type="supporting">{t("YOUR ACCOUNT /")} {account.region}</Text>
         </HStack>
 
         <Grid className="pd-detail__identity" columns={2} gap={0}>
           <VStack className="pd-detail__identity-copy" justify="between" gap={8} padding={8}>
               <HStack align="center" gap={2}>
                 <Icon color="secondary" icon={ShieldCheck} />
-                <Text className="pd-detail__eyebrow" type="supporting">PERSONAL ACCOUNT</Text>
+                <Text className="pd-detail__eyebrow" type="supporting">{t("PERSONAL ACCOUNT")}</Text>
               </HStack>
               <VStack gap={4}>
                 <Avatar className="pd-detail__avatar" name={displayName(account.riotId)} size="lg" src={valorantAgentAsset(latestAgent)} tooltip={false} />
                 <Heading className="pd-detail__identity-name" level={2} type="display-2">{displayName(account.riotId)}</Heading>
                 <HStack align="center" gap={3} wrap="wrap">
                   <Token color="gray" label={account.region} size="sm" />
-                  <Text color="secondary">Level {account.level ?? '—'}</Text>
-                  <Text color="secondary">{account.matches?.length ?? 0} recorded matches</Text>
+                  <Text color="secondary">{t("Level")} {account.level ?? '—'}</Text>
+                  <Text color="secondary">{t('{{count}} recorded matches', {count: account.matches?.length ?? 0})}</Text>
                 </HStack>
               </VStack>
           </VStack>
@@ -162,9 +164,9 @@ export function AccountDetailScreen({
                 <Text weight="medium">{connectionLabel}</Text>
               </HStack>
               <VStack align="end" gap={2}>
-                <Text className="pd-detail__eyebrow" type="supporting">LAST PLAYED</Text>
-                <Heading level={3} type="display-3">{latestMatch ? (latestMatch.game === 'VALORANT' ? valorantMapName(latestMatch.map) : latestMatch.map ?? latestMatch.game) : 'No matches yet'}</Heading>
-                {latestMatch?.playedAt ? <Text type="supporting">{latestMatch.playedAt}</Text> : null}
+                <Text className="pd-detail__eyebrow" type="supporting">{t("LAST PLAYED")}</Text>
+                <Heading level={3} type="display-3">{latestMatch ? (latestMatch.game === 'VALORANT' ? valorantMapName(latestMatch.map) : latestMatch.map ?? latestMatch.game) : t("No matches yet")}</Heading>
+                {latestMatch?.playedAt ? <Text type="supporting">{displayText(latestMatch.playedAt)}</Text> : null}
               </VStack>
             </VStack>
           </Section>
@@ -173,11 +175,11 @@ export function AccountDetailScreen({
         <Grid className="pd-detail__workspace" columns={2} gap={8}>
           <VStack className="pd-detail__sidebar" gap={6}>
             <VStack gap={4}>
-              <HStack align="center" gap={2}><Icon color="secondary" icon={Trophy} /><Heading level={2}>Ranks</Heading></HStack>
+              <HStack align="center" gap={2}><Icon color="secondary" icon={Trophy} /><Heading level={2}>{t("Ranks")}</Heading></HStack>
               <List className="pd-detail__rank-list" density="balanced" hasDividers>
                 {GAMES.map(game => {
                   const rank = account.ranks.find(item => item.game === game)
-                  return <ListItem key={game} label={rankLabel(rank)} description={game} startContent={<RankMedia rank={rank} />} endContent={rank?.rating != null ? <Text hasTabularNumbers type="supporting">{rankRatingLabel(game, rank.rating)}</Text> : undefined} />
+                  return <ListItem key={game} label={displayText(rankLabel(rank))} description={game} startContent={<RankMedia rank={rank} />} endContent={rank?.rating != null ? <Text hasTabularNumbers type="supporting">{rankRatingLabel(game, rank.rating)}</Text> : undefined} />
                 })}
               </List>
             </VStack>
@@ -188,10 +190,10 @@ export function AccountDetailScreen({
           onChange={value => setTab(value as AccountTab)}
           role="tablist"
           value={tab}>
-          <Tab icon={<Icon icon={LayoutGrid} />} label="Overview" panelId="account-detail-overview-panel" value="overview" />
-          <Tab icon={<Icon icon={History} />} label="Matches" panelId="account-detail-matches-panel" value="matches" />
-          <Tab icon={<Icon icon={BarChart3} />} label="Insights" panelId="account-detail-insights-panel" value="insights" />
-          <Tab icon={<Icon icon={ShieldCheck} />} label="Security" panelId="account-detail-security-panel" value="security" />
+          <Tab icon={<Icon icon={LayoutGrid} />} label={t("Overview")} panelId="account-detail-overview-panel" value="overview" />
+          <Tab icon={<Icon icon={History} />} label={t("Matches")} panelId="account-detail-matches-panel" value="matches" />
+          <Tab icon={<Icon icon={BarChart3} />} label={t("Insights")} panelId="account-detail-insights-panel" value="insights" />
+          <Tab icon={<Icon icon={ShieldCheck} />} label={t("Security")} panelId="account-detail-security-panel" value="security" />
         </TabList>
 
         {tab === 'overview' ? (
@@ -205,14 +207,14 @@ export function AccountDetailScreen({
                 <HStack align="center" gap={3}>
                   <Icon icon={Swords} color="secondary" />
                   <VStack gap={1}>
-                    <Text className="pd-detail__eyebrow" type="supporting">LATEST RESULT</Text>
-                    <HStack align="center" gap={2}><Token color={resultColor(latestMatch.result)} label={latestMatch.result} size="sm" /><Text hasTabularNumbers weight="semibold">{latestMatch.score ?? 'Score unavailable'}</Text></HStack>
+                    <Text className="pd-detail__eyebrow" type="supporting">{t("LATEST RESULT")}</Text>
+                    <HStack align="center" gap={2}><Token color={resultColor(latestMatch.result)} label={displayText(latestMatch.result)} size="sm" /><Text hasTabularNumbers weight="semibold">{latestMatch.score ?? t("Score unavailable")}</Text></HStack>
                   </VStack>
                 </HStack>
-                <Button icon={<Icon icon={ArrowUpRight} />} label="Open report" onClick={() => onSelectMatch(latestMatch)} size="sm" variant="secondary" />
+                <Button icon={<Icon icon={ArrowUpRight} />} label={t("Open report")} onClick={() => onSelectMatch(latestMatch)} size="sm" variant="secondary" />
               </HStack>
             </Section> : null}
-            <MatchList heading="Recent activity" matches={account.matches ?? []} onSelect={onSelectMatch} />
+            <MatchList heading={t("Recent activity")} matches={account.matches ?? []} onSelect={onSelectMatch} />
           </VStack>
         ) : null}
 
@@ -222,7 +224,7 @@ export function AccountDetailScreen({
             gap={4}
             id="account-detail-matches-panel"
             role="tabpanel">
-            <MatchList heading="Match history" matches={account.matches ?? []} onSelect={onSelectMatch} />
+            <MatchList heading={t("Match history")} matches={account.matches ?? []} onSelect={onSelectMatch} />
           </VStack>
         ) : null}
 
@@ -234,7 +236,7 @@ export function AccountDetailScreen({
             role="tabpanel">
             <HStack align="center" gap={2}>
               <Icon color="secondary" icon={BarChart3} />
-                <Heading level={2}>Your performance</Heading>
+                <Heading level={2}>{t("Your performance")}</Heading>
             </HStack>
             <CompetitiveInsights matches={account.matches ?? []} riotId={account.riotId} />
           </VStack>
@@ -247,19 +249,19 @@ export function AccountDetailScreen({
             gap={4}
             role="tabpanel"
             >
-            <Heading level={2}>Sign-in & authenticator</Heading>
+            <Heading level={2}>{t("Sign-in & authenticator")}</Heading>
             <List className="peaks-dense-list" density="balanced" hasDividers>
               <ListItem
-                label="Riot session"
-                description={(account.canConnectQr ?? account.connected) ? 'Ready to connect through a Riot QR code.' : 'Sign in to Riot again to reconnect this account.'}
+                label={t("Riot session")}
+                description={(account.canConnectQr ?? account.connected) ? t("Ready to connect through a Riot QR code.") : t("Sign in to Riot again to reconnect this account.")}
                 startContent={<Icon color="secondary" icon={Radio} />}
                 endContent={<Text type="supporting">{connectionLabel}</Text>}
               />
               <ListItem
-                label="Authenticator"
-                description={account.hasTotp ? 'Copy a one-time code from the account actions menu.' : 'No authenticator is saved for this account.'}
+                label={t("Authenticator")}
+                description={account.hasTotp ? t("Copy a one-time code from the account actions menu.") : t("No authenticator is saved for this account.")}
                 startContent={<Icon color="secondary" icon={KeyRound} />}
-                endContent={<Text type="supporting">{account.hasTotp ? 'Available' : 'Not configured'}</Text>}
+                endContent={<Text type="supporting">{account.hasTotp ? t("Available") : t("Not configured")}</Text>}
               />
             </List>
           </VStack>
@@ -269,13 +271,13 @@ export function AccountDetailScreen({
         </VStack>
       </AuthenticatedScreen>
       <AlertDialog
-        actionLabel="Delete account"
-        description={`This permanently removes ${displayName(account.riotId)}, its saved ranks and matches, and every encrypted secret stored for it on this device.`}
+        actionLabel={t("Delete account")}
+        description={t("This permanently removes {{value1}}, its saved ranks and matches, and every encrypted secret stored for it on this device.", {value1: displayName(account.riotId)})}
         isActionLoading={isDeleting}
         isOpen={isDeleteOpen}
         onAction={() => void deleteAccount()}
         onOpenChange={isOpen => !isDeleting && setDeleteOpen(isOpen)}
-        title="Delete this account?"
+        title={t("Delete this account?")}
       />
       <PasteQrDialog
         accountRiotId={account.riotId}

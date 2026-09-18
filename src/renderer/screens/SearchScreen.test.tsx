@@ -31,6 +31,11 @@ vi.mock('react', async importOriginal => ({
 vi.mock('../components/PlayerPrivacy', () => ({
   usePlayerPrivacy: () => ({enabled: hooks.private, displayName: (name: string) => hooks.private ? 'Player 1' : name}),
 }))
+// This callback harness deliberately calls the component outside React.
+// Locale subscriptions are exercised by the real renderer/localization tests.
+vi.mock('../i18n', async importOriginal => ({
+  ...await importOriginal<typeof import('../i18n')>(), useLocale: () => 'en',
+}))
 
 type Element = ReactElement<Record<string, unknown>>
 function elements(node: unknown): Element[] {

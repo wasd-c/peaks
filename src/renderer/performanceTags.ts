@@ -1,3 +1,4 @@
+import {t} from './i18n'
 import type {PlayerStats} from './types'
 
 export interface PerformanceTag {
@@ -92,7 +93,7 @@ export function selectPerformanceTags(stats: PlayerStats[], window: TagWindow): 
   const complete = stats.length === window.expectedMatches
   const candidates: Candidate[] = []
   const add = (category: TagCategory, priority: number, label: string, detail: string) => {
-    candidates.push({category, priority, label, detail: history ? `${detail} Across ${sample} recent games.` : detail})
+    candidates.push({category, priority, label, detail: history ? t('{{detail}} Across {{count}} recent games.', {detail, count: sample}) : detail})
   }
   const total = (key: 'kills' | 'deaths' | 'assists' | 'roundsPlayed' | 'combatScore' | 'damage') => {
     if (!complete || !stats.every(item => isStatCount(item[key]))) return undefined
@@ -111,7 +112,7 @@ export function selectPerformanceTags(stats: PlayerStats[], window: TagWindow): 
   if (walkingOrbGames) {
     const ratios = walkingOrbGames.map(game => `${(game.kills / game.deaths).toFixed(2)} (${game.kills}/${game.deaths})`).join(', ')
     add('impact', 120, 'walking orb 🥀',
-      `Five games, five donations. At this point you’re the enemy team’s ult subscription. Last five K/Ds, newest first: ${ratios}. Every game: ≤0.60 K/D and ≥10 deaths.`)
+      t("Five games, five donations. At this point you’re the enemy team’s ult subscription. Last five K/Ds, newest first: {{ratios}}. Every game: ≤0.60 K/D and ≥10 deaths.", {ratios: ratios}))
   }
 
   // Choose the strongest observed multikill. Total kills alone can never earn one.
@@ -126,7 +127,7 @@ export function selectPerformanceTags(stats: PlayerStats[], window: TagWindow): 
   for (let index = multikills.length - 1; index >= 0; index--) {
     const count = multikills[index]
     if (!count) continue
-    add('rounds', 100 + index, moments[index], `${count} recorded ${count === 1 ? 'round' : 'rounds'} with ${index + 2}${index === 3 ? '+' : ''} eliminations.`)
+    add('rounds', 100 + index, moments[index], t('{{count}} recorded rounds with {{eliminations}} eliminations.', {count, eliminations: `${index + 2}${index === 3 ? '+' : ''}`}))
     break
   }
 
@@ -138,35 +139,33 @@ export function selectPerformanceTags(stats: PlayerStats[], window: TagWindow): 
     const hits = head + body + legs
     if (hits >= (history ? 90 : 30)) {
       if (head / hits >= 0.3) {
-        add('aim', 90, 'Headshot merchant', `${Math.round(head / hits * 100)}% head hits (${head} of ${hits} landed hits).`)
+        add('aim', 90, 'Headshot merchant', t("{{value1}}% head hits ({{head}} of {{hits}} landed hits).", {value1: Math.round(head / hits * 100), head: head, hits: hits}))
       } else if (head / hits <= 0.08 && body / hits >= 0.8) {
-        add('aim', 65, 'Center-mass enjoyer', `${Math.round(body / hits * 100)}% body hits and ${Math.round(head / hits * 100)}% head hits across ${hits} landed hits.`)
+        add('aim', 65, 'Center-mass enjoyer', t("{{value1}}% body hits and {{value2}}% head hits across {{hits}} landed hits.", {value1: Math.round(body / hits * 100), value2: Math.round(head / hits * 100), hits: hits}))
       }
     }
   }
 
   if (enoughRounds && rounds !== undefined) {
     if (assists !== undefined && assists >= (history ? 24 : 8) && assists / rounds >= 0.6) {
-      add('support', 86, 'Assist department', `${assists} assists in ${rounds} rounds (${(assists / rounds).toFixed(2)} per round).`)
+      add('support', 86, 'Assist department', t("{{assists}} assists in {{rounds}} rounds ({{value3}} per round).", {assists: assists, rounds: rounds, value3: (assists / rounds).toFixed(2)}))
     }
     if (kills !== undefined && deaths !== undefined && kills >= (history ? 36 : 12)
       && kills / Math.max(deaths, 1) >= 1.5) {
-      add('impact', 82, 'Certified problem', deaths > 0
-        ? `${(kills / deaths).toFixed(2)} K/D (${kills} kills, ${deaths} deaths) over ${rounds} rounds.`
-        : `${kills} kills without a recorded death over ${rounds} rounds.`)
+      add('impact', 82, 'Certified problem', deaths > 0 ? t("{{value1}} K/D ({{kills}} kills, {{deaths}} deaths) over {{rounds}} rounds.", {value1: (kills / deaths).toFixed(2), kills: kills, deaths: deaths, rounds: rounds}) : t("{{kills}} kills without a recorded death over {{rounds}} rounds.", {kills: kills, rounds: rounds}))
     }
     if (score !== undefined && score / rounds >= 280) {
-      add('impact', 81, 'Lobby landlord', `${Math.round(score / rounds)} average combat score over ${rounds} rounds.`)
+      add('impact', 81, 'Lobby landlord', t("{{value1}} average combat score over {{rounds}} rounds.", {value1: Math.round(score / rounds), rounds: rounds}))
     }
     if (damage !== undefined && damage / rounds >= 170) {
-      add('impact', 80, 'Health inspector', `${Math.round(damage / rounds)} damage per round across ${rounds} rounds.`)
+      add('impact', 80, 'Health inspector', t("{{value1}} damage per round across {{rounds}} rounds.", {value1: Math.round(damage / rounds), rounds: rounds}))
     }
     if (kills !== undefined && assists !== undefined) {
       if (deaths !== undefined && deaths >= (history ? 36 : 12) && deaths / rounds >= 0.85
         && kills / deaths <= 0.6 && (kills + assists) / rounds < 0.65) {
-        add('impact', 55, "Death's bestie", `${kills} kills, ${deaths} deaths and ${assists} assists in ${rounds} rounds (${(deaths / rounds).toFixed(2)} deaths per round).`)
+        add('impact', 55, "Death's bestie", t("{{kills}} kills, {{deaths}} deaths and {{assists}} assists in {{rounds}} rounds ({{value5}} deaths per round).", {kills: kills, deaths: deaths, assists: assists, rounds: rounds, value5: (deaths / rounds).toFixed(2)}))
       } else if ((kills + assists) / rounds < 0.5) {
-        add('impact', 50, 'Rough shift', `${kills} kill${kills === 1 ? '' : 's'} and ${assists} assist${assists === 1 ? '' : 's'} across ${rounds} rounds (${((kills + assists) / rounds).toFixed(2)} combined per round).`)
+        add('impact', 50, 'Rough shift', t('{{kills}} and {{assists}} across {{rounds}} rounds ({{average}} combined per round).', {kills: t('{{count}} kills', {count: kills}), assists: t('{{count}} assists', {count: assists}), rounds, average: ((kills + assists) / rounds).toFixed(2)}))
       }
     }
   }
@@ -183,15 +182,15 @@ export function selectPerformanceTags(stats: PlayerStats[], window: TagWindow): 
     }
     const favorite = [...weapons.entries()].sort((left, right) => right[1].kills - left[1].kills || left[0].localeCompare(right[0]))[0]
     if (favorite && favorite[1].kills / kills >= 0.6 && weaponLabels[favorite[0]]) {
-      add('weapon', 84, weaponLabels[favorite[0]], `${favorite[1].kills} of ${kills} eliminations used the ${favorite[1].name} (${Math.round(favorite[1].kills / kills * 100)}%).`)
+      add('weapon', 84, weaponLabels[favorite[0]], t("{{value1}} of {{kills}} eliminations used the {{value3}} ({{value4}}%).", {value1: favorite[1].kills, kills: kills, value3: favorite[1].name, value4: Math.round(favorite[1].kills / kills * 100)}))
     }
   }
 
   // Wins are an aggregate fact, never evidence of a consecutive streak.
   const wins = window.aggregatedMatches !== undefined && stats.length === 1 ? stats[0].wins : undefined
   if (history && sample >= 5 && isStatCount(wins) && wins <= sample) {
-    if (wins / sample >= 0.6) add('form', 70, 'Win collector', `${wins} wins (${Math.round(wins / sample * 100)}% win rate).`)
-    else if (wins / sample <= 0.2) add('form', 45, 'Queueing through it', `${wins} ${wins === 1 ? 'win' : 'wins'} (${Math.round(wins / sample * 100)}% win rate).`)
+    if (wins / sample >= 0.6) add('form', 70, 'Win collector', t("{{wins}} wins ({{value2}}% win rate).", {wins: wins, value2: Math.round(wins / sample * 100)}))
+    else if (wins / sample <= 0.2) add('form', 45, 'Queueing through it', t('{{count}} wins ({{percentage}}% win rate).', {count: wins, percentage: Math.round(wins / sample * 100)}))
   }
 
   const categories = new Set<TagCategory>()
@@ -200,5 +199,5 @@ export function selectPerformanceTags(stats: PlayerStats[], window: TagWindow): 
       if (categories.has(candidate.category)) return false
       categories.add(candidate.category)
       return true
-    }).slice(0, 3).map(({label, detail}) => ({label, detail}))
+    }).slice(0, 3).map(({label, detail}) => ({label: t(label), detail}))
 }

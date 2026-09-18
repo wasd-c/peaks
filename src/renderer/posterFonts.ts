@@ -10,13 +10,13 @@ export interface PosterFonts {
 }
 
 const families: PosterFonts = {
-  display: '"Peaks Poster Display", "Arial Narrow", sans-serif',
-  mono: '"Peaks Poster Mono", monospace',
+  display: '"Peaks Poster Display", "Arial Narrow", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif',
+  mono: '"Peaks Poster Mono", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", monospace',
 }
 
 const fallbackFamilies: PosterFonts = {
-  display: '"Arial Narrow", sans-serif',
-  mono: 'monospace',
+  display: '"Arial Narrow", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif',
+  mono: '"Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", monospace',
 }
 
 const faces = [
