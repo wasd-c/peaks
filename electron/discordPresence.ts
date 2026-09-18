@@ -47,6 +47,7 @@ export class DiscordPresence {
   private detail = 'Discord Rich Presence is off.'
   private client: DiscordTransport | null = null
   private activity: DiscordActivity | null = null
+  private activityClock: {game: unknown; phase: unknown; matchId: string | null; start: number} | null = null
   private unlocked = false
   private shareAllowed = false
   private lastSnapshotAt = 0
@@ -88,13 +89,37 @@ export class DiscordPresence {
     const streamerMode = record(snapshot.settings)!.streamerMode
     this.shareAllowed = streamerMode === undefined || streamerMode === false
     this.lastSnapshotAt = Date.now()
-    this.activity = this.preview ? null : buildDiscordActivity(snapshot)
+    const activity = this.preview ? null : buildDiscordActivity(snapshot)
+    const match = record(snapshot.currentMatch)
+    this.activity = activity && match ? this.withSessionClock(activity, match) : null
+    if (!this.activity && (!this.shareAllowed || snapshot.gameDetected !== true || match?.isStale !== true)) {
+      this.activityClock = null
+    }
     this.client?.setActivity(this.activity)
+  }
+
+  private withSessionClock(activity: DiscordActivity, match: Record<string, unknown>): DiscordActivity {
+    // Match identity stays in memory; Discord receives only a fixed Unix start
+    // time in seconds. Mutable stats, artwork and party size are not identity.
+    const matchId = typeof match.id === 'string' && match.id.length > 0 && match.id.length <= 256 ? match.id : null
+    const previous = this.activityClock
+    if (!previous || previous.game !== match.game || previous.phase !== match.phase
+      || previous.matchId !== null && matchId !== null && previous.matchId !== matchId) {
+      const elapsed = match.phase === 'live' && typeof match.elapsed === 'string'
+        ? /^(0|[1-9][0-9]{0,2}):([0-5][0-9])$/.exec(match.elapsed) : null
+      const seconds = elapsed ? Number(elapsed[1]) * 60 + Number(elapsed[2]) : 0
+      this.activityClock = {game: match.game, phase: match.phase, matchId, start: Math.max(0, Math.floor(Date.now() / 1000) - seconds)}
+    } else if (matchId !== null) {
+      // An ID can arrive after the first live snapshot or briefly disappear.
+      previous.matchId = matchId
+    }
+    return {...activity, timestamps: {start: this.activityClock!.start}}
   }
 
   clear() {
     this.unlocked = false
     this.shareAllowed = false
+    this.activityClock = null
     this.expireActivity()
   }
 
@@ -114,6 +139,7 @@ export class DiscordPresence {
     if (Object.keys(update).length) {
       if (!this.unlocked) throw new Error('Unlock Peaks to change Discord preferences')
       const next = updateDiscordConfig(this.config, update)
+      if (next.enabled === this.config.enabled && next.applicationId === this.config.applicationId) return this.getStatus()
       // Only this public ID and the opt-out preference are stored here.
       mkdirSync(path.dirname(this.filename), {recursive: true})
       const temporary = `${this.filename}.tmp`

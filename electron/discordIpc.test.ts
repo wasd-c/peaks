@@ -85,6 +85,27 @@ describe('Discord native IPC', () => {
     await vi.waitFor(() => expect(statuses).toHaveBeenCalledWith('error', 'Discord sent an invalid response.'))
   })
 
+  it('updates an existing activity on the same connection without clearing it or changing its clock', async () => {
+    const {frames, ipcPath} = await fakeDiscord()
+    const statuses = vi.fn()
+    const now = vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-09-18T12:00:00Z'))
+    const client = new DiscordIpcClient('1549634813756178503', statuses, [ipcPath])
+    clients.push(client)
+    const activity = {...buildDiscordActivity({locked: false, gameDetected: true, settings: {}, currentMatch: {
+      phase: 'live', game: 'VALORANT', map: 'Ascent', teams: [{players: [{self: true, agent: 'Omen'}]}],
+    }})!, timestamps: {start: Math.floor(Date.now() / 1000)}}
+    client.setActivity(activity)
+    await vi.waitFor(() => expect(statuses).toHaveBeenLastCalledWith('connected', 'Your current game activity is shared on Discord.'))
+    now.mockReturnValue(Date.parse('2026-09-18T12:00:16Z'))
+    const updated = {...activity, details: 'Carrying on Ascent', state: 'Competitive · 10:5'}
+    client.setActivity(updated)
+    await vi.waitFor(() => expect(frames.filter(frame => frame.opcode === 1)).toHaveLength(2))
+    expect(frames.filter(frame => frame.opcode === 0)).toHaveLength(1)
+    expect(frames.filter(frame => frame.opcode === 1).map(frame => frame.payload.args)).toEqual([
+      {pid: process.pid, activity}, {pid: process.pid, activity: updated},
+    ])
+  })
+
   it('does not report a queued activity as shared when Discord only acknowledged a clear', async () => {
     const {frames, ipcPath} = await fakeDiscord(false)
     const statuses = vi.fn()

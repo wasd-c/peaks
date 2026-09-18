@@ -1,4 +1,5 @@
 import {Button} from '@astryxdesign/core/Button'
+import {Center} from '@astryxdesign/core/Center'
 import {Icon} from '@astryxdesign/core/Icon'
 import {SideNav, SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav'
 import {VStack} from '@astryxdesign/core/VStack'
@@ -20,7 +21,9 @@ export function AppNavigation({page, state, onPage, onLock}: AppNavigationProps)
       header={<Button className="pd-navigation__brand" label="Peaks · Accounts" icon={<Icon icon={Mountain} size="lg" />} isIconOnly variant="ghost" onClick={() => onPage('overview')} />}
       footer={<VStack gap={3} align="center" paddingBlock={4}>
         <SidebarUpdate />
-        <SideNavItem label="Settings" icon={Settings2} isSelected={page === 'settings'} onClick={() => onPage('settings')} />
+        <Center width="var(--spacing-12)">
+          <SideNavItem label="Settings" icon={Settings2} isSelected={page === 'settings'} onClick={() => onPage('settings')} />
+        </Center>
         <Button label="Lock Peaks" tooltip="Lock Peaks" icon={<Icon icon={LockKeyhole} />} isIconOnly variant="ghost" onClick={onLock} />
       </VStack>}>
       <SideNavSection title="Accounts and players" isHeaderHidden>

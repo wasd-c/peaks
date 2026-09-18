@@ -100,6 +100,69 @@ describe('Discord presence preferences and lifecycle', () => {
     }
   })
 
+  it.each(['VALORANT', 'League of Legends', 'Teamfight Tactics'] as const)(
+    'keeps the %s clock and connection while stats, artwork, elapsed time and party size update', game => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-09-18T12:00:00Z'))
+      const {service, client, factory} = setup()
+      const state = game === 'VALORANT' ? snapshot() : leagueClientSnapshot(game)
+      service.observe(state)
+      const original = client.setActivity.mock.calls.at(-1)![0]
+      expect(original.timestamps.start).toBe(Math.floor(Date.now() / 1000) - (game === 'VALORANT' ? 0 : 21 * 60 + 34))
+      vi.advanceTimersByTime(30_000)
+      const updated = {...state, currentMatch: {
+        ...state.currentMatch, elapsed: '22:04', partySize: 3,
+        teams: [{score: 10, players: [{self: true, agent: 'Jett', stats: {kills: 20, deaths: 9, assists: 8, health: 48}}]}, {score: 5, players: []}],
+      }}
+      service.observe({state: updated})
+      const next = client.setActivity.mock.calls.at(-1)![0]
+      expect(next.timestamps).toEqual(original.timestamps)
+      expect(next.state).not.toEqual(original.state)
+      expect(client.setActivity.mock.calls.slice(1).every(([activity]) => activity !== null)).toBe(true)
+      service.handle({enabled: true, applicationId: PEAKS_DISCORD_APPLICATION_ID})
+      expect(factory).toHaveBeenCalledOnce()
+      expect(client.dispose).not.toHaveBeenCalled()
+    },
+  )
+
+  it('keeps a late or temporarily missing match ID from restarting the same clock, but resets for a new match', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-09-18T12:00:00Z'))
+    const {service, client} = setup()
+    service.observe(snapshot())
+    const start = client.setActivity.mock.calls.at(-1)![0].timestamps.start
+    vi.advanceTimersByTime(15_000)
+    service.observe({...snapshot(), currentMatch: {...snapshot().currentMatch, id: 'match-one'}})
+    expect(client.setActivity.mock.calls.at(-1)![0].timestamps.start).toBe(start)
+    vi.advanceTimersByTime(15_000)
+    service.observe(snapshot())
+    expect(client.setActivity.mock.calls.at(-1)![0].timestamps.start).toBe(start)
+    vi.advanceTimersByTime(15_000)
+    service.observe({...snapshot(), currentMatch: {...snapshot().currentMatch, id: 'match-two'}})
+    expect(client.setActivity.mock.calls.at(-1)![0].timestamps.start).toBe(start + 45)
+    expect(JSON.stringify(client.setActivity.mock.calls)).not.toContain('match-one')
+    expect(JSON.stringify(client.setActivity.mock.calls)).not.toContain('match-two')
+  })
+
+  it('resumes the same clock after stale data but starts a new clock after a privacy clear or phase change', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-09-18T12:00:00Z'))
+    const {service, client} = setup()
+    service.observe(snapshot())
+    const start = client.setActivity.mock.calls.at(-1)![0].timestamps.start
+    service.observe({...snapshot(), currentMatch: {...snapshot().currentMatch, isStale: true}})
+    expect(client.setActivity).toHaveBeenLastCalledWith(null)
+    vi.advanceTimersByTime(65_000)
+    service.observe(snapshot(), service.captureSnapshotEpoch())
+    expect(client.setActivity.mock.calls.at(-1)![0].timestamps.start).toBe(start)
+    service.clear()
+    service.observe(snapshot())
+    expect(client.setActivity.mock.calls.at(-1)![0].timestamps.start).toBe(start + 65)
+    vi.advanceTimersByTime(10_000)
+    service.observe({...snapshot(), currentMatch: {...snapshot().currentMatch, phase: 'pregame'}})
+    expect(client.setActivity.mock.calls.at(-1)![0].timestamps.start).toBe(start + 75)
+  })
+
   it('replaces VALORANT activity throughout League and TFT sessions without carrying old facts forward', () => {
     const {service, client, factory} = setup()
     service.observe(snapshot())
@@ -119,7 +182,7 @@ describe('Discord presence preferences and lifecycle', () => {
           party: {size: game === 'League of Legends' ? [2, 2] : [2, 8]},
         }))
         expect(activity.state).toContain(game === 'League of Legends' ? 'Ranked Solo/Duo' : 'Double Up')
-        expect(JSON.stringify(activity)).not.toMatch(/Ascent|Omen|VALORANT|private-|PrivateUser|PrivateOpponent|Secret|999|888|777|555|444|333/)
+        expect(JSON.stringify({...activity, timestamps: undefined})).not.toMatch(/Ascent|Omen|VALORANT|private-|PrivateUser|PrivateOpponent|Secret|999|888|777|555|444|333/)
         if (phase !== 'live') expect(activity.state).not.toMatch(/KDA|HP|21:34/)
       }
     }
