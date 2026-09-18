@@ -16,6 +16,7 @@ import {ArrowUpRight, ClipboardCheck, EyeOff, KeyRound, LockKeyhole, Monitor, Ra
 import type {AppState} from '../types'
 import {DiscordPresenceSettings} from '../components/DiscordPresenceSettings'
 import {TelemetrySettings} from '../components/TelemetrySettings'
+import {passcodeErrorMessage} from '../passcodeMessages'
 import {AuthenticatedScreen, type ActionCallback} from './shared'
 
 const AUTO_LOCK_OPTIONS = [{label: 'Only when Peaks closes', value: '0'}, ...[1, 5, 15, 30, 60].map(minutes => ({
@@ -89,7 +90,7 @@ export function ChangeSecurityCode({action}: {action: ActionCallback}) {
       setEditing(false)
     } catch (failure) {
       setOldPin('')
-      setError(failure instanceof Error ? failure.message : 'The code could not be changed.')
+      setError(passcodeErrorMessage(failure, 'Impossible de modifier le mot de passe. Réessaie.'))
     } finally {
       setBusy(false)
     }

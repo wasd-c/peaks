@@ -1,6 +1,6 @@
 {
   "name": "peaks-desktop",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Peaks desktop companion — Electron, Chromium, React, and Python",
   "main": "dist-electron/main.js",

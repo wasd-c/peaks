@@ -1,6 +1,6 @@
 [project]
 name = "peaks-desktop"
-version = "0.3.0"
+version = "0.3.1"
 description = "Electron and React desktop companion with secure Python Riot integrations."
 readme = "README.md"
 requires-python = ">=3.12,<3.14"

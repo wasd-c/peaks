@@ -10,6 +10,7 @@ import {Text} from '@astryxdesign/core/Text'
 import {TextInput} from '@astryxdesign/core/TextInput'
 import {VStack} from '@astryxdesign/core/VStack'
 import {LockKeyhole, Mountain} from 'lucide-react'
+import {passcodeErrorMessage} from '../passcodeMessages'
 import type {AppState} from '../types'
 
 type Feedback = 'idle' | 'invalid' | 'wrong'
@@ -103,7 +104,7 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
     } catch (error) {
       if (mountedRef.current) {
         setFeedback('wrong')
-        setMessage(error instanceof Error ? error.message : 'That passcode was not recognized')
+        setMessage(passcodeErrorMessage(error, 'Impossible de vérifier le mot de passe. Réessaie.'))
         clearTimer()
         resetTimer.current = window.setTimeout(() => {
           setPin('')
