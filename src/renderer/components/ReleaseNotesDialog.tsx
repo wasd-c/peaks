@@ -35,7 +35,7 @@ export function ReleaseNotesDialog({isOpen, onClose, currentVersion = version, b
         {releaseNoteSections.filter(section => releaseNotes[section.key].length).map(section => (
           <List key={section.key} density="balanced" hasDividers
             header={<HStack gap={2} align="center"><Icon icon={icons[section.key]} /><Heading level={2}>{t(section.label)}</Heading></HStack>}>
-            {releaseNotes[section.key].map(item => <ListItem key={item} label={t(item)} />)}
+            {releaseNotes[section.key].map(item => <ListItem key={item} label={<Text as="p" textWrap="pretty">{t(item)}</Text>} />)}
           </List>
         ))}
         {error ? <Text role="alert">{t(error)}</Text> : null}
