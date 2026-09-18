@@ -9,6 +9,7 @@ from typing import Any
 import pytest
 import requests
 
+from peaks.adapters.riot.account_session import RiotAccountSessionChallengeError
 from peaks.adapters.riot.browser_login import RiotAccountBrowserSession
 from peaks.adapters.riot.mfa import (
     RIOT_ACCOUNT_PAGE_URL,
@@ -218,6 +219,81 @@ def test_prepare_bootstraps_temporary_browser_from_reusable_sso_session() -> Non
     assert reused == [{"ssid": "SAVED-SESSION", "sub": "owned-puuid"}]
     assert client.events == ["csrf", "identity", "factors"]
     assert "SAVED-SESSION" not in repr(service)
+
+
+def test_one_click_enrollment_uses_saved_session_and_persists_before_verify() -> None:
+    events: list[str] = []
+    client = FakeMfaClient(events=events)
+    service = RiotMobileTotpSetupService(
+        browser_login=lambda: (_ for _ in ()).throw(AssertionError("browser must not open")),
+        browser_login_with_session=lambda _cookies: _browser_session(),
+        mfa_client_factory=lambda: client,
+        importer_factory=FakeImporter,
+        timer_factory=FakeExpiryTimer,
+    )
+
+    result = service.enable(
+        account_id="owned-puuid",
+        expected_puuid="owned-puuid",
+        expected_riot_id="Peak#EUW",
+        reusable_sso_cookies={"ssid": "SSO-SECRET"},
+        persist_seed=lambda seed: events.append("persist") if seed == SEED else None,
+    )
+
+    assert result.verified is True
+    assert events == ["csrf", "identity", "factors", "csrf", "identity", "factors", "enable", "persist", "verify"]
+    assert service._pending == {}
+    assert service._expiry_timers == {}
+
+
+def test_one_click_missing_session_never_opens_browser_or_mutates() -> None:
+    client = FakeMfaClient()
+    service = RiotMobileTotpSetupService(
+        browser_login=lambda: (_ for _ in ()).throw(AssertionError("browser must not open")),
+        mfa_client_factory=lambda: client,
+        timer_factory=FakeExpiryTimer,
+    )
+    with pytest.raises(RiotMobileTotpSetupError, match="Reconnect this account"):
+        service.enable(
+            account_id="owned-puuid",
+            expected_puuid="owned-puuid",
+            expected_riot_id="Peak#EUW",
+            reusable_sso_cookies={},
+            persist_seed=lambda _seed: pytest.fail("must not persist"),
+        )
+    assert client.events == []
+
+
+def test_default_reusable_session_path_is_http_and_reports_required_challenge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from peaks.application import riot_mobile_totp_setup
+
+    calls: list[dict[str, str]] = []
+
+    def requires_proof(cookies: Mapping[str, str]) -> RiotAccountBrowserSession:
+        calls.append(dict(cookies))
+        raise RiotAccountSessionChallengeError(
+            "Riot needs you to verify this account again before enabling MFA"
+        )
+
+    monkeypatch.setattr(riot_mobile_totp_setup, "acquire_riot_account_session", requires_proof)
+    client = FakeMfaClient()
+    service = RiotMobileTotpSetupService(
+        browser_login=lambda: (_ for _ in ()).throw(AssertionError("browser must not open")),
+        mfa_client_factory=lambda: client,
+        timer_factory=FakeExpiryTimer,
+    )
+    with pytest.raises(RiotMobileTotpSetupError, match="verify this account again"):
+        service.enable(
+            account_id="owned-puuid",
+            expected_puuid="owned-puuid",
+            expected_riot_id="Peak#EUW",
+            reusable_sso_cookies={"ssid": "SAVED-SESSION"},
+            persist_seed=lambda _seed: pytest.fail("must not persist"),
+        )
+    assert calls == [{"ssid": "SAVED-SESSION"}]
+    assert client.events == []
 
 
 def test_pending_browser_credentials_are_proactively_discarded_at_expiry() -> None:

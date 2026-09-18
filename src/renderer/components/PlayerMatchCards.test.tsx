@@ -284,15 +284,15 @@ describe('player match cards', () => {
     for (let index = 0; index < 10; index++) expect(html).toContain(`Player${index}#EU`)
   })
 
-  it('renders opposing role matches in the same columns with accessible reorder controls', () => {
+  it.each([false, true])('renders opposing role matches with accessible reorder controls but no unused reset button (fitted=%s)', fitToHeight => {
     const own = ['Omen', 'Cypher', 'Reyna', 'Sova', 'Jett'].map((agent, index) => ({...player(index), agent, self: index === 0}))
     const opponents = ['Fade', 'Raze', 'Killjoy', 'Phoenix', 'Brimstone'].map((agent, index) => ({...player(index + 10), agent}))
-    const html = render([{name: 'Red', players: opponents}, {name: 'Blue', players: own}])
+    const html = render([{name: 'Red', players: opponents}, {name: 'Blue', players: own}], false, {fitToHeight})
     expect(cardNames(html)).toEqual([4, 2, 3, 0, 1, 11, 13, 10, 14, 12].map(index => `Player${index}#EU`))
     expect(html.match(/draggable="true"/g)).toHaveLength(10)
     expect(html).toContain('Reorder Player4#EU, position 1 of 5')
     expect(html).toContain('Escape cancels the move')
-    expect(html).toContain('Reset order')
+    expect(html).not.toContain('Reset order')
   })
 
   it('combines Deathmatch buckets into one white roster and retains a blue self card', () => {

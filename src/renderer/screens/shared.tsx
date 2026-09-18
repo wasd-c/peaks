@@ -1,3 +1,4 @@
+import {accountRegionLabel} from '../accountRegions'
 import {t, useLocale, displayText} from '../i18n'
 import type {ReactNode} from 'react'
 import {Avatar} from '@astryxdesign/core/Avatar'
@@ -232,7 +233,7 @@ export function AccountListItem({account, onSelect}: {account: Account; onSelect
   const connectionLabel = account.connected ? 'Connected' : 'Offline'
   return (
     <ListItem
-      description={t("{{region}} · Level {{value2}} · {{value3}}", {region: account.region, value2: account.level ?? '—', value3: displayText(rankLabel(rank))})}
+      description={t("{{region}} · Level {{value2}} · {{value3}}", {region: accountRegionLabel(account), value2: account.level ?? '—', value3: displayText(rankLabel(rank))})}
       endContent={
         <HStack align="center" gap={3}>
           <StatusDot label={t(connectionLabel)} variant={account.connected ? 'success' : 'neutral'} />

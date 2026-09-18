@@ -801,3 +801,36 @@ def test_recorded_analytics_projection_is_bounded_and_excludes_provider_material
     assert _match_stats({"roundKills": [0] * 129}) == {}
     assert _match_stats({"weaponUsage": [{"weapon": "Vandal", "kills": 1}] * 33}) == {}
     assert _match_stats({"weaponUsage": [{"weapon": "unsafe\nname", "kills": 1}]}) == {}
+
+
+
+def test_onboarding_stores_each_games_region_without_conflating_them() -> None:
+    result = _result(source="local_client")
+    result.identity.league_region = "euw1"
+    result.identity.valorant_region = "eu"
+    bridge, repository, _ = _bridge(result)
+    state = bridge.handle("add_account", {})
+    assert state["accounts"][0]["leagueRegion"] == "EUW"
+    assert state["accounts"][0]["valorantRegion"] == "EU"
+    stored = repository.accounts["owned-puuid"]
+    assert (stored.region, stored.valorant_region) == ("euw", "EU")
+    bridge._load_database()
+    assert bridge.accounts[0]["valorantRegion"] == "EU"
+
+
+
+def test_local_valorant_route_fills_only_missing_region_and_preserves_league() -> None:
+    bridge, repository, _ = _bridge(_result(source="local_client"))
+    repository.add_account(Account("owned-puuid", "Peak Player", "TEST", "EUW", "owned-puuid"))
+    bridge._load_database()
+    snapshot = {"valorantRegion": "EU"}
+    bridge._persist_account_snapshot("owned-puuid", snapshot)
+    bridge._merge_account_snapshot(bridge.accounts[0], snapshot)
+    assert repository.accounts["owned-puuid"].valorant_region == "EU"
+    assert bridge.accounts[0]["valorantRegion"] == "EU"
+    assert bridge.accounts[0]["region"] == "EUW"
+    # An authoritative account affinity takes precedence over the local shard.
+    bridge._persist_account_snapshot("owned-puuid", {"valorantRegion": "NA"})
+    bridge._merge_account_snapshot(bridge.accounts[0], {"valorantRegion": "NA"})
+    assert repository.accounts["owned-puuid"].valorant_region == "EU"
+    assert bridge.accounts[0]["valorantRegion"] == "EU"

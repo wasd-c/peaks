@@ -213,6 +213,11 @@ class RiotClientHTTP:
         if not _is_loopback_https(url):
             raise ValueError("local Riot requests must target https://127.0.0.1")
         kwargs = self._request_kwargs()
+        diagnostic_method = (
+            method.upper()
+            if method.upper() in {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
+            else "unknown"
+        )
         if json_body is not None:
             kwargs["json"] = json_body
         if params:
@@ -230,11 +235,14 @@ class RiotClientHTTP:
         except Exception as exc:
             if requests is not None and not isinstance(exc, requests.RequestException):
                 raise
-            self._logger.debug("Riot local request failed: %s %s", method.upper(), path)
+            self._logger.debug("riot_local.request.failed method=%s", diagnostic_method)
             raise RiotClientUnavailable("Riot local client is unavailable") from exc
-        # Log only method/path/status.  Never include request headers, query
-        # values, response text, or lockfile password.
-        self._logger.debug("Riot local response: %s %s -> %s", method.upper(), path.split("?", 1)[0], response.status_code)
+        # URL paths can contain player/match IDs; queries may contain credentials.
+        self._logger.debug(
+            "riot_local.request.complete method=%s status=%s",
+            diagnostic_method,
+            response.status_code,
+        )
         return response
 
     def json(

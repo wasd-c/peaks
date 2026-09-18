@@ -84,7 +84,7 @@ describe('bundled localization', () => {
       ...Object.values(RESET_PROMPTS).flatMap(Object.values), releaseNotes.summary,
       ...releaseNoteSections.flatMap(section => [section.label, ...releaseNotes[section.key]])]
     for (const key of copy) expect(en, key).toHaveProperty(key)
-    expect(releaseNoteSections.map(section => section.key)).toEqual(['added', 'fixed', 'changed', 'removed'])
+    expect(releaseNoteSections.map(section => section.key)).toEqual(['added', 'fixed', 'changed', 'removed', 'knownIssues'])
   })
 
   it('handles plurals, number formatting and both long and abbreviated relative dates', () => {

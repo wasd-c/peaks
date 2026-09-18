@@ -20,7 +20,7 @@ const noop = () => undefined
 describe('account and watched-player collections', () => {
   it('shows accounts from every game without a game selector', () => {
     const html = renderToStaticMarkup(<LayerProvider><PlayerPrivacyProvider state={state}>
-      <OverviewScreen state={state} view="grid" onView={noop} onSelect={noop} onAdd={noop} />
+      <OverviewScreen state={state} view="grid" onView={noop} onSelect={noop} onAdd={noop} onUse={noop} onEdit={noop} />
     </PlayerPrivacyProvider></LayerProvider>)
     state.accounts.forEach(account => expect(html).toContain(account.riotId))
     expect(html).toContain('Find an account')

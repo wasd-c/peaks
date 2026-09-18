@@ -9,13 +9,13 @@ import {List, ListItem} from '@astryxdesign/core/List'
 import {Section} from '@astryxdesign/core/Section'
 import {Text} from '@astryxdesign/core/Text'
 import {VStack} from '@astryxdesign/core/VStack'
-import {ArrowUpRight, Check, Minus, Plus, Wrench} from 'lucide-react'
+import {ArrowUpRight, Check, CircleAlert, Minus, Plus, Wrench} from 'lucide-react'
 import type {ReleaseHistoryState} from '../../../electron/releaseHistoryTypes'
 import {version} from '../../../package.json'
 import {t, useLocale} from '../i18n'
 import {releaseNotes, releaseNoteSections} from '../releaseNotes'
 
-const icons = {added: Plus, fixed: Wrench, changed: ArrowUpRight, removed: Minus}
+const icons = {added: Plus, fixed: Wrench, changed: ArrowUpRight, removed: Minus, knownIssues: CircleAlert}
 
 export function ReleaseNotesDialog({isOpen, onClose, currentVersion = version, busy = false, error = ''}: {
   isOpen: boolean; onClose: () => void; currentVersion?: string; busy?: boolean; error?: string

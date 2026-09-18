@@ -8,6 +8,8 @@ from math import isfinite
 from typing import Any, cast
 from urllib.parse import quote
 
+from peaks.domain.regions import LEAGUE_PLATFORM_ALIASES, normalize_league_region
+
 from .client import RiotClientError, RiotClientHTTP, RiotClientUnavailable
 from .discovery import RiotLockfile, discover_verified_league_lockfile, running_process_names
 
@@ -93,41 +95,7 @@ def parse_ranked_stats(
 
 # Exact values returned by supported Riot platform shards. This is a format
 # normalization table, not an inference from Riot ID tags or IP location.
-_PLATFORM_REGION_ALIASES = {
-    "br": "BR",
-    "br1": "BR",
-    "eun": "EUNE",
-    "eun1": "EUNE",
-    "eune": "EUNE",
-    "euw": "EUW",
-    "euw1": "EUW",
-    "jp": "JP",
-    "jp1": "JP",
-    "kr": "KR",
-    "la1": "LAN",
-    "lan": "LAN",
-    "la2": "LAS",
-    "las": "LAS",
-    "me": "ME",
-    "me1": "ME",
-    "na": "NA",
-    "na1": "NA",
-    "oc1": "OCE",
-    "oce": "OCE",
-    "ph": "PH",
-    "ph2": "PH",
-    "ru": "RU",
-    "sg": "SG",
-    "sg2": "SG",
-    "th": "TH",
-    "th2": "TH",
-    "tr": "TR",
-    "tr1": "TR",
-    "tw": "TW",
-    "tw2": "TW",
-    "vn": "VN",
-    "vn2": "VN",
-}
+_PLATFORM_REGION_ALIASES = LEAGUE_PLATFORM_ALIASES
 
 
 @dataclass(frozen=True, slots=True)
@@ -312,7 +280,7 @@ def normalize_platform_region(value: object) -> str | None:
         ord(character) < 0x20 or ord(character) == 0x7F for character in value
     ):
         return None
-    return _PLATFORM_REGION_ALIASES.get(value.casefold())
+    return normalize_league_region(value)
 
 
 def parse_summoner_profile(

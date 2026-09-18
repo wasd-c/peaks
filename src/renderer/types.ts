@@ -94,6 +94,8 @@ export interface Match {
   agent?: string
   score?: string
   playedAt?: string
+  /** Actual match start time (Unix milliseconds), used for cross-game ordering. */
+  playedAtTimestamp?: number
   duration?: string
   delta?: string
   performance?: string
@@ -134,12 +136,22 @@ export interface Player {
   context?: PlayerContext
 }
 
+export interface AccountIconSelection {
+  game: 'VALORANT' | 'League of Legends'
+  characterId: string
+}
+
 export interface Account {
   id: string
   riotId: string
+  /** Legacy League/TFT route. Prefer the explicit game regions for display. */
   region: string
+  leagueRegion?: string | null
+  valorantRegion?: string | null
   level?: number
   avatar?: string
+  accountIcon?: AccountIconSelection
+  nickname?: string
   ranks: Rank[]
   peakRanks?: Rank[]
   matches?: Match[]

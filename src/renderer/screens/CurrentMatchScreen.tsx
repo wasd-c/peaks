@@ -6,7 +6,6 @@ import {Icon} from '@astryxdesign/core/Icon'
 import {Section} from '@astryxdesign/core/Section'
 import {StatusDot} from '@astryxdesign/core/StatusDot'
 import {Text} from '@astryxdesign/core/Text'
-import {Token} from '@astryxdesign/core/Token'
 import {VStack} from '@astryxdesign/core/VStack'
 import {Clock3, Radio, UsersRound} from 'lucide-react'
 import {valorantMapName} from '../assets'
@@ -83,10 +82,18 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
     : t('{{count}} players in this session', {count: playerCount})
   const status = match.isStale ? t('Awaiting update') : label
   const fitRoster = fitsValorantRoster({...match, teams, queueId: match.queue})
+  // Match the roster's order: your team first, regardless of the provider's order.
+  const scoreTeams = [...teams].sort((left, right) => Number(right.players.some(player => player.self)) - Number(left.players.some(player => player.self)))
+  const ownTeam = scoreTeams.find(team => team.players.some(player => player.self))
+  const score = hasScore ? <Text className="pmc-match-banner__score" hasTabularNumbers weight="bold">
+    <Text type="inherit" className={`pmc-score--${ownTeam ? 'ally' : 'neutral'}`}>{scoreTeams[0].score}</Text>
+    <Text type="inherit" color="secondary">{' : '}</Text>
+    <Text type="inherit" className={`pmc-score--${ownTeam ? 'enemy' : 'neutral'}`}>{scoreTeams[1].score}</Text>
+  </Text> : null
   return <AuthenticatedScreen
     fitContent={fitRoster}
     actions={<HStack align="center" gap={4}>
-      {fitRoster && hasScore ? <Text className="pmc-match-banner__score" hasTabularNumbers weight="bold">{teams[0].score} : {teams[1].score}</Text> : null}
+      {fitRoster ? score : null}
       {fitRoster && match.elapsed ? <Text hasTabularNumbers>{match.elapsed}</Text> : null}
       <HStack align="center" gap={2}><StatusDot isPulsing={!match.isStale && (phase === 'matchmaking' || phase === 'readycheck' || isLive)} label={status} variant={phase === 'readycheck' && !match.isStale ? 'success' : 'neutral'} /><Text weight="semibold">{status.toUpperCase()}</Text></HStack>
     </HStack>}
@@ -96,14 +103,13 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
       {!fitRoster ? <Section className="pmc-match-banner pd-riot-surface" padding={5} variant="transparent">
         <HStack align="center" justify="between" gap={5} wrap="wrap">
           <VStack gap={1}><Text className="pd-detail__eyebrow" type="supporting">{[match.game ?? 'RIOT GAMES', mode].filter(Boolean).join(' · ')}</Text><Heading className="pmc-match-banner__title" level={2}>{title}</Heading></VStack>
-          {hasScore ? <Text className="pmc-match-banner__score" hasTabularNumbers weight="bold">{teams[0].score} : {teams[1].score}</Text> : <Text color="secondary">{match.isStale ? t("Waiting for the client to reconnect.") : t(phaseDescription[phase])}</Text>}
+          {score ?? <Text color="secondary">{match.isStale ? t("Waiting for the client to reconnect.") : t(phaseDescription[phase])}</Text>}
           {match.elapsed && phase !== 'lobby' ? <HStack align="center" gap={2}><Icon icon={Clock3} color="secondary" /><Text hasTabularNumbers>{match.elapsed}</Text></HStack> : null}
         </HStack>
       </Section> : null}
 
       <HStack className="pmc-match-toolbar" align="center" justify="between" gap={4} wrap="wrap">
         <HStack align="center" gap={2}><Icon icon={UsersRound} color="secondary" /><Text type="supporting">{rosterLabel}</Text></HStack>
-        <HStack className="pmc-legend" align="center" gap={2}><Token className="pmc-tag pmc-tag--past" label={t("Past games")} size="sm" />{isLive ? <Token className="pmc-tag pmc-tag--match" label={t("This match")} size="sm" /> : null}</HStack>
       </HStack>
 
       {playerCount > 0 ? <PlayerMatchCards fitToHeight={fitRoster} teams={teams} game={match.game} phase={phase} mode={match.mode} queueId={match.queue} modeId={match.modeId} map={match.map} matchId={match.id} result={isLive ? 'Live' : undefined} label={label} freeForAll={match.freeForAll} teamMode={match.teamMode} allowReorder={!match.isStale} onSelectPlayer={onSelectPlayer} /> : <EmptyState description={isParty ? t("Party members will appear when your lobby is available.") : t("Player details will appear when your game shares the roster.")} icon={<Icon color="secondary" icon={Radio} />} title={isParty ? t("Waiting for your party") : t("Waiting for players")} />}

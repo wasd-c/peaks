@@ -1,3 +1,4 @@
+import {accountRegionLabel} from '../accountRegions'
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {useCallback, useEffect, useRef, useState} from 'react'
@@ -15,12 +16,8 @@ import {StatusDot} from '@astryxdesign/core/StatusDot'
 import {Text} from '@astryxdesign/core/Text'
 import {VStack} from '@astryxdesign/core/VStack'
 import {ArrowUpRight, ChevronRight, ExternalLink, Fingerprint, Gamepad2, KeyRound, LockKeyhole, QrCode, ShieldCheck, TriangleAlert} from 'lucide-react'
-import type {Account, TotpSetupProposal, TotpSetupResult} from '../types'
-import {
-  cancelPendingTotp,
-  canConfirmTotp,
-  type TotpDialogState,
-} from './totpDialog'
+import type {Account, TotpSetupResult} from '../types'
+import {MFA_VERIFICATION_WARNING} from '../mfa'
 
 interface AddAccountDialogProps {
   isOpen: boolean
@@ -150,9 +147,7 @@ interface ConnectDialogProps {
   onConnectQr: (account: Account) => Promise<void>
   onCopyTotp: (account: Account) => Promise<void>
   onAction: (command: 'import_session', account: Account) => Promise<void>
-  onCancelTotp: (confirmationId: string) => Promise<void>
-  onConfirmTotp: (proposal: TotpSetupProposal) => Promise<TotpSetupResult>
-  onPrepareTotp: (account: Account) => Promise<TotpSetupProposal>
+  onEnableMfa: (account: Account) => Promise<TotpSetupResult>
 }
 
 export function ConnectDialog({
@@ -162,14 +157,12 @@ export function ConnectDialog({
   onConnectQr,
   onCopyTotp,
   onAction,
-  onCancelTotp,
-  onConfirmTotp,
-  onPrepareTotp,
+  onEnableMfa,
 }: ConnectDialogProps) {
   useLocale()
   const {displayName, redact} = usePlayerPrivacy()
-  const [totpState, setTotpState] = useState<TotpDialogState>('choices')
-  const [proposal, setProposal] = useState<TotpSetupProposal | null>(null)
+  const [totpState, setTotpState] = useState<'choices' | 'connecting' | 'enabling' | 'partial'>('choices')
+  const busyRef = useRef(false)
   const [totpError, setTotpError] = useState('')
   const [totpWarning, setTotpWarning] = useState('')
   const [connectionKind, setConnectionKind] = useState<'qr' | 'session' | null>(null)
@@ -178,7 +171,8 @@ export function ConnectDialog({
   const canSetupMfa = account?.canSetupMfa ?? (Boolean(account?.connected) && !account?.hasTotp)
 
   const connectQr = useCallback(async () => {
-    if (!account) return
+    if (!account || busyRef.current) return
+    busyRef.current = true
     setTotpError('')
     setTotpState('connecting')
     setConnectionKind('qr')
@@ -189,20 +183,22 @@ export function ConnectDialog({
       setTotpError(userFacingError(error, 'Riot Client QR connection failed'))
       setTotpState('choices')
       setConnectionKind(null)
+    } finally {
+      busyRef.current = false
     }
   }, [account, onConnectQr, onOpenChange])
 
   useEffect(() => {
     if (isOpen) return
     setTotpState('choices')
-    setProposal(null)
     setTotpError('')
     setTotpWarning('')
     setConnectionKind(null)
   }, [isOpen])
 
   const choose = async () => {
-    if (!account) return
+    if (!account || busyRef.current) return
+    busyRef.current = true
     setTotpError('')
     setTotpState('connecting')
     setConnectionKind('session')
@@ -213,60 +209,38 @@ export function ConnectDialog({
       setTotpError(userFacingError(error, 'Riot connection could not be completed'))
       setTotpState('choices')
       setConnectionKind(null)
+    } finally {
+      busyRef.current = false
     }
   }
 
-  const prepareTotp = async () => {
-    if (!account) return
+  const enableMfa = async () => {
+    if (!account || busyRef.current) return
+    busyRef.current = true
     setTotpError('')
-    setTotpState('preparing')
+    setTotpState('enabling')
     try {
-      const next = await onPrepareTotp(account)
-      setProposal(next)
-      setTotpState('confirming')
-    } catch (error) {
-      setTotpError(userFacingError(error, 'Authenticator setup could not start'))
-      setTotpState('choices')
-    }
-  }
-
-  const cancelTotp = async () => {
-    const current = proposal
-    setProposal(null)
-    setTotpState('choices')
-    setTotpError('')
-    await cancelPendingTotp(current, onCancelTotp)
-  }
-
-  const confirmTotp = async () => {
-    if (!canConfirmTotp(totpState, proposal)) return
-    setTotpError('')
-    setTotpState('saving')
-    try {
-      const result = await onConfirmTotp(proposal)
-      if (result.warning) {
-        setTotpWarning(result.warning)
-        setProposal(null)
+      const result = await onEnableMfa(account)
+      if (result.warning || !result.verified) {
+        setTotpWarning(MFA_VERIFICATION_WARNING)
         setTotpState('partial')
         return
       }
-      setProposal(null)
       setTotpState('choices')
       onOpenChange(false)
     } catch (error) {
-      setProposal(null)
-      setTotpError(userFacingError(error, 'Authenticator setup failed'))
+      setTotpError(userFacingError(error, t('MFA could not be enabled. Please try again.')))
       setTotpState('choices')
+    } finally {
+      busyRef.current = false
     }
   }
 
-  const confirming = totpState === 'confirming' || totpState === 'saving'
-  const busy = totpState === 'connecting' || totpState === 'preparing' || totpState === 'saving'
+  const busy = totpState === 'connecting' || totpState === 'enabling'
 
   const closeDialog = (nextOpen: boolean) => {
     if (nextOpen) return
     if (busy) return
-    void cancelPendingTotp(proposal, onCancelTotp)
     onOpenChange(false)
   }
 
@@ -275,7 +249,7 @@ export function ConnectDialog({
       className="pd-dialog pd-dialog--connection"
       isOpen={isOpen && Boolean(account)}
       onOpenChange={closeDialog}
-      purpose={busy || confirming ? 'required' : 'form'}
+      purpose={busy ? 'required' : 'form'}
       maxHeight="calc(100dvh - var(--spacing-8))"
       width="calc(var(--spacing-12) * 12)"
       padding={0}>
@@ -285,22 +259,20 @@ export function ConnectDialog({
         padding={6}
         header={
           <DialogHeader
-            startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={confirming ? ShieldCheck : Fingerprint} /></HStack>}
-            title={totpState === 'connecting' || totpState === 'preparing'
-              ? totpState === 'preparing'
-                ? t("Preparing Riot authenticator…")
+            startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={totpState === 'enabling' ? ShieldCheck : Fingerprint} /></HStack>}
+            title={busy
+              ? totpState === 'enabling'
+                ? t('Enabling MFA…')
                 : t("Connecting Riot account…")
-              : confirming
-                ? t("Enable Riot Mobile authenticator?")
-                : canConnectQr
+              : canConnectQr
                   ? t("Connect your account")
                   : t("Reconnect your account")}
-            subtitle={confirming
-              ? t("Review the account and security change before continuing.")
+            subtitle={totpState === 'enabling'
+              ? undefined
               : canConnectQr
                 ? t("Choose how to connect this account to Riot Client.")
                 : t("Sign in to Riot to enable QR connection for this account.")}
-            onOpenChange={busy || confirming ? undefined : closeDialog}
+            onOpenChange={busy ? undefined : closeDialog}
           />
         }
         content={
@@ -311,7 +283,7 @@ export function ConnectDialog({
                   <HStack gap={3} align="center">
                     <Avatar name={displayName(account.riotId)} src={account.avatar} size="lg" tooltip={false} />
                     <VStack gap={0.5}>
-                      <Text className="pd-dialog__eyebrow" type="supporting">{t("SELECTED ACCOUNT ·")} {account.region.toUpperCase()}</Text>
+                      <Text className="pd-dialog__eyebrow" type="supporting">{t("SELECTED ACCOUNT ·")} {accountRegionLabel(account)}</Text>
                       <Text type="large" weight="semibold">{displayName(account.riotId)}</Text>
                     </VStack>
                   </HStack>
@@ -319,28 +291,28 @@ export function ConnectDialog({
                 </HStack>
               )}
 
-              {totpState === 'connecting' || totpState === 'preparing' ? (
+              {busy ? (
                 <VStack className="pd-dialog__progress" gap={5} width="100%" paddingBlock={4}>
                   <HStack gap={4} align="start">
                     <HStack className="pd-dialog__progress-icon" align="center" justify="center">
                     <Spinner
                       size="md"
-                      aria-label={totpState === 'preparing'
-                        ? t("Preparing Riot authenticator setup")
+                      aria-label={totpState === 'enabling'
+                        ? t('Enabling MFA…')
                         : t("Connecting Riot account")}
                     />
                     </HStack>
                     <VStack gap={1}>
                       <Text type="large" weight="semibold">
-                        {totpState === 'preparing'
-                          ? t("Checking Riot authenticator settings…")
+                        {totpState === 'enabling'
+                          ? t('Enabling MFA…')
                           : connectionKind === 'session'
                             ? t("Waiting for Riot sign-in…")
                             : t("Scanning the Riot Client sign-in QR…")}
                       </Text>
                       <Text color="secondary" role="status">
-                        {totpState === 'preparing'
-                          ? t("Complete Riot sign-in if prompted. Review and confirm the security change here before it is applied.")
+                        {totpState === 'enabling'
+                          ? t('Keep Peaks open while Riot activates your authenticator.')
                           : connectionKind === 'session'
                             ? t("Finish signing in through the Riot window opened by Peaks. Use the selected account shown above.")
                             : t("Keep Riot Client open on its QR sign-in screen. Peaks will connect the account shown above.")}
@@ -349,7 +321,7 @@ export function ConnectDialog({
                   </HStack>
                   <HStack className="pd-dialog__progress-track" gap={2} align="center">
                     <StatusDot label={t("Connection in progress")} variant="neutral" isPulsing />
-                    <Text type="supporting">{t("Keep the Riot window open")}</Text>
+                    <Text type="supporting">{totpState === 'enabling' ? t('Activating authenticator') : t("Keep the Riot window open")}</Text>
                   </HStack>
                   {totpState === 'connecting' && connectionKind === 'session' && account?.hasTotp ? (
                     <VStack gap={1}>
@@ -363,19 +335,6 @@ export function ConnectDialog({
                       <Text type="supporting" color="secondary">{t("Paste it in the Riot sign-in window. The clipboard clears automatically.")}</Text>
                     </VStack>
                   ) : null}
-                </VStack>
-              ) : confirming ? (
-                <VStack className="pd-dialog__confirmation" gap={4} padding={5}>
-                  <HStack gap={3} align="start">
-                    <Icon icon={TriangleAlert} color="warning" />
-                    <VStack gap={1}>
-                      <Text className="pd-dialog__eyebrow" type="supporting">{t("REVIEW SECURITY CHANGE")}</Text>
-                      <Heading level={2}>{t("Enable your authenticator.")}</Heading>
-                      <Text weight="semibold">{t("This changes your Riot account security")}</Text>
-                      <Text color="secondary">{t('Peaks will enable Riot Mobile authentication for {{name}}, save the issued secret in your encrypted vault, then verify it with Riot.', {name: displayName(proposal?.riotId ?? account?.riotId ?? 'Selected player')})}</Text>
-                    </VStack>
-                  </HStack>
-                  <Text type="supporting" color="secondary">{t("Email MFA must already be enabled. Peaks refuses to replace an existing Riot Mobile factor. If verification fails after Riot issues a secret, Peaks keeps that secret so you are not locked out.")}</Text>
                 </VStack>
               ) : totpState === 'partial' ? (
                 <HStack className="pd-dialog__notice" gap={3} align="start" padding={4}>
@@ -419,11 +378,11 @@ export function ConnectDialog({
                     ) : null}
                     {canSetupMfa ? (
                       <ListItem
-                        label={t("Add Riot MFA")}
-                        description={<Text color="secondary">{t("Set up authentication codes. You’ll review the change first.")}</Text>}
+                        label={t('Enable MFA')}
+                        description={<Text color="secondary">{t('Activate your authenticator directly in Peaks.')}</Text>}
                         startContent={<Icon icon={KeyRound} color="primary" />}
                         endContent={<Icon icon={ChevronRight} size="sm" color="secondary" />}
-                        onClick={() => void prepareTotp()}
+                        onClick={() => void enableMfa()}
                       />
                     ) : null}
                   </List>
@@ -445,14 +404,7 @@ export function ConnectDialog({
             </VStack>
           </LayoutContent>
         }
-        footer={confirming ? (
-          <LayoutFooter hasDivider padding={6}>
-            <HStack gap={2} justify="end">
-              <Button label={t("Cancel")} variant="ghost" isDisabled={busy} clickAction={cancelTotp} />
-              <Button label={t("Enable and save")} icon={<Icon icon={ShieldCheck} />} variant="primary" isLoading={totpState === 'saving'} clickAction={confirmTotp} />
-            </HStack>
-          </LayoutFooter>
-        ) : totpState === 'partial' ? (
+        footer={totpState === 'partial' ? (
           <LayoutFooter hasDivider padding={6}>
             <HStack justify="end">
               <Button label={t("Done")} variant="primary" onClick={() => onOpenChange(false)} />

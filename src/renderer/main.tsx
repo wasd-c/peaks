@@ -15,6 +15,7 @@ import './detailSurfaces.css'
 import './playerMatchCards.css'
 import './utilitySurfaces.css'
 import './dialogSurfaces.css'
+import './accountPicker.css'
 
 initializeLanguage()
 

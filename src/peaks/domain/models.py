@@ -7,12 +7,16 @@ while the UI only has to deal with a small set of predictable DTOs.
 
 from __future__ import annotations
 
+import re
+import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Self
 from uuid import uuid4
+
+from peaks.domain.regions import normalize_valorant_region
 
 
 def utc_now() -> datetime:
@@ -242,12 +246,57 @@ Rank = RankInfo
 
 
 @dataclass(frozen=True, slots=True)
+class AccountIcon:
+    """A character asset identifier, never a user-supplied URL or local path."""
+
+    game: Game
+    character_id: str
+
+    def __post_init__(self) -> None:
+        game = Game.parse(self.game)
+        if game not in {Game.VALORANT, Game.LEAGUE_OF_LEGENDS}:
+            raise ValueError("Choose a VALORANT agent or League of Legends champion")
+        if not isinstance(self.character_id, str):
+            raise ValueError("Choose a valid character icon")
+        pattern = (
+            r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+            if game is Game.VALORANT else r"[A-Za-z][A-Za-z0-9]{0,63}"
+        )
+        if re.fullmatch(pattern, self.character_id) is None:
+            raise ValueError("Choose a valid character icon")
+        object.__setattr__(self, "game", game)
+        if game is Game.VALORANT:
+            object.__setattr__(self, "character_id", self.character_id.lower())
+
+    def to_dict(self) -> dict[str, str]:
+        return {"game": self.game.value, "character_id": self.character_id}
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> Self:
+        if not isinstance(data, Mapping) or set(data) != {"game", "character_id"}:
+            raise ValueError("Choose a valid character icon")
+        return cls(game=Game.parse(data["game"]), character_id=data["character_id"])
+
+
+def normalize_account_nickname(value: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError("Choose an account nickname of up to 64 characters")
+    if any(unicodedata.category(character).startswith("C") for character in value):
+        raise ValueError("Choose an account nickname without control characters")
+    nickname = value.strip()
+    if len(nickname) > 64:
+        raise ValueError("Choose an account nickname of up to 64 characters")
+    return nickname
+
+
+@dataclass(frozen=True, slots=True)
 class Account:
     """A Riot identity known to the local user."""
 
     account_id: str
     game_name: str
     tag_line: str = ""
+    # Legacy field stores the League/TFT platform only.
     region: str = "global"
     puuid: str | None = None
     is_owned: bool = True
@@ -255,8 +304,13 @@ class Account:
     last_seen_at: datetime | None = None
     ranks: tuple[RankInfo, ...] = ()
     level: int | None = None
+    valorant_region: str | None = None
+    account_icon: AccountIcon | None = None
+    nickname: str = ""
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "nickname", normalize_account_nickname(self.nickname))
+        object.__setattr__(self, "valorant_region", normalize_valorant_region(self.valorant_region))
         if not self.account_id.strip():
             raise ValueError("account_id cannot be empty")
         if not self.game_name.strip():
@@ -268,6 +322,8 @@ class Account:
         object.__setattr__(self, "created_at", _as_utc(self.created_at) or utc_now())
         object.__setattr__(self, "last_seen_at", _as_utc(self.last_seen_at))
         object.__setattr__(self, "ranks", tuple(self.ranks))
+        if self.account_icon is not None and not isinstance(self.account_icon, AccountIcon):
+            raise TypeError("account_icon must be an AccountIcon or None")
         if self.level is not None:
             if isinstance(self.level, bool) or not isinstance(self.level, int):
                 raise TypeError("level must be an int or None")
@@ -300,6 +356,9 @@ class Account:
             last_seen_at=self.last_seen_at,
             ranks=tuple(ranks),
             level=self.level,
+            valorant_region=self.valorant_region,
+            account_icon=self.account_icon,
+            nickname=self.nickname,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -314,6 +373,9 @@ class Account:
             "last_seen_at": _encode_datetime(self.last_seen_at),
             "ranks": [rank.to_dict() for rank in self.ranks],
             "level": self.level,
+            "valorant_region": self.valorant_region,
+            "account_icon": self.account_icon.to_dict() if self.account_icon else None,
+            "nickname": self.nickname,
         }
 
     @classmethod
@@ -329,6 +391,10 @@ class Account:
             last_seen_at=_decode_datetime(data.get("last_seen_at")),
             ranks=tuple(RankInfo.from_dict(item) for item in data.get("ranks", [])),
             level=data.get("level"),
+            valorant_region=data.get("valorant_region"),
+            account_icon=AccountIcon.from_dict(data["account_icon"])
+            if data.get("account_icon") is not None else None,
+            nickname=data.get("nickname", ""),
         )
 
 

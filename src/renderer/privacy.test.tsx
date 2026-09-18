@@ -46,8 +46,8 @@ const render = (children: ReactNode, enabled = true) => renderToStaticMarkup(
 
 describe('Streamer Mode', () => {
   const screens: Array<[string, ReactNode]> = [
-    ['accounts', <OverviewScreen state={state} view="list" onView={noop} onSelect={noop} onAdd={noop} />],
-    ['account details', <AccountDetailScreen account={state.accounts[0]} onBack={noop} onCopy={noop} onConnect={noop} onDelete={noop} onPasteQr={action} onRefresh={noop} onSelectMatch={noop} />],
+    ['accounts', <OverviewScreen state={state} view="list" onView={noop} onSelect={noop} onAdd={noop} onUse={noop} onEdit={noop} />],
+    ['account details', <AccountDetailScreen account={state.accounts[0]} onBack={noop} onCopy={noop} onConnect={noop} onEnableMfa={action} onDelete={noop} onPasteQr={action} onRefresh={noop} onSelectMatch={noop} />],
     ['player profile', <PlayerProfileScreen player={state.followed[0]} onBack={noop} onSelectMatch={noop} />],
     ['watchlist', <PlayerList players={state.followed} heading="Players" action={action} />],
     ['search history', <SearchScreen state={state} action={action} invoke={async <T,>() => [] as T} onSelectPlayer={noop} />],

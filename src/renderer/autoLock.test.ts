@@ -13,6 +13,7 @@ describe('automatic lock coordination', () => {
     expect(pausesAutoLock('import_session')).toBe(true)
     expect(pausesAutoLock('prepare_totp_setup')).toBe(true)
     expect(pausesAutoLock('confirm_totp_setup')).toBe(true)
+    expect(pausesAutoLock('enable_riot_mfa')).toBe(true)
     expect(pausesAutoLock('connect_riot_client')).toBe(true)
     expect(pausesAutoLock('connect_riot_qr_image')).toBe(true)
     expect(pausesAutoLock('refresh')).toBe(false)

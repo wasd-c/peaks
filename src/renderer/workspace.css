@@ -1,5 +1,50 @@
-/* Workspace frame: fixed icon rail, one header, fluid content capped by theme.
-   At narrow desktop widths the account inspection pane moves below the roster. */
+/* Account selection: a centered gallery for a few identities, wrapping for large libraries. */
+.pd-account-toolbar { padding-block-end: var(--spacing-5); border-block-end: var(--border-width) solid var(--color-border); }
+.pd-account-toolbar__controls { min-width: 0; }
+.pd-account-toolbar__controls .astryx-text-input { width: calc(var(--spacing-12) * 5); max-width: 100%; }
+.pd-account-stage { padding-block: var(--spacing-5); }
+.pd-account-stage[data-sparse='true'] { padding-block: clamp(var(--spacing-5), 3dvh, var(--spacing-12)); }
+.pd-account-grid { --account-portrait-size: calc(var(--spacing-12) * 2.75); --account-tile-height: calc(var(--spacing-12) * 7.25); }
+.pd-account-grid[data-density='compact'] { --account-portrait-size: calc(var(--spacing-10) * 2); --account-tile-height: calc(var(--spacing-12) * 5.5); }
+.pd-account-grid[data-density='compact'] .pd-account-tile__content { padding: var(--spacing-4); gap: var(--spacing-3); }
+.pd-account-tile { position: relative; min-width: 0; height: var(--account-tile-height); border-radius: var(--radius-container); isolation: isolate; }
+.pd-account-tile::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: linear-gradient(to bottom, var(--color-background-muted), transparent); opacity: 0; transition: opacity var(--duration-medium) var(--ease-standard); }
+.pd-account-tile:hover::before, .pd-account-tile:focus-within::before { opacity: .55; }
+.pd-account-tile__content { width: 100%; padding: var(--spacing-6) var(--spacing-5); transform: translateY(var(--spacing-8)); transition: transform var(--duration-medium-max) var(--ease-standard), filter var(--duration-slow) var(--ease-standard), opacity var(--duration-slow) var(--ease-standard); }
+.pd-account-tile:hover .pd-account-tile__content, .pd-account-tile:focus-within .pd-account-tile__content { transform: translateY(0); }
+.pd-account-tile .pd-account-tile__portrait { width: var(--account-portrait-size); height: var(--account-portrait-size); min-height: var(--account-portrait-size); padding: 0; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-container); overflow: hidden; background: radial-gradient(ellipse at top, var(--color-background-muted), var(--color-background-body)); box-shadow: 0 var(--spacing-3) var(--spacing-8) color-mix(in srgb, var(--color-shadow) 45%, transparent); }
+.pd-account-tile__portrait img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--duration-slow) var(--ease-standard); }
+.pd-account-tile:hover .pd-account-tile__portrait img { transform: scale(1.045); }
+.pd-account-tile__portrait .astryx-button-label { display: contents; }
+.pd-account-tile__identity { position: relative; min-height: var(--spacing-6); }
+.pd-account-tile__name, .pd-account-tile__riot-id { font-size: var(--font-size-lg); min-width: 0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 100%; }
+.pd-account-tile__name { transition: opacity var(--duration-medium-min) var(--ease-standard); }
+.pd-account-tile__full-name { position: absolute; inset: 0; opacity: 0; transition: opacity var(--duration-medium-min) var(--ease-standard); }
+.pd-account-tile__region { flex-shrink: 0; padding: var(--spacing-0-5) var(--spacing-1); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-inner); font-family: var(--font-family-code); color: var(--color-text-secondary); }
+.pd-account-tile__actions { opacity: 0; transform: translateY(var(--spacing-2)); pointer-events: none; transition: opacity var(--duration-medium) var(--ease-standard), transform var(--duration-medium) var(--ease-standard); }
+.pd-account-tile:hover .pd-account-tile__name, .pd-account-tile:focus-within .pd-account-tile__name { opacity: 0; }
+.pd-account-tile:hover .pd-account-tile__full-name, .pd-account-tile:focus-within .pd-account-tile__full-name,
+.pd-account-tile:hover .pd-account-tile__actions, .pd-account-tile:focus-within .pd-account-tile__actions { opacity: 1; transform: none; pointer-events: auto; }
+.pd-account-tile__use { background: var(--color-on-dark); color: var(--color-on-light); }
+.pd-account-tile[data-phase='pending'] .pd-account-tile__content, .pd-account-tile[data-phase='approved'] .pd-account-tile__content { filter: blur(var(--spacing-1-5)); opacity: .4; }
+.pd-account-tile__status { position: absolute; inset: 0; pointer-events: none; text-align: center; transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard); }
+.pd-account-tile__check { color: var(--color-icon-green); width: var(--spacing-10); height: var(--spacing-10); padding: var(--spacing-2); border: var(--border-width) solid var(--color-border-green); border-radius: var(--radius-full); background: var(--color-background-green); animation: account-approved var(--duration-medium) var(--ease-standard) both; }
+.pd-account-tile[data-phase='leaving'] .pd-account-tile__status { opacity: 0; transform: scale(.95); }
+@keyframes account-approved { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+@media (hover: none), (pointer: coarse) {
+  .pd-account-tile__content { transform: none; }
+  .pd-account-tile__name { opacity: 0; }
+  .pd-account-tile__full-name, .pd-account-tile__actions { opacity: 1; transform: none; pointer-events: auto; }
+}
+@media (max-width: 640px) {
+  .pd-account-toolbar__controls { width: 100%; justify-content: space-between; }
+  .pd-account-stage[data-sparse='true'] { padding-block: var(--spacing-3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd-account-tile *, .pd-account-tile::before { transition: none !important; animation: none !important; }
+}
+
+/* Workspace frame: fixed icon rail, one header, fluid content capped by theme. */
 body { min-width: 0; }
 .peaks-app { padding: var(--spacing-3); padding-inline-start: 0; }
 .peaks-app .astryx-app-shell-header { background: var(--color-background-body); }
@@ -34,50 +79,22 @@ body { min-width: 0; }
 .peaks-screen .astryx-button { transition: background var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard); }
 .peaks-screen .astryx-button:active { transform: scale(.98); }
 .pd-overview-strip { padding-block: 0 var(--spacing-5); border-block-end: var(--border-width) solid var(--color-border); }
-.pd-overview-strip__privacy { margin-inline-start: auto; }
-.pd-account-workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); align-items: start; }
 .pd-account-library { min-width: 0; }
 .pd-account-list { background: transparent; border: 0; }
 .pd-account-list .pd-account-row { padding: var(--spacing-5) var(--spacing-3); border-radius: var(--radius-element); border-block-end-color: var(--color-border); transition: background var(--duration-fast) var(--ease-standard); }
-.pd-account-list .pd-account-row[aria-current='true'] { background: var(--color-overlay-hover); box-shadow: inset var(--spacing-0-5) 0 0 var(--color-accent); }
 .pd-account-row .astryx-list-item-label { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); }
 .pd-account-row__ranks { padding-block-start: var(--spacing-1); }
 .pd-account-row__ranks .peaks-rank-media { width: var(--spacing-7); height: var(--spacing-7); }
 .pd-account-row__ranks .peaks-rank-media img { object-fit: contain; }
 .pd-mini-label { font-size: var(--font-size-xs); font-family: var(--font-family-code); text-transform: uppercase; letter-spacing: var(--peaks-tracking-label); }
 .pd-game-filter .astryx-tab { padding-inline: var(--spacing-3); }
-.pd-account-focus { overflow: hidden; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-container); background: var(--color-background-card); animation: pd-focus-enter var(--duration-medium) var(--ease-standard) both; }
-.pd-focus-art { position: relative; overflow: hidden; min-height: calc(var(--spacing-12) * 5.6); }
-.pd-focus-art__image { position: absolute; width: 100%; height: 100%; inset: 0; object-fit: cover; filter: saturate(.6); }
-.pd-focus-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, color-mix(in srgb, var(--color-background-body) 20%, transparent), color-mix(in srgb, var(--color-background-body) 42%, transparent) 30%, var(--color-background-card)); }
-.pd-focus-art__content { position: relative; z-index: 1; min-height: inherit; }
-.pd-focus-art__content .peaks-eyebrow { color: var(--color-on-dark); }
-.pd-focus-game { padding: var(--spacing-1) var(--spacing-2); background: color-mix(in srgb, var(--color-background-body) 75%, transparent); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-inner); color: var(--color-on-dark); }
-.pd-focus-name { font-size: var(--font-size-3xl); letter-spacing: var(--peaks-tracking-heading); word-break: break-word; }
-.pd-focus-open { align-self: start; }
-.pd-focus-ranks { border-block: var(--border-width) solid var(--color-border); }
-.pd-focus-ranks > * + * { border-inline-start: var(--border-width) solid var(--color-border); }
-.pd-focus-ranks .peaks-rank-media { width: var(--spacing-12); height: var(--spacing-12); }
-.pd-focus-ranks .peaks-rank-media img { object-fit: contain; }
-.pd-focus-ranks .astryx-text { text-align: center; }
-.pd-focus-activity .peaks-match-list { background: transparent; border: 0; box-shadow: none; }
-.pd-focus-activity .astryx-list-item { padding-inline: 0; }
-.pd-focus-activity .astryx-list-item-description { font-size: var(--font-size-sm); }
-@keyframes pd-focus-enter { from { opacity: .4; transform: translateY(var(--spacing-1)); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 68rem) {
-  .pd-workspace-label, .pd-overview-strip__privacy { display: none; }
-  .pd-account-workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .pd-workspace-label { display: none; }
   .pd-account-row__ranks { gap: var(--spacing-2); }
   .pd-account-row__ranks > * { flex: 1 1 auto; }
-  .pd-focus-ranks > * { padding-inline: var(--spacing-2); }
-  .pd-focus-ranks .astryx-text { font-size: var(--font-size-sm); }
   .peaks-screen__header { padding-inline: var(--spacing-5); }
 }
 @media (max-width: 52rem) {
-  .pd-account-workspace { grid-template-columns: minmax(0, 1fr); }
-  .pd-account-focus { order: -1; }
-  .pd-focus-art { min-height: calc(var(--spacing-12) * 4.5); }
-  .pd-focus-activity { display: none; }
   .pd-client-indicator { display: none; }
   .peaks-screen__header { flex-wrap: wrap; gap: var(--spacing-4); }
   .peaks-screen__header h1 { font-size: var(--font-size-3xl); }
@@ -90,7 +107,6 @@ body { min-width: 0; }
   .pd-navigation .astryx-side-nav-section { padding-inline: var(--spacing-2); }
   .pd-key-hint, .pd-workspace-bar .astryx-icon[aria-label] { display: none; }
   .pd-overview-strip { gap: var(--spacing-3); }
-  .pd-overview-strip > :nth-child(3) { flex-basis: 100%; }
 }
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after,
 [data-reduce-motion='true'] *, [data-reduce-motion='true'] *::before, [data-reduce-motion='true'] *::after,
@@ -99,4 +115,29 @@ body:has(.reduce-motion) [role='dialog'], body:has(.reduce-motion) [role='dialog
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+
+  /* Account selection follows Peaks' explicit motion setting. Keep the OS
+     preference in force everywhere else, and when Reduce motion is enabled. */
+  .peaks-app:not(.reduce-motion) .pd-account-tile::before {
+    transition: opacity var(--duration-medium) var(--ease-standard) !important;
+  }
+  .peaks-app:not(.reduce-motion) .pd-account-tile__content {
+    transition: transform var(--duration-medium-max) var(--ease-standard), filter var(--duration-slow) var(--ease-standard), opacity var(--duration-slow) var(--ease-standard) !important;
+  }
+  .peaks-app:not(.reduce-motion) .pd-account-tile__portrait img {
+    transition: transform var(--duration-slow) var(--ease-standard) !important;
+  }
+  .peaks-app:not(.reduce-motion) .pd-account-tile__name,
+  .peaks-app:not(.reduce-motion) .pd-account-tile__full-name {
+    transition: opacity var(--duration-medium-min) var(--ease-standard) !important;
+  }
+  .peaks-app:not(.reduce-motion) .pd-account-tile__actions {
+    transition: opacity var(--duration-medium) var(--ease-standard), transform var(--duration-medium) var(--ease-standard) !important;
+  }
+  .peaks-app:not(.reduce-motion) .pd-account-tile__status {
+    transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard) !important;
+  }
+  .peaks-app:not(.reduce-motion) .pd-account-tile__check {
+    animation: account-approved var(--duration-medium) var(--ease-standard) both !important;
+  }
 }

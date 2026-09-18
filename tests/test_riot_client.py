@@ -85,6 +85,35 @@ def test_local_request_uses_loopback_tls_exception_and_auth_without_logging_secr
     assert "topsecret" not in str(kwargs)
 
 
+@pytest.mark.parametrize("fails", [False, True])
+def test_http_diagnostics_never_include_paths_queries_or_provider_errors(
+    fails: bool,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = FakeSession()
+    if fails:
+
+        def fail(*args: object, **kwargs: object) -> None:
+            raise requests.ConnectionError("PRIVATE-ERROR token=PRIVATE-TOKEN")
+
+        monkeypatch.setattr(fake, "request", fail)
+    logger = logging.getLogger("test.riot_client_privacy")
+    client = RiotClientHTTP(
+        parse_lockfile("riot-client:12:12345:PRIVATE-PASSWORD:https"), session=fake, logger=logger
+    )
+    endpoint = "/players/PRIVATE-PUUID/matches/PRIVATE-MATCH?token=PRIVATE-TOKEN"
+    with caplog.at_level(logging.DEBUG, logger=logger.name):
+        if fails:
+            with pytest.raises(RiotClientError):
+                client.get_json(endpoint)
+        else:
+            client.get_json(endpoint)
+    assert "PRIVATE" not in caplog.text
+    assert "method=GET" in caplog.text
+    assert ("riot_local.request.failed" if fails else "status=200") in caplog.text
+
+
 def test_local_response_is_closed_and_bounded_before_json_parsing() -> None:
     fake = FakeSession()
     client = RiotClientHTTP(
@@ -228,28 +257,32 @@ def test_verified_league_lockfile_binds_lcu_pid_and_riot_installation(tmp_path: 
     lockfile = discover_verified_league_lockfile(
         platform_name="Windows",
         paths=paths,
-        process_lookup=lambda pid: (
-            ("LeagueClientUx.exe", executable) if pid == 77 else None
-        ),
+        process_lookup=lambda pid: ("LeagueClientUx.exe", executable) if pid == 77 else None,
     )
 
     assert lockfile is not None
     assert lockfile.port == 54322
     assert "lcu-secret" not in repr(lockfile)
-    assert validate_league_lockfile_process(
-        lockfile,
-        process_lookup=lambda _pid: ("Unrelated.exe", executable),
-    ) is None
+    assert (
+        validate_league_lockfile_process(
+            lockfile,
+            process_lookup=lambda _pid: ("Unrelated.exe", executable),
+        )
+        is None
+    )
 
 
 def test_verified_league_lockfile_is_disabled_off_windows(tmp_path: Path) -> None:
     paths = default_paths(platform_name="Darwin", env={})
 
-    assert discover_verified_league_lockfile(
-        platform_name="Darwin",
-        paths=paths,
-        process_lookup=lambda _pid: pytest.fail("must not inspect processes"),
-    ) is None
+    assert (
+        discover_verified_league_lockfile(
+            platform_name="Darwin",
+            paths=paths,
+            process_lookup=lambda _pid: pytest.fail("must not inspect processes"),
+        )
+        is None
+    )
 
 
 def test_verified_league_lockfile_finds_custom_install_sibling(tmp_path: Path) -> None:
@@ -390,8 +423,7 @@ def test_valorant_rank_resolves_active_season_instead_of_mapping_order() -> None
     assert rank is not None and (rank.name, rank.rr) == ("Diamond 2", 62)
     assert local.calls == [
         "/mmr/v1/players/owned-puuid",
-        "/mmr/v1/players/owned-puuid/competitiveupdates"
-        "?startIndex=0&endIndex=20&queue=competitive",
+        "/mmr/v1/players/owned-puuid/competitiveupdates?startIndex=0&endIndex=20&queue=competitive",
     ]
 
 
@@ -587,26 +619,43 @@ def test_completed_match_details_resolve_identities_independently_of_live_incogn
 def test_match_round_analytics_fill_missing_stats_and_preserve_total_combat_score() -> None:
     payload = {
         "matchInfo": {"matchId": "match-1"},
-        "players": [{
-            "subject": "owned-puuid", "teamId": "Blue",
-            "stats": {"score": 600, "roundsPlayed": 2, "headshots": 1, "kills": 1},
-        }],
-        "roundResults": [{
-            "roundNum": 0,
-            "playerStats": [{
+        "players": [
+            {
                 "subject": "owned-puuid",
-                "kills": [{
-                    "killer": "owned-puuid", "victim": "opponent", "timeSinceRoundStartMillis": 1000,
-                    "finishingDamage": {"damageType": "Weapon", "damageItem": "9c82e19d-4575-0200-1a81-3eacf00cf872"},
-                }],
-                "damage": [{"headshots": 1, "bodyshots": 2, "legshots": 3, "damage": 150}],
-            }],
-        }, {
-            "roundNum": 1,
-            "playerStats": [{"subject": "owned-puuid", "kills": [], "damage": []}],
-        }],
+                "teamId": "Blue",
+                "stats": {"score": 600, "roundsPlayed": 2, "headshots": 1, "kills": 1},
+            }
+        ],
+        "roundResults": [
+            {
+                "roundNum": 0,
+                "playerStats": [
+                    {
+                        "subject": "owned-puuid",
+                        "kills": [
+                            {
+                                "killer": "owned-puuid",
+                                "victim": "opponent",
+                                "timeSinceRoundStartMillis": 1000,
+                                "finishingDamage": {
+                                    "damageType": "Weapon",
+                                    "damageItem": "9c82e19d-4575-0200-1a81-3eacf00cf872",
+                                },
+                            }
+                        ],
+                        "damage": [{"headshots": 1, "bodyshots": 2, "legshots": 3, "damage": 150}],
+                    }
+                ],
+            },
+            {
+                "roundNum": 1,
+                "playerStats": [{"subject": "owned-puuid", "kills": [], "damage": []}],
+            },
+        ],
     }
-    summary = parse_match_details(payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1"))
+    summary = parse_match_details(
+        payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1")
+    )
     player = summary.teams[0].players[0]
     assert player.combat_score == 600
     assert player.headshots == 1
@@ -616,19 +665,25 @@ def test_match_round_analytics_fill_missing_stats_and_preserve_total_combat_scor
     assert "owned-puuid" not in repr(summary)
 
     payload["players"][0]["stats"]["kills"] = 5  # type: ignore[index]
-    mismatched = parse_match_details(payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1"))
+    mismatched = parse_match_details(
+        payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1")
+    )
     assert mismatched.teams[0].players[0].round_kills is None
     assert mismatched.teams[0].players[0].weapon_usage is None
     assert mismatched.teams[0].players[0].bodyshots == 2
 
     payload["players"][0]["stats"]["headshots"] = 9  # type: ignore[index]
-    conflicting = parse_match_details(payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1"))
+    conflicting = parse_match_details(
+        payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1")
+    )
     assert conflicting.teams[0].players[0].headshots == 9
     assert conflicting.teams[0].players[0].bodyshots is None
     assert conflicting.teams[0].players[0].legshots is None
 
     payload["players"][0]["stats"]["roundsPlayed"] = 3  # type: ignore[index]
-    partial = parse_match_details(payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1"))
+    partial = parse_match_details(
+        payload, puuid="owned-puuid", fallback=ValorantMatchSummary("match-1")
+    )
     partial_player = partial.teams[0].players[0]
     assert partial_player.headshots == 9
     assert partial_player.bodyshots is None
@@ -676,7 +731,9 @@ def test_valorant_client_requests_only_its_own_bounded_match_history() -> None:
     ],
 )
 def test_valorant_idle_requires_explicit_missing_match_responses(
-    payload: object, status_code: int, available: bool,
+    payload: object,
+    status_code: int,
+    available: bool,
 ) -> None:
     fake = FakeSession()
     fake.response = FakeResponse(payload, status_code)
@@ -819,8 +876,7 @@ def test_valorant_rank_falls_back_to_bounded_competitive_updates(
     assert rank is not None and (rank.name, rank.rr) == ("Diamond 2", 62)
     assert local.calls == [
         "/mmr/v1/players/owned-puuid",
-        "/mmr/v1/players/owned-puuid/competitiveupdates"
-        "?startIndex=0&endIndex=20&queue=competitive",
+        "/mmr/v1/players/owned-puuid/competitiveupdates?startIndex=0&endIndex=20&queue=competitive",
     ]
     assert "owned-puuid" not in caplog.text
     assert "private-match-id" not in caplog.text

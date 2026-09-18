@@ -1,0 +1,54 @@
+.pd-account-editor__avatar.astryx-button {
+  padding: 0;
+  width: calc(var(--spacing-12) * 2);
+  height: calc(var(--spacing-12) * 2);
+  border-radius: var(--radius-container);
+  overflow: hidden;
+}
+.pd-account-editor__avatar .astryx-avatar { width: 100%; height: 100%; }
+.pd-account-editor__avatar .astryx-button-label { display: contents; }
+.pd-account-editor__identity { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pd-account-picker { --account-picker-row: calc(var(--spacing-12) * 2); }
+.pd-account-picker__games { flex-shrink: 0; width: var(--spacing-12); }
+.pd-account-picker__game-button.astryx-button { width: var(--spacing-12); height: var(--spacing-12); }
+.pd-account-picker__game { width: var(--spacing-6); height: var(--spacing-6); object-fit: contain; }
+/* Riot's League SVG has a wide padded viewBox around the central emblem. */
+.pd-account-picker__game--league { transform: scale(2); }
+.pd-account-picker__game-button[aria-pressed='true'] { background: var(--color-background-muted); box-shadow: inset 0 0 0 var(--border-width) var(--color-border); }
+.pd-account-picker__content { flex: 1; min-width: 0; }
+.pd-account-picker__roster {
+  height: calc(var(--account-picker-row) * 3 + var(--spacing-2) * 2 + var(--spacing-1) * 2);
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+  padding: var(--spacing-1);
+}
+.pd-account-picker__character.astryx-button {
+  height: var(--account-picker-row);
+  min-width: 0;
+  padding: var(--spacing-1);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-container);
+  white-space: normal;
+  transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+.pd-account-picker__character.astryx-button[aria-pressed='true'] { border-color: var(--color-text-primary); background: var(--color-background-muted); }
+.pd-account-picker__character > *, .pd-account-picker__character .astryx-vstack { min-width: 0; width: 100%; }
+.pd-account-picker__character img {
+  display: block;
+  width: 100%;
+  height: calc(var(--account-picker-row) - var(--spacing-8));
+  object-fit: cover;
+  border-radius: var(--radius-inner);
+  background: var(--color-background-body);
+}
+.pd-account-picker__character .astryx-text {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: var(--text-supporting-leading);
+}

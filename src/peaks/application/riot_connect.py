@@ -274,6 +274,10 @@ class RiotQRApprovalService:
         body: dict[str, object] | None = None,
     ) -> Any:
         url = self._url(path, query=query)
+        diagnostic_operation = {
+            "session info": "session_info",
+            "session approval": "session_approval",
+        }.get(operation, "unknown")
         try:
             response = self._session.request(
                 "POST" if body is not None else "GET",
@@ -286,15 +290,19 @@ class RiotQRApprovalService:
                 stream=True,
             )
         except Exception as exc:
-            self._logger.debug("Riot QR %s transport failure", operation)
+            self._logger.debug("riot_qr.request.failed operation=%s", diagnostic_operation)
             raise RiotConnectTransportError("Riot authentication is unavailable") from exc
         status_code = getattr(response, "status_code", None)
         if not isinstance(status_code, int) or status_code < 200 or status_code >= 300:
-            self._logger.debug("Riot QR %s response status=%s", operation, status_code)
+            self._logger.debug(
+                "riot_qr.request.rejected operation=%s status=%s", diagnostic_operation, status_code
+            )
             close = getattr(response, "close", None)
             if callable(close):
                 close()
-            raise RiotConnectHTTPError(operation, status_code if isinstance(status_code, int) else 0)
+            raise RiotConnectHTTPError(
+                operation, status_code if isinstance(status_code, int) else 0
+            )
         return response
 
     def _read_json(self, response: Any) -> object:
@@ -306,7 +314,9 @@ class RiotQRApprovalService:
             if content_length is not None:
                 try:
                     if int(content_length) > self.max_response_bytes:
-                        raise RiotConnectTransportError("Riot session details exceeded the size limit")
+                        raise RiotConnectTransportError(
+                            "Riot session details exceeded the size limit"
+                        )
                 except (TypeError, ValueError):
                     pass
             iterator = getattr(response, "iter_content", None)
@@ -355,7 +365,7 @@ class RiotQRApprovalService:
             try:
                 clear_cookies()
             except Exception:
-                self._logger.debug("Riot QR cookie-jar cleanup failed")
+                self._logger.debug("riot_qr.cookie_cleanup.failed")
         close = getattr(self._session, "close", None)
         if callable(close):
             close()
@@ -431,10 +441,7 @@ class RiotQRApprovalService:
             raise CredentialsUnavailable("owned account credentials are required")
         payload = _coerce_qr(qr)
         proof = self._consume_session_proof(payload)
-        if (
-            not credentials.puuid
-            or proof.selected_account_identity != credentials.puuid
-        ):
+        if not credentials.puuid or proof.selected_account_identity != credentials.puuid:
             raise AccountBindingError("selected account changed before QR approval")
         if not credentials.access_token or not hmac.compare_digest(
             proof.access_token_fingerprint,
@@ -454,9 +461,7 @@ class RiotQRApprovalService:
         with self._proof_lock:
             proof = self._session_proofs.pop(qr.as_tuple(), None)
         if proof is None:
-            raise SessionDetailsRequired(
-                "fresh Riot session details are required before approval"
-            )
+            raise SessionDetailsRequired("fresh Riot session details are required before approval")
         if self._clock() >= proof.expires_at:
             raise SessionExpired("the Riot QR confirmation has expired")
         return proof

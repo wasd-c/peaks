@@ -3,7 +3,18 @@ import path from 'node:path'
 
 export const TELEMETRY_ENDPOINT = 'https://metrics.gemstud.io/peaks/v1/events'
 const EVENTS = new Set(['app.started', 'backend.started', 'backend.failed', 'backend.stopped', 'renderer.failed', 'command.completed', 'update.state'])
-const COMMANDS = new Set(['state', 'activity', 'refresh', 'search', 'player', 'match', 'matches', 'account', 'settings', 'follow', 'unfollow'])
+// Only operation names are collected, including for account/security actions.
+// Their arguments, results, errors and clipboard contents never enter the event.
+const COMMANDS = new Set([
+  'state', 'activity', 'refresh', 'search', 'settings',
+  'add_account', 'remove_account', 'set_account_icon', 'import_session', 'connect_riot_client', 'connect_riot_qr_image',
+  'pin', 'lock', 'change_pin', 'reset_application', 'api_key',
+  'prepare_totp_setup', 'confirm_totp_setup', 'cancel_totp_setup', 'copy_totp', 'enable_riot_mfa',
+  'toggle_follow', 'toggle_watchlist', 'copy_match_image', 'discord_presence',
+  'update_check', 'update_install', 'release_history', 'release_history_ack',
+  // Keep schema-1 compatibility with previously accepted names.
+  'player', 'match', 'matches', 'account', 'follow', 'unfollow',
+])
 const UPDATE_STATES = new Set(['checking', 'available', 'downloading', 'downloaded', 'installing', 'error', 'idle', 'up-to-date'])
 const PLATFORMS = new Set(['win32', 'darwin', 'linux'])
 const record = (value: unknown): Record<string, unknown> | undefined => value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : undefined
@@ -71,6 +82,20 @@ export class Telemetry {
   /** Bind asynchronous work to the consent that existed when it began. */
   captureConsentEpoch(): number | null {
     return this.enabled && this.options.available && !this.disposed ? this.epoch : null
+  }
+
+  /** Cover preparation, execution and result handling without inspecting any data. */
+  async runCommand<T>(command: unknown, action: () => T | Promise<T>): Promise<T> {
+    const consentEpoch = this.captureConsentEpoch()
+    const startedAt = (this.options.now ?? Date.now)()
+    let outcome: 'success' | 'failure' = 'failure'
+    try {
+      const result = await action()
+      outcome = 'success'
+      return result
+    } finally {
+      this.track('command.completed', {command, outcome, duration_ms: (this.options.now ?? Date.now)() - startedAt}, consentEpoch)
+    }
   }
 
   handle(payload: unknown = {}): TelemetryStatus {

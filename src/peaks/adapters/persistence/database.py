@@ -20,6 +20,7 @@ from typing import Any, Self
 
 from peaks.domain.models import (
     Account,
+    AccountIcon,
     AccountLayout,
     FollowedAccount,
     Game,
@@ -31,6 +32,7 @@ from peaks.domain.models import (
     Settings,
     _decode_datetime,
     _encode_datetime,
+    normalize_account_nickname,
 )
 
 
@@ -63,7 +65,7 @@ class Database(AbstractContextManager["Database"]):
     ``":memory:"`` for tests.
     """
 
-    SCHEMA_VERSION = 2
+    SCHEMA_VERSION = 4
 
     def __init__(self, path: str | os.PathLike[str] | None = None) -> None:
         self.path = Path(path) if path is not None and str(path) != ":memory:" else None
@@ -197,28 +199,28 @@ class Database(AbstractContextManager["Database"]):
                 str(row["name"])
                 for row in self._connection.execute("PRAGMA table_info(accounts)").fetchall()
             }
-            if "account_level" not in account_columns:
-                self._connection.execute("BEGIN IMMEDIATE")
-                try:
+            self._connection.execute("BEGIN IMMEDIATE")
+            try:
+                if "account_level" not in account_columns:
                     self._connection.execute(
                         "ALTER TABLE accounts ADD COLUMN account_level INTEGER "
                         "CHECK(account_level IS NULL OR account_level BETWEEN 0 AND 100000)"
                     )
-                    self._connection.execute(
-                        "INSERT INTO schema_meta(key, value) VALUES ('version', ?) "
-                        "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-                        (str(self.SCHEMA_VERSION),),
-                    )
-                    self._connection.execute("COMMIT")
-                except Exception:
-                    self._connection.execute("ROLLBACK")
-                    raise
-            else:
+                if "valorant_region" not in account_columns:
+                    self._connection.execute("ALTER TABLE accounts ADD COLUMN valorant_region TEXT")
+                if "account_icon_json" not in account_columns:
+                    self._connection.execute("ALTER TABLE accounts ADD COLUMN account_icon_json TEXT")
+                if "nickname" not in account_columns:
+                    self._connection.execute("ALTER TABLE accounts ADD COLUMN nickname TEXT NOT NULL DEFAULT ''")
                 self._connection.execute(
                     "INSERT INTO schema_meta(key, value) VALUES ('version', ?) "
                     "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
                     (str(self.SCHEMA_VERSION),),
                 )
+                self._connection.execute("COMMIT")
+            except Exception:
+                self._connection.execute("ROLLBACK")
+                raise
 
     def close(self) -> None:
         with self._lock:
@@ -335,6 +337,9 @@ class Database(AbstractContextManager["Database"]):
             _encode_datetime(account.created_at),
             _encode_datetime(account.last_seen_at),
             account.level,
+            account.valorant_region,
+            _json(account.account_icon.to_dict()) if account.account_icon else None,
+            account.nickname,
         )
 
     def add_account(self, account: Account) -> Account:
@@ -342,14 +347,15 @@ class Database(AbstractContextManager["Database"]):
             self._connection.execute(
                 """INSERT INTO accounts(
                     account_id, game_name, tag_line, region, puuid, is_owned,
-                    created_at, last_seen_at, account_level
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    created_at, last_seen_at, account_level, valorant_region, account_icon_json, nickname
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(account_id) DO UPDATE SET
                     game_name=excluded.game_name, tag_line=excluded.tag_line,
                     region=excluded.region, puuid=excluded.puuid,
                     is_owned=excluded.is_owned, created_at=excluded.created_at,
                     last_seen_at=excluded.last_seen_at,
-                    account_level=COALESCE(excluded.account_level, accounts.account_level)""",
+                    account_level=COALESCE(excluded.account_level, accounts.account_level),
+                    valorant_region=COALESCE(excluded.valorant_region, accounts.valorant_region)""",
                 self._account_row(account),
             )
             for rank in account.ranks:
@@ -379,6 +385,26 @@ class Database(AbstractContextManager["Database"]):
             cursor = self._connection.execute("DELETE FROM accounts WHERE account_id = ?", (account_id,))
         return cursor.rowcount > 0
 
+    def set_account_icon(
+        self, account_id: str, icon: AccountIcon | None, *, nickname: str | None = None,
+    ) -> None:
+        """Change only owned-account presentation metadata.
+
+        Account refresh upserts leave both fields alone. An omitted nickname
+        preserves its current value; an empty string clears it atomically.
+        """
+        if icon is not None and not isinstance(icon, AccountIcon):
+            raise TypeError("icon must be an AccountIcon or None")
+        if nickname is not None:
+            nickname = normalize_account_nickname(nickname)
+        cursor = self._execute(
+            "UPDATE accounts SET account_icon_json = ?, nickname = COALESCE(?, nickname) "
+            "WHERE account_id = ? AND is_owned = 1",
+            (_json(icon.to_dict()) if icon else None, nickname, account_id),
+        )
+        if cursor.rowcount != 1:
+            raise KeyError("Owned account was not found")
+
     def get_account(self, account_id: str) -> Account | None:
         row = self._execute("SELECT * FROM accounts WHERE account_id = ?", (account_id,)).fetchone()
         if row is None:
@@ -394,6 +420,15 @@ class Database(AbstractContextManager["Database"]):
 
     def _account_from_row(self, row: sqlite3.Row) -> Account:
         ranks = self.list_ranks(row["account_id"])
+        icon_data = _unjson(row["account_icon_json"])
+        icon = None
+        nickname = ""
+        with suppress(TypeError, ValueError):
+            nickname = normalize_account_nickname(row["nickname"])
+        if icon_data is not None:
+            # A damaged optional presentation value must not hide an account.
+            with suppress(TypeError, ValueError, KeyError):
+                icon = AccountIcon.from_dict(icon_data)
         return Account(
             account_id=row["account_id"],
             game_name=row["game_name"],
@@ -405,6 +440,9 @@ class Database(AbstractContextManager["Database"]):
             last_seen_at=_decode_datetime(row["last_seen_at"]),
             ranks=tuple(ranks),
             level=row["account_level"],
+            valorant_region=row["valorant_region"],
+            account_icon=icon,
+            nickname=nickname,
         )
 
     def add_rank(self, account_id: str, rank: RankInfo) -> RankInfo:

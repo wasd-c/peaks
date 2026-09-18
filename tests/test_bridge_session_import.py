@@ -20,7 +20,7 @@ from peaks.adapters.riot.session_import import (
     SessionSettingsError,
 )
 from peaks.bridge import Bridge
-from peaks.domain.models import Account, SecretEntry
+from peaks.domain.models import Account, AccountIcon, Game, SecretEntry
 
 
 class FakeRepository:
@@ -422,6 +422,105 @@ def test_explicit_refresh_renews_saved_account_without_touching_another_local_ac
     assert importer.minted_cookies == {"ssid": "SAVED-COOKIE"}
     assert vault.entries["owned-puuid"].metadata["riot_session_status"] == "ready"
     assert importer.closed
+
+
+def test_forced_sign_in_bypasses_saved_refresh_and_local_import_then_preserves_preferences() -> None:
+    events: list[str] = []
+
+    class ForcedImporter(FakeImporter):
+        def import_current_session(self) -> Any:
+            pytest.fail("Forced sign-in must not import the local client")
+
+        def refresh_from_token(self, *_args: Any) -> Any:
+            pytest.fail("Forced sign-in must not renew the stored offline token")
+
+        def mint_access_token(self, cookies: dict[str, str]) -> str:
+            assert events == ["browser"]
+            assert cookies == {"ssid": "FRESH-BROWSER-COOKIE", "sub": "owned-puuid"}
+            events.append("authorize_fresh_browser")
+            return super().mint_access_token(cookies)
+
+    importer = ForcedImporter()
+    bridge, repository, vault, log = _bridge(importer)
+    icon = AccountIcon(Game.LEAGUE_OF_LEGENDS, "Ahri")
+    repository.accounts["owned-puuid"] = Account(
+        "owned-puuid", "Peak Player", "EUW", "global", "owned-puuid",
+        account_icon=icon, nickname="My account",
+    )
+    bridge.accounts[0].update({"nickname": "My account", "accountIcon": {"game": "League of Legends", "characterId": "Ahri"}})
+    vault.put_entry(SecretEntry(
+        "owned-puuid", totp_secret="TOTP-SECRET", cookies={"ssid": "OLD-COOKIE"},
+        refresh_token="OLD-REFRESH", metadata={"unrelated": "keep"},
+    ))
+
+    def login() -> dict[str, str]:
+        events.append("browser")
+        return {"ssid": "FRESH-BROWSER-COOKIE", "sub": "owned-puuid"}
+
+    bridge._riot_browser_login = login
+    bridge.handle("import_session", {"accountId": "owned-puuid", "forceSignIn": True})
+
+    saved = vault.entries["owned-puuid"]
+    assert saved.cookies["ssid"] == "FRESH-BROWSER-COOKIE"
+    assert saved.totp_secret == "TOTP-SECRET"
+    assert saved.metadata["unrelated"] == "keep"
+    assert repository.accounts["owned-puuid"].account_icon == icon
+    assert repository.accounts["owned-puuid"].nickname == "My account"
+    assert bridge.accounts[0]["nickname"] == "My account"
+    assert bridge.accounts[0]["accountIcon"]["characterId"] == "Ahri"
+    assert importer.closed is True
+    assert "bridge.session_import.browser.requested" in log.getvalue()
+    assert "source=saved_session" not in log.getvalue()
+
+
+@pytest.mark.parametrize("outcome", ["cancel", "wrong_account", "transport_error"])
+def test_forced_sign_in_failure_preserves_existing_vault_and_account(outcome: str) -> None:
+    importer = FakeImporter()
+    bridge, repository, vault, _log = _bridge(importer)
+    previous = SecretEntry(
+        "owned-puuid", totp_secret="TOTP-SECRET", cookies={"ssid": "ORIGINAL-COOKIE"},
+        refresh_token="ORIGINAL-REFRESH", metadata={"unrelated": "keep"},
+    )
+    vault.put_entry(previous)
+    previous_account = repository.accounts["owned-puuid"]
+    previous_presentation = dict(bridge.accounts[0])
+
+    def login() -> dict[str, str] | None:
+        if outcome == "cancel":
+            return None
+        if outcome == "transport_error":
+            raise RuntimeError("Synthetic browser failure")
+        importer.puuid = "different-puuid"
+        return {"ssid": "WRONG-ACCOUNT-COOKIE", "sub": "different-puuid"}
+
+    bridge._riot_browser_login = login
+    with pytest.raises((ValueError, RuntimeError)):
+        bridge.handle("import_session", {"accountId": "owned-puuid", "forceSignIn": True})
+    assert vault.entries["owned-puuid"] is previous
+    assert repository.accounts["owned-puuid"] is previous_account
+    assert bridge.accounts[0] == previous_presentation
+    assert importer.closed is True
+
+
+@pytest.mark.parametrize("invalid", [None, "true", "false", 0, 1, [], {}])
+def test_force_sign_in_flag_rejects_non_boolean_before_authentication(invalid: Any) -> None:
+    importer = FakeImporter()
+    bridge, _, vault, _ = _bridge(importer)
+    bridge._riot_browser_login = lambda: pytest.fail("Invalid flag must not open browser")
+    with pytest.raises(ValueError, match="option is invalid"):
+        bridge.handle("import_session", {"accountId": "owned-puuid", "forceSignIn": invalid})
+    assert importer.minted_cookies is None
+    assert importer.identity_tokens == []
+    assert vault.entries == {}
+
+
+def test_explicit_false_preserves_saved_session_renewal_without_browser() -> None:
+    importer = FakeImporter()
+    bridge, _, vault, _ = _bridge(importer)
+    vault.put_entry(SecretEntry("owned-puuid", cookies={"ssid": "SAVED-COOKIE"}))
+    bridge._riot_browser_login = lambda: pytest.fail("False must keep normal renewal")
+    bridge.handle("import_session", {"accountId": "owned-puuid", "forceSignIn": False})
+    assert importer.minted_cookies == {"ssid": "SAVED-COOKIE"}
 
 
 def test_expired_account_uses_browser_and_clears_persisted_reauthentication_state() -> None:
@@ -831,3 +930,37 @@ def test_connect_riot_client_logs_native_window_discovery_failure() -> None:
     assert "bridge.riot_qr.capture.received state=window_not_found count=0" in (
         log_stream.getvalue()
     )
+
+
+@pytest.mark.parametrize("path", ["import", "maintenance"])
+def test_authenticated_regions_backfill_existing_accounts(path: str) -> None:
+    class RegionImporter(FakeImporter):
+        def fetch_identity(self, token: str) -> AuthenticatedRiotIdentity:
+            return AuthenticatedRiotIdentity(self.puuid, "Peak Player", "EUW", "euw1", "eu")
+
+    bridge, repository, vault, _ = _bridge(RegionImporter())
+    if path == "maintenance":
+        vault.put_entry(SecretEntry("owned-puuid", cookies={"ssid": "COOKIE", "sub": "owned-puuid"}))
+        bridge._refresh_saved_sessions_if_due()
+    else:
+        bridge._import_riot_session("owned-puuid")
+    stored = repository.accounts["owned-puuid"]
+    assert (stored.region, stored.valorant_region) == ("euw", "EU")
+    assert bridge.accounts[0]["leagueRegion"] == "EUW"
+    assert bridge.accounts[0]["valorantRegion"] == "EU"
+    # A later response without optional region data preserves both routes.
+    bridge._persist_identity_regions(bridge.accounts[0], AuthenticatedRiotIdentity("owned-puuid"))
+    assert repository.accounts["owned-puuid"] == stored
+
+
+def test_maintenance_rejects_regions_for_another_account() -> None:
+    class RegionImporter(FakeImporter):
+        def fetch_identity(self, token: str) -> AuthenticatedRiotIdentity:
+            return AuthenticatedRiotIdentity("other-puuid", "Other", "TEST", "kr", "ap")
+
+    bridge, repository, vault, _ = _bridge(RegionImporter())
+    vault.put_entry(SecretEntry("owned-puuid", cookies={"ssid": "COOKIE", "sub": "owned-puuid"}))
+    before = repository.accounts["owned-puuid"]
+    bridge._refresh_saved_sessions_if_due()
+    assert repository.accounts["owned-puuid"] == before
+    assert bridge.accounts[0].get("valorantRegion") is None

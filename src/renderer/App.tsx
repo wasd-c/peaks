@@ -1,3 +1,4 @@
+import {accountRegionForGame} from './accountRegions'
 import {t, useLocale, displayText} from './i18n'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {AppShell} from '@astryxdesign/core/AppShell'
@@ -56,7 +57,11 @@ import {
   type PostMatchReview,
   type PostMatchTracker,
 } from './postMatch'
-import type {Account, AppState, Player, TotpSetupProposal, TotpSetupResult} from './types'
+import type {Account, AppState, Player, TotpSetupResult} from './types'
+import {EditAccountDialog} from './components/EditAccountDialog'
+import {accountConnectionError} from './accountConnection'
+import {useAccountConnection} from './useAccountConnection'
+import {MFA_VERIFICATION_WARNING, riotMfaError} from './mfa'
 
 export function App() {
   useLocale()
@@ -347,7 +352,7 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
             onOpenReport={() => {
               setSelectedPlayer(null)
               setSelectedAccountId(null)
-              setSelectedMatch({match: postMatchReview.match, region: postMatchReview.account.region, accountId: postMatchReview.account.id})
+              setSelectedMatch({match: postMatchReview.match, region: accountRegionForGame(postMatchReview.account, postMatchReview.match.game), accountId: postMatchReview.account.id})
               dismissPostMatch()
             }}
             onShare={() => setSharedReviewKey(postMatchReview.key)}
@@ -409,6 +414,10 @@ function Workspace({
   useLocale()
   const showToast = useToast()
   const {redact} = usePlayerPrivacy()
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null)
+  const editingAccount = state.accounts.find(account => account.id === editingAccountId)
+  const pendingMfa = useRef(new Map<string, Promise<TotpSetupResult>>())
+  const [enablingMfaAccounts, setEnablingMfaAccounts] = useState<ReadonlySet<string>>(new Set())
   const [stoppedReport, setStoppedReport] = useState<string | null>(null)
   const [profileLookup, setProfileLookup] = useState<{riotId: string; players: Player[]; loading: boolean} | null>(null)
   const profileRiotId = selectedPlayer?.riotId
@@ -481,6 +490,44 @@ function Workspace({
     await execute()
   }, [onRequestLock, redact, runWithAutoLockPaused, setState, showToast])
 
+  const {connection, connect} = useAccountConnection({
+    approve: accountId => action('connect_riot_client', {accountId}, true, true),
+    onError: error => showToast({body: t(accountConnectionError(error)), type: 'error', uniqueID: 'account-connection', isAutoHide: true}),
+  })
+
+  const enableRiotMfa = (account: Account): Promise<TotpSetupResult> => {
+    const pending = pendingMfa.current.get(account.id)
+    if (pending) return pending
+    setEnablingMfaAccounts(previous => new Set(previous).add(account.id))
+    const operation = runWithAutoLockPaused(async () => {
+      try {
+        const result = await invoke<TotpSetupResult>('enable_riot_mfa', {accountId: account.id})
+        setState(result.state)
+        if (!result.seedSaved) throw new Error('MFA setup did not complete')
+        const complete = result.seedSaved && result.verified && !result.warning
+        showToast({
+          body: t(complete ? 'MFA enabled' : MFA_VERIFICATION_WARNING),
+          isAutoHide: complete,
+          uniqueID: `mfa-${account.id}`,
+        })
+        return result
+      } catch (error) {
+        const message = t(riotMfaError(error))
+        showToast({body: message, type: 'error', uniqueID: `mfa-${account.id}`})
+        throw new Error(message, {cause: error})
+      } finally {
+        pendingMfa.current.delete(account.id)
+        setEnablingMfaAccounts(previous => {
+          const next = new Set(previous)
+          next.delete(account.id)
+          return next
+        })
+      }
+    })
+    pendingMfa.current.set(account.id, operation)
+    return operation
+  }
+
   const report = selectedMatch
     ? resolveMatchReport(selectedMatch, state.accounts, state.followed, selectedAccount?.id)
     : undefined
@@ -530,6 +577,8 @@ function Workspace({
       account={selectedAccount}
       onBack={onClearAccount}
       onConnect={() => onConnectAccount(selectedAccount.id)}
+      onEnableMfa={async () => { await enableRiotMfa(selectedAccount) }}
+      isEnablingMfa={enablingMfaAccounts.has(selectedAccount.id)}
       onCopy={() => action('copy_totp', {accountId: selectedAccount.id})}
       onDelete={async () => {
         await action('remove_account', {accountId: selectedAccount.id}, true)
@@ -547,7 +596,9 @@ function Workspace({
     <OverviewScreen
       onAdd={() => onAddOpen(true)}
       onSelect={onSelectAccount}
-      onSelectMatch={(match, account) => onSelectMatch({match, region: account.region, accountId: account.id})}
+      onUse={account => void connect(account.id)}
+      onEdit={account => setEditingAccountId(account.id)}
+      connection={connection}
       onView={onView}
       state={state}
       view={view}
@@ -576,35 +627,18 @@ function Workspace({
         onOpenChange={onAddOpen}
         onConnect={() => action('add_account', {}, true)}
       />
+      {editingAccount && <EditAccountDialog key={editingAccount.id} account={editingAccount}
+        onClose={() => setEditingAccountId(null)}
+        onSave={async preferences => { await action('set_account_icon', {accountId: editingAccount.id, ...preferences}, true) }}
+        onDelete={async () => { await action('remove_account', {accountId: editingAccount.id}, true) }} />}
       <ConnectDialog
         account={connectAccount}
         isOpen={Boolean(connectAccount)}
         onConnectQr={account => action('connect_riot_client', {accountId: account.id}, true)}
         onCopyTotp={account => action('copy_totp', {accountId: account.id})}
-        onAction={(command, account) => action(command, {accountId: account.id}, true)}
-        onCancelTotp={async confirmationId => {
-          await invoke<AppState>('cancel_totp_setup', {confirmationId})
-        }}
-        onConfirmTotp={async proposal => {
-          return runWithAutoLockPaused(async () => {
-            const result = await invoke<TotpSetupResult>('confirm_totp_setup', {
-              accountId: proposal.accountId,
-              confirmationId: proposal.confirmationId,
-            })
-            setState(result.state)
-            showToast({
-              body: redact(displayText(result.warning ?? 'Riot authenticator added')),
-              type: result.warning ? 'info' : undefined,
-              isAutoHide: !result.warning,
-              uniqueID: 'totp-setup',
-            })
-            return result
-          })
-        }}
+        onAction={(command, account) => action(command, {accountId: account.id, forceSignIn: true}, true)}
+        onEnableMfa={enableRiotMfa}
         onOpenChange={isOpen => !isOpen && onConnectAccount(null)}
-        onPrepareTotp={account => runWithAutoLockPaused(
-          () => invoke<TotpSetupProposal>('prepare_totp_setup', {accountId: account.id}),
-        )}
       />
     </>
   )

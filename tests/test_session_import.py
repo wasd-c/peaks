@@ -608,3 +608,107 @@ def test_close_releases_injected_transport(tmp_path: Path) -> None:
     importer = _importer(tmp_path, session)
     importer.close()
     assert session.closed is True
+
+
+@pytest.mark.parametrize(("metadata", "expected"), [
+    ({"cpid": "EUW1"}, "EUW"),
+    ({"lol": {"cpid": "eun1"}}, "EUNE"),
+    ({"cpid": "NA1", "lol": {"cpid": "na"}}, "NA"),
+    ({"cpid": "NA1", "lol": {"cpid": "euw1"}}, None),
+    ({"cpid": "global"}, None),
+    ({"cpid": "eu"}, None),
+    ({"cpid": ["euw1"]}, None),
+    ({"cpid": "euw1.attacker.invalid"}, None),
+    ({"country": "FRA", "affinity": {"pp": "eu"}}, None),
+])
+def test_userinfo_reads_only_explicit_league_platform(metadata: dict[str, Any], expected: str | None) -> None:
+    payload = {"sub": "owner", "acct": {"game_name": "Player", "tag_line": "EUW"}, **metadata}
+    session = FakeSession(FakeResponse(json.dumps(payload).encode()))
+    with RiotSessionImporter(session=session) as importer:
+        identity = importer.fetch_identity("ACCESS-SECRET")
+    assert identity.league_region == expected
+    assert identity.valorant_region is None
+    assert len(session.calls) == 1
+
+
+class RegionSession(FakeSession):
+    def __init__(self, *, id_subject: str = "owner", geo: Any = None, status: int = 200) -> None:
+        super().__init__(FakeResponse(b"{}"))
+        claims = base64.urlsafe_b64encode(json.dumps({"sub": id_subject}).encode()).decode().rstrip("=")
+        self.id_token = f"e30.{claims}.ID-TOKEN-SECRET"
+        self.geo = {"affinities": {"live": "eu", "pbe": "pbe"}, "token": "GEO-TOKEN-SECRET"} if geo is None else geo
+        self.status = status
+        self.geo_response: FakeResponse | None = None
+        self.cookies = RequestsCookieJar()
+
+    def request(self, method: str, url: str, **kwargs: object) -> FakeResponse:
+        self.calls.append((method, url, kwargs))
+        if url == RIOT_AUTHORIZATION_URL:
+            uri = "http://localhost/redirect#" + urlencode({"access_token": "ACCESS-SECRET", "id_token": self.id_token})
+            return FakeResponse(json.dumps({"type": "response", "response": {"parameters": {"uri": uri}}}).encode())
+        if url == "https://auth.riotgames.com/token":
+            return FakeResponse(json.dumps({"access_token": "ACCESS-SECRET", "id_token": self.id_token}).encode())
+        if url == "https://auth.riotgames.com/userinfo":
+            return FakeResponse(b'{"sub":"owner","acct":{"game_name":"Player","tag_line":"TEST"},"lol":{"cpid":"EUW1"}}')
+        assert url == "https://riot-geo.pas.si.riotgames.com/pas/v1/product/valorant"
+        assert method == "PUT"
+        assert kwargs["json"] == {"id_token": self.id_token}
+        assert kwargs["headers"] == {"Authorization": "Bearer ACCESS-SECRET", "Accept": "application/json"}
+        assert kwargs["verify"] is True and kwargs["allow_redirects"] is False
+        assert kwargs["stream"] is True and kwargs["timeout"] <= 5
+        assert not list(self.cookies)
+        if isinstance(self.geo, Exception):
+            raise self.geo
+        self.geo_response = FakeResponse(json.dumps(self.geo).encode(), status_code=self.status)
+        return self.geo_response
+
+
+@pytest.mark.parametrize("grant", ["cookies", "refresh_token"])
+def test_region_lookup_binds_tokens_and_discards_credentials(grant: str, caplog: pytest.LogCaptureFixture) -> None:
+    session = RegionSession()
+    with caplog.at_level(logging.INFO), RiotSessionImporter(session=session) as importer:
+        authorization = (
+            importer.refresh_authorization(COOKIE_VALUES) if grant == "cookies"
+            else importer.refresh_from_token("OFFLINE-SECRET", COOKIE_VALUES)
+        )
+        session.cookies.set("ssid", "AMBIENT-SECRET", domain=".riotgames.com")
+        identity = importer.fetch_identity(authorization.access_token)
+        assert (identity.league_region, identity.valorant_region) == ("EUW", "EU")
+        assert importer._region_authorization is None
+        assert session.geo_response is not None and session.geo_response.closed
+        assert len(session.calls) == 3
+        # A second identity request cannot reuse the consumed ID token.
+        assert importer.fetch_identity(authorization.access_token).valorant_region is None
+        assert len(session.calls) == 4
+    for secret in [session.id_token, "ACCESS-SECRET", "GEO-TOKEN-SECRET", "AMBIENT-SECRET"]:
+        assert secret not in caplog.text + repr(identity) + repr(authorization)
+
+
+@pytest.mark.parametrize(("geo", "status"), [
+    ({"affinities": {"live": "euw"}}, 200),
+    ({"affinities": {"pbe": "pbe"}}, 200),
+    ({"affinities": {"live": ["eu"]}}, 200),
+    ({"affinities": {"live": "eu"}}, 302),
+    ([], 200),
+    (requests.Timeout("ACCESS-SECRET"), 200),
+])
+def test_optional_geo_failure_does_not_break_identity_or_rotation(geo: Any, status: int, caplog: pytest.LogCaptureFixture) -> None:
+    session = RegionSession(geo=geo, status=status)
+    with caplog.at_level(logging.INFO), RiotSessionImporter(session=session) as importer:
+        authorization = importer.refresh_authorization(COOKIE_VALUES)
+        identity = importer.fetch_identity(authorization.access_token)
+    assert identity.puuid == "owner" and identity.league_region == "EUW"
+    assert identity.valorant_region is None
+    assert authorization.cookies == COOKIE_VALUES
+    assert "ACCESS-SECRET" not in caplog.text
+    assert session.geo_response is None or session.geo_response.closed
+
+
+@pytest.mark.parametrize(("subject", "access_token"), [("other-owner", "ACCESS-SECRET"), ("owner", "OTHER-ACCESS")])
+def test_geo_never_uses_another_identity_or_another_authorization(subject: str, access_token: str) -> None:
+    session = RegionSession(id_subject=subject)
+    with RiotSessionImporter(session=session) as importer:
+        importer.refresh_authorization(COOKIE_VALUES)
+        identity = importer.fetch_identity(access_token)
+    assert identity.valorant_region is None
+    assert len(session.calls) == 2

@@ -13,7 +13,7 @@ import re
 import time
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Literal, Protocol
@@ -277,7 +277,12 @@ class AccountOnboardingService:
                     "Riot local session identity does not match the active account"
                 )
             self._logger.info("account_onboarding.local.identity.verified")
-            cookies, refresh_token = self._try_import_session_authorization(importer, expected_puuid=subject)
+            cookies, refresh_token, session_identity = self._try_import_session_authorization(importer, expected_puuid=subject)
+            if session_identity is not None:
+                identity = replace(
+                    identity, league_region=session_identity.league_region or identity.league_region,
+                    valorant_region=session_identity.valorant_region or identity.valorant_region,
+                )
             self._logger.info(
                 "account_onboarding.local.complete reusable_session_saved=%s",
                 cookies is not None,
@@ -307,7 +312,7 @@ class AccountOnboardingService:
         importer: _SessionImporter,
         *,
         expected_puuid: str,
-    ) -> tuple[Mapping[str, str] | None, str | None]:
+    ) -> tuple[Mapping[str, str] | None, str | None, AuthenticatedRiotIdentity | None]:
         """Best-effort capture of a reusable session for local onboarding.
 
         Lockfile credentials and entitlements tokens cannot be reused after
@@ -321,7 +326,7 @@ class AccountOnboardingService:
             self._logger.info(
                 "account_onboarding.local.session_capture.unavailable reason=no_importer"
             )
-            return None, None
+            return None, None, None
         self._logger.info("account_onboarding.local.session_capture.start")
         try:
             bound_import = getattr(importer, "import_durable_session_for_identity", None)
@@ -352,12 +357,12 @@ class AccountOnboardingService:
                 "account_onboarding.local.session_capture.unavailable error_type=%s",
                 type(exc).__name__,
             )
-            return None, None
+            return None, None, None
         self._logger.info(
             "account_onboarding.local.session_capture.complete cookie_count=%s",
             len(cookies),
         )
-        return cookies, refresh_token
+        return cookies, refresh_token, imported_identity
 
     def _add_from_browser(self) -> AccountOnboardingResult:
         self._logger.info("account_onboarding.browser.start")

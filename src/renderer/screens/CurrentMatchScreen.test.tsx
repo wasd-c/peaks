@@ -61,16 +61,37 @@ describe('Current match session stages', () => {
     expect(html).not.toContain('pmc-team__score')
   })
 
-  it('keeps VALORANT map, score, current tags, and reordering in an active game', () => {
+  it('keeps the map, team score, and reordering without the tag legend in an active game', () => {
     const html = render({game: 'VALORANT', phase: 'live', mode: 'competitive', map: 'Ascent', elapsed: '18:20', teams: [
       {name: 'Blue', score: 9, players: [{name: 'You#EUW', self: true}, {name: 'Friend#EUW'}]},
       {name: 'Red', score: 5, players: [{name: 'Opponent#EUW'}]},
     ]})
     expect(html).toContain('Ascent')
     expect(html).toContain('Competitive')
-    expect(html).toContain('9 : 5')
-    expect(html).toContain('This match')
+    expect(html.replace(/<[^>]+>/g, '')).toContain('9 : 5')
+    expect(html).not.toContain('pmc-legend')
+    expect(html).not.toContain('This match')
+    expect(html).not.toContain('Past games')
     expect(html).toContain('Reorder You#EUW')
+  })
+
+  it.each(['VALORANT', 'League of Legends'] as const)('keeps the friendly score green when %s supplies opponents first', game => {
+    const html = render({game, phase: 'live', teams: [
+      {name: 'Red', score: 1, players: [{name: 'Opponent#EUW'}]},
+      {name: 'Blue', score: 4, players: [{name: 'You#EUW', self: true}]},
+    ]})
+    expect(html.replace(/<[^>]+>/g, '')).toContain('4 : 1')
+    expect(html).toMatch(/class="[^"]*pmc-score--ally[^"]*"[^>]*>4</)
+    expect(html).toMatch(/class="[^"]*pmc-score--enemy[^"]*"[^>]*>1</)
+  })
+
+  it('keeps scores neutral if the local player is not identified', () => {
+    const html = render({game: 'VALORANT', phase: 'live', teams: [
+      {name: 'Blue', score: 4, players: [{name: 'Player#EUW'}]},
+      {name: 'Red', score: 1, players: [{name: 'Opponent#EUW'}]},
+    ]})
+    expect(html).not.toContain('pmc-score--ally')
+    expect(html).not.toContain('pmc-score--enemy')
   })
 
   it('does not enable card movement while a roster is stale', () => {

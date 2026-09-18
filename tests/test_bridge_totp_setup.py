@@ -33,6 +33,7 @@ class FakeSetupService:
     def __init__(self, *, warning: str | None = None) -> None:
         self.warning = warning
         self.prepared: list[dict[str, str]] = []
+        self.enabled: list[dict[str, Any]] = []
         self.confirmed: list[tuple[str, str]] = []
         self.cancelled: list[str] = []
         self.closed = False
@@ -63,6 +64,15 @@ class FakeSetupService:
 
     def cancel(self, confirmation_id: str) -> None:
         self.cancelled.append(confirmation_id)
+
+    def enable(self, *, persist_seed: Any, **kwargs: Any) -> Any:
+        self.enabled.append(kwargs)
+        persist_seed(SEED)
+        return SimpleNamespace(
+            seed_saved=True,
+            verified=self.warning is None,
+            warning=self.warning,
+        )
 
     def close(self) -> None:
         self.closed = True
@@ -231,3 +241,59 @@ def test_lock_closes_pending_totp_setup_service() -> None:
     assert service.closed is True
     assert bridge._riot_mobile_totp_setup_service is None
     assert vault.locked is True
+
+
+@pytest.mark.parametrize("warning", [None, "Riot verification failed; the encrypted seed was retained."])
+def test_enable_mfa_uses_selected_saved_session_and_keeps_secrets_out_of_response(
+    warning: str | None,
+) -> None:
+    service = FakeSetupService(warning=warning)
+    vault = FakeVault(SecretEntry(account_id="owned-puuid", cookies={"ssid": "SESSION"}))
+    bridge = _bridge(service, vault)
+    handle = bridge.state()["accounts"][0]["id"]
+
+    response = bridge.handle("enable_riot_mfa", {"accountId": handle})
+
+    assert service.enabled == [{
+        "account_id": "owned-puuid",
+        "expected_puuid": "owned-puuid",
+        "expected_riot_id": "Peak#EUW",
+        "reusable_sso_cookies": {"ssid": "SESSION"},
+    }]
+    assert service.prepared == []
+    assert service.confirmed == []
+    assert len(vault.writes) == 1
+    assert vault.entry is not None and vault.entry.totp_secret == SEED
+    assert dict(vault.entry.cookies) == {"ssid": "SESSION"}
+    assert response["seedSaved"] is True
+    assert response["verified"] is (warning is None)
+    assert response["warning"] == warning
+    assert response["state"]["accounts"][0]["hasTotp"] is True
+    assert response["state"]["accounts"][0]["canSetupMfa"] is False
+    assert "confirmationId" not in response
+    assert SEED not in repr(response)
+    assert "SESSION" not in repr(response)
+
+    with pytest.raises(ValueError, match="will not replace"):
+        bridge.handle("enable_riot_mfa", {"accountId": handle})
+    assert len(service.enabled) == 1
+
+
+@pytest.mark.parametrize("condition", ["locked", "not_owned", "missing_session", "missing_identity"])
+def test_enable_mfa_rejects_ineligible_accounts_before_contacting_riot(condition: str) -> None:
+    service = FakeSetupService()
+    vault = FakeVault(SecretEntry(account_id="owned-puuid", cookies={"ssid": "SESSION"}))
+    bridge = _bridge(service, vault)
+    if condition == "locked":
+        bridge._locked = True
+    elif condition == "not_owned":
+        bridge.accounts[0]["owned"] = False
+    elif condition == "missing_session":
+        vault.entry = None
+    else:
+        bridge.accounts[0]["puuid"] = ""
+
+    with pytest.raises((ValueError, PermissionError)):
+        bridge.handle("enable_riot_mfa", {"accountId": "owned-puuid"})
+    assert service.enabled == []
+    assert vault.writes == []

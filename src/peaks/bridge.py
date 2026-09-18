@@ -33,6 +33,7 @@ from peaks.application.demo_data import (
     demo_search_history,
     search_demo,
 )
+from peaks.domain.regions import normalize_league_region, normalize_valorant_region
 
 # Electron starts this module with -m, where __name__ is __main__. Keep its
 # diagnostics under the configured peaks logger in both launch modes.
@@ -159,6 +160,22 @@ def _played_label(value: object) -> str | None:
     if seconds < 86_400:
         return f"{seconds // 3_600}h ago"
     return f"{seconds // 86_400}d ago"
+
+
+def _played_timestamp(value: object) -> int | None:
+    """Retain actual match chronology independently of the relative UI label."""
+    from peaks.domain.models import _decode_datetime
+
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)) and value > 10_000_000_000:
+        value /= 1_000
+    with suppress(TypeError, ValueError, OSError, OverflowError):
+        played = _decode_datetime(value)
+        if played is not None:
+            timestamp = round(played.timestamp() * 1_000)
+            return timestamp if timestamp > 0 else None
+    return None
 
 
 def _safe_presentation_text(value: object, *, limit: int = 256) -> str | None:
@@ -339,6 +356,7 @@ def _player_enrichment(raw: Mapping[str, Any], *, hidden: bool) -> dict[str, Any
 
 def _match(value: Any) -> dict[str, Any]:
     data = value.to_dict() if hasattr(value, "to_dict") else dict(value or {})
+    timestamp = _played_timestamp(data.get("played_at") or data.get("playedAtTimestamp"))
     result = str(data.get("result", "unknown")).strip().casefold()
     result_label = {
         "win": "Win",
@@ -365,6 +383,7 @@ def _match(value: Any) -> dict[str, Any]:
         "mode": str(data.get("queue") or data.get("mode") or "Match"),
         "map": str(data.get("map_name") or data.get("map") or "Map unavailable"),
         "playedAt": _played_label(data.get("played_at")) or data.get("playedAt"),
+        **({"playedAtTimestamp": timestamp} if timestamp is not None else {}),
         "duration": f"{duration // 60}m" if duration is not None else None,
         "score": data.get("score") or metadata.get("score"),
         "delta": data.get("rank_delta") or data.get("delta"),
@@ -689,6 +708,13 @@ class Bridge:
                         "id": str(item.id),
                         "riotId": riot_id,
                         "region": str(item.region).upper(),
+                        "leagueRegion": normalize_league_region(item.region),
+                        "valorantRegion": normalize_valorant_region(getattr(item, "valorant_region", None)),
+                        **({"accountIcon": {
+                            "game": item.account_icon.game.label,
+                            "characterId": item.account_icon.character_id,
+                        }} if getattr(item, "account_icon", None) else {}),
+                        **({"nickname": item.nickname} if getattr(item, "nickname", "") else {}),
                         "puuid": getattr(item, "puuid", None),
                         "level": getattr(item, "level", None),
                         "connected": False,
@@ -1052,6 +1078,35 @@ class Bridge:
         # local record directly. New state snapshots never reveal this value.
         return candidate
 
+    @staticmethod
+    def _identity_regions(identity: Any, account: Mapping[str, Any]) -> dict[str, Any]:
+        league = (
+            normalize_league_region(getattr(identity, "league_region", None))
+            or normalize_league_region(account.get("leagueRegion"))
+            or normalize_league_region(account.get("region"))
+        )
+        valorant = (
+            normalize_valorant_region(getattr(identity, "valorant_region", None))
+            or normalize_valorant_region(account.get("valorantRegion"))
+        )
+        return {
+            "region": league or str(account.get("region") or "GLOBAL"),
+            "leagueRegion": league,
+            "valorantRegion": valorant,
+        }
+
+    def _persist_identity_regions(self, account: dict[str, Any], identity: Any) -> None:
+        regions = self._identity_regions(identity, account)
+        if self._repository:
+            stored = self._repository.get_account(str(account["id"]))
+            if stored is not None:
+                updated = replace(
+                    stored, region=regions["region"], valorant_region=regions["valorantRegion"],
+                )
+                if updated != stored:
+                    self._repository.add_account(updated)
+        account.update(regions)
+
     def _persist_authenticated_account(self, result: Any) -> None:
         identity = getattr(result, "identity", None)
         puuid = str(getattr(identity, "puuid", "") or "").strip()
@@ -1064,13 +1119,8 @@ class Bridge:
         existing = self._existing_account_for_identity(puuid, riot_id)
         account_id = str(existing.get("id")) if existing else puuid
         source = str(getattr(result, "source", ""))
-        candidate_region = str(getattr(result, "region", "") or "").strip().upper()
-        existing_region = str((existing or {}).get("region") or "").strip().upper()
-        region = (
-            candidate_region
-            if candidate_region in _RIOT_API_PLATFORM_REGIONS
-            else existing_region or "GLOBAL"
-        )
+        regions = self._identity_regions(identity, existing or {})
+        region = regions["region"]
         cookies_value = getattr(result, "cookies", None)
         refresh_token = self._validated_refresh_token(getattr(result, "refresh_token", None))
         cookies = (
@@ -1128,6 +1178,7 @@ class Bridge:
                     last_seen_at=datetime.now(UTC),
                     ranks=tuple(getattr(stored, "ranks", ())),
                     level=getattr(stored, "level", None),
+                    valorant_region=regions["valorantRegion"],
                 )
             )
         except Exception:
@@ -1147,7 +1198,7 @@ class Bridge:
             **(existing or {}),
             "id": account_id,
             "riotId": riot_id,
-            "region": region,
+            **regions,
             "puuid": puuid,
             "level": (existing or {}).get("level"),
             "connected": has_saved_session,
@@ -1396,13 +1447,18 @@ class Bridge:
         if not self._repository:
             raise RuntimeError("Local account database is unavailable")
         level = _optional_int(snapshot.get("level"))
-        if level is not None and 0 <= level <= 100_000:
+        valid_level = level is not None and 0 <= level <= 100_000
+        valorant_region = normalize_valorant_region(snapshot.get("valorantRegion"))
+        if valid_level or valorant_region:
             get_account = getattr(self._repository, "get_account", None)
             add_account = getattr(self._repository, "add_account", None)
             if callable(get_account) and callable(add_account):
                 stored = get_account(account_id)
                 if stored is not None:
-                    add_account(replace(stored, level=level))
+                    add_account(replace(
+                        stored, level=level if valid_level else stored.level,
+                        valorant_region=stored.valorant_region or valorant_region,
+                    ))
         add_rank = getattr(self._repository, "add_rank", None)
         if callable(add_rank):
             for value in snapshot.get("ranks", ()) or ():
@@ -1451,6 +1507,11 @@ class Bridge:
         level = _optional_int(snapshot.get("level"))
         if level is not None and 0 <= level <= 100_000:
             account["level"] = level
+        valorant_region = normalize_valorant_region(snapshot.get("valorantRegion"))
+        # The local PD route fills gaps; it must not replace a known Riot Geo
+        # affinity with a coarser shared service shard.
+        if valorant_region and not normalize_valorant_region(account.get("valorantRegion")):
+            account["valorantRegion"] = valorant_region
         ranks = list(account.get("ranks", []))
         by_game = {str(rank.get("game", "")).casefold(): index for index, rank in enumerate(ranks)}
         for raw in snapshot.get("ranks", ()) or ():
@@ -1474,10 +1535,15 @@ class Bridge:
                 continue
             incoming_ids.add(match_id)
             incoming.append(view)
-        # Provider pages are already newest-first. Prepend them as one stable
-        # page, then retain older persisted rows that were not refreshed.
+        # Each provider page is newest-first within one game only. Retain the
+        # actual chronology across games before applying the history limit;
+        # relative display labels cannot establish this ordering.
         merged_matches = (
             incoming + [match for match in matches if str(match.get("id", "")) not in incoming_ids]
+        )
+        merged_matches.sort(
+            key=lambda match: _played_timestamp(match.get("playedAtTimestamp")) or 0,
+            reverse=True,
         )
         priority = next((match for match in merged_matches if match.get("id") == priority_match_id), None)
         # A report reached through an older saved page must survive a refresh
@@ -1550,6 +1616,7 @@ class Bridge:
                         if stored is not None:
                             self._repository.add_account(replace(stored, region=recovered))
                             account["region"] = recovered
+                            account["leagueRegion"] = recovered
                             region = recovered
                             self._logger.info(
                                 "bridge.account.region_recovered region=%s",
@@ -1796,8 +1863,9 @@ class Bridge:
             self._logger.info("bridge.session_maintenance.start account_slot=%s", slot)
             try:
                 importer = self._new_session_importer()
-                _, cookies, _, refresh_token = self._refresh_bound_session(importer, account, secret)
+                _, cookies, identity, refresh_token = self._refresh_bound_session(importer, account, secret)
                 self._save_rotated_session_cookies(account_id, secret, cookies, refresh_token=refresh_token)
+                self._persist_identity_regions(account, identity)
                 self._logger.info("bridge.session_maintenance.complete account_slot=%s", slot)
             except (SessionReauthenticationRequired, _SessionIdentityMismatchError) as exc:
                 self._mark_session_reauthentication_required(account)
@@ -1937,7 +2005,7 @@ class Bridge:
             from peaks.adapters.riot.session_import import SessionReauthenticationRequired
 
             try:
-                access_token, refreshed_cookies, _, refresh_token = self._refresh_bound_session(
+                access_token, refreshed_cookies, identity, refresh_token = self._refresh_bound_session(
                     importer, account, secret,
                 )
                 self._save_rotated_session_cookies(
@@ -1946,6 +2014,7 @@ class Bridge:
                     refreshed_cookies,
                     refresh_token=refresh_token,
                 )
+                self._persist_identity_regions(account, identity)
             except _SessionIdentityMismatchError:
                 self._logger.warning("bridge.riot_qr.session.identity_mismatch")
                 raise
@@ -2175,6 +2244,7 @@ class Bridge:
         )
         try:
             stored = self._repository.get_account(account_id)
+            regions = self._identity_regions(identity, account)
             stored_name, stored_tag = self._split_riot_id(str(account.get("riotId", "")))
             game_name = str(getattr(identity, "game_name", "") or stored_name).strip()
             tag_line = str(getattr(identity, "tag_line", "") or stored_tag).strip().lstrip("#")
@@ -2186,13 +2256,16 @@ class Bridge:
                     account_id=account_id,
                     game_name=game_name,
                     tag_line=tag_line,
-                    region=str(account.get("region") or "global"),
+                    region=regions["region"],
                     puuid=puuid,
                     is_owned=True,
                     created_at=getattr(stored, "created_at", None),
                     last_seen_at=datetime.now(UTC),
                     ranks=tuple(getattr(stored, "ranks", ())),
                     level=getattr(stored, "level", None),
+                    valorant_region=regions["valorantRegion"],
+                    account_icon=getattr(stored, "account_icon", None),
+                    nickname=getattr(stored, "nickname", ""),
                 )
             )
         except Exception:
@@ -2203,6 +2276,7 @@ class Bridge:
                     self._vault.put_entry(previous_secret)
             raise
 
+        account.update(regions)
         account["puuid"] = puuid
         account["connected"] = True
         account["sessionStatus"] = "ready"
@@ -2219,7 +2293,7 @@ class Bridge:
             len(sanitized),
         )
 
-    def _import_riot_session(self, account_id: str) -> None:
+    def _import_riot_session(self, account_id: str, *, force_sign_in: bool = False) -> None:
         account_id = account_id.strip()
         account = next(
             (item for item in self.accounts if str(item.get("id", "")) == account_id),
@@ -2245,6 +2319,22 @@ class Bridge:
         source = "riot_client"
         refresh_token = None
         try:
+            if force_sign_in:
+                # The explicit Refresh Riot sign-in action must obtain a new
+                # account-site login, even when a saved game token still works.
+                # Do not refresh saved credentials or import the local client
+                # before this browser flow; neither proves fresh account auth.
+                self._logger.info("bridge.session_import.browser.requested")
+                cookies, browser_identity = self._capture_browser_session(importer)
+                session_puuid, identity, refresh_token = browser_identity
+                self._validate_session_binding(
+                    account, session_puuid=session_puuid, identity=identity,
+                )
+                self._save_imported_session(
+                    account, cookies=cookies, identity=identity, source="browser",
+                    refresh_token=refresh_token,
+                )
+                return
             try:
                 saved = self._vault.get_entry(account_id) if self._vault else None
                 if saved is not None and self._has_saved_riot_session(saved):
@@ -2378,6 +2468,21 @@ class Bridge:
                 "riotId": str(account["riotId"]),
                 "expiresInSeconds": 300,
             }
+        reusable_cookies = self._totp_setup_cookies(account_id)
+        proposal = self._totp_setup_service().prepare(
+            account_id=account_id,
+            expected_puuid=str(account["puuid"]),
+            expected_riot_id=str(account["riotId"]),
+            reusable_sso_cookies=reusable_cookies,
+        )
+        return {
+            "confirmationId": str(proposal.confirmation_id),
+            "accountId": str(proposal.account_id),
+            "riotId": str(proposal.riot_id),
+            "expiresInSeconds": int(proposal.expires_in_seconds),
+        }
+
+    def _totp_setup_cookies(self, account_id: str) -> dict[str, str]:
         if not self._vault:
             raise RuntimeError("Secure vault is unavailable")
         existing = self._vault.get_entry(account_id)
@@ -2390,18 +2495,31 @@ class Bridge:
             raise ValueError(
                 "Save a reusable Riot session for this account before setting up Riot MFA"
             )
-        reusable_cookies = self._validated_session_cookies(reusable_cookies)
-        proposal = self._totp_setup_service().prepare(
+        return self._validated_session_cookies(reusable_cookies)
+
+    def _enable_riot_mfa(self, account_id: str) -> dict[str, Any]:
+        """The user's Enable MFA click authorizes enrollment for this account."""
+        account = self._totp_setup_account(account_id)
+        account_id = str(account["id"])
+        if self.demo:
+            if account.get("hasTotp"):
+                raise ValueError("An authenticator is already saved for this account")
+            return self._confirm_riot_mobile_totp(
+                account_id=account_id, confirmation_id=f"demo:{account_id}",
+            )
+        reusable_cookies = self._totp_setup_cookies(account_id)
+        result = self._totp_setup_service().enable(
             account_id=account_id,
             expected_puuid=str(account["puuid"]),
             expected_riot_id=str(account["riotId"]),
             reusable_sso_cookies=reusable_cookies,
+            persist_seed=lambda seed: self._save_totp_seed(account, seed),
         )
         return {
-            "confirmationId": str(proposal.confirmation_id),
-            "accountId": str(proposal.account_id),
-            "riotId": str(proposal.riot_id),
-            "expiresInSeconds": int(proposal.expires_in_seconds),
+            "state": self.state(),
+            "seedSaved": bool(result.seed_saved),
+            "verified": bool(result.verified),
+            "warning": result.warning,
         }
 
     def _save_totp_seed(self, account: dict[str, Any], seed: str) -> None:
@@ -2533,6 +2651,51 @@ class Bridge:
         # A pending MFA browser session is bound to an account that may have
         # just been deleted. Drop all one-time confirmations immediately.
         self._close_totp_setup_service()
+
+    def _set_account_icon(self, account_id: str, value: Any, **preferences: Any) -> None:
+        account = next(
+            (item for item in self.accounts if str(item.get("id", "")) == account_id),
+            None,
+        )
+        if account is None:
+            raise ValueError("That account is no longer available")
+        if not account.get("owned", True):
+            raise ValueError("Only owned accounts can change their icon")
+
+        from peaks.domain.models import AccountIcon, Game, normalize_account_nickname
+
+        nickname = (
+            normalize_account_nickname(preferences["nickname"])
+            if "nickname" in preferences else None
+        )
+
+        icon = None
+        if value is not None:
+            if (
+                not isinstance(value, Mapping)
+                or set(value) != {"game", "characterId"}
+                or value.get("game") not in ("VALORANT", "League of Legends")
+            ):
+                raise ValueError("Choose a valid character icon")
+            icon = AccountIcon(Game.parse(value["game"]), value["characterId"])
+        if not self.demo:
+            if not self._repository:
+                raise RuntimeError("Local account database is unavailable")
+            # Persist before changing the snapshot so a failed write cannot
+            # show a selection that disappears the next time Peaks starts.
+            self._repository.set_account_icon(
+                account_id, icon, **({"nickname": nickname} if nickname is not None else {}),
+            )
+        if icon is None:
+            account.pop("accountIcon", None)
+        else:
+            account["accountIcon"] = {
+                "game": icon.game.label, "characterId": icon.character_id,
+            }
+        if nickname:
+            account["nickname"] = nickname
+        elif nickname is not None:
+            account.pop("nickname", None)
 
     def state(self) -> dict[str, Any]:
         visible = not self._locked
@@ -2705,6 +2868,13 @@ class Bridge:
             self._remove_account(
                 self._internal_account_id(str(payload.get("accountId", "")))
             )
+        elif command == "set_account_icon":
+            if "icon" not in payload:
+                raise ValueError("Choose a character icon or restore the automatic icon")
+            self._set_account_icon(
+                self._internal_account_id(str(payload.get("accountId", ""))), payload["icon"],
+                **({"nickname": payload["nickname"]} if "nickname" in payload else {}),
+            )
         elif command == "copy_totp":
             account_id = self._internal_account_id(str(payload.get("accountId", "")))
             totp_seed: str | None = self._secrets.get(account_id, {}).get("totp")
@@ -2759,8 +2929,12 @@ class Bridge:
             )
             return result
         elif command == "import_session":
+            force_sign_in = payload.get("forceSignIn", False)
+            if not isinstance(force_sign_in, bool):
+                raise ValueError("Riot sign-in refresh option is invalid")
             self._import_riot_session(
-                self._internal_account_id(str(payload.get("accountId", "")))
+                self._internal_account_id(str(payload.get("accountId", ""))),
+                force_sign_in=force_sign_in,
             )
         elif command in {"connect_riot_client", "connect_riot_qr_image"}:
             self._connect_riot_client(
@@ -2775,6 +2949,10 @@ class Bridge:
                 else "Riot Client connected to the selected identity"
             )
             return result
+        elif command == "enable_riot_mfa":
+            return self._enable_riot_mfa(
+                self._internal_account_id(str(payload.get("accountId", "")))
+            )
         elif command == "prepare_totp_setup":
             internal_account_id = self._internal_account_id(
                 str(payload.get("accountId", ""))
@@ -2868,12 +3046,14 @@ _DIAGNOSTIC_BRIDGE_COMMANDS = frozenset(
         "confirm_totp_setup",
         "connect_riot_client",
         "connect_riot_qr_image",
+        "enable_riot_mfa",
         "import_session",
         "lock",
         "pin",
         "prepare_totp_setup",
         "refresh",
         "remove_account",
+        "set_account_icon",
         "reset_application",
         "scan_qr",
         "search",

@@ -35,6 +35,9 @@ peaks-electron.png
 # Keep these on the device; release media belongs in the application asset tree.
 artifacts/
 
+# Private server deployment files stay local, outside the public app repository.
+/deploy/
+
 # Local credentials and environment overrides
 .env
 .env.*

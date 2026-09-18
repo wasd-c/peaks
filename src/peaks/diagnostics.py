@@ -12,14 +12,41 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from copy import copy
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+
+from peaks.diagnostic_policy import ERROR_TYPES, sanitize_diagnostic_message
 
 DEFAULT_LOG_LEVEL = "INFO"
 LOG_FILE_NAME = "peaks.log"
 MAX_LOG_BYTES = 1 * 1024 * 1024
 LOG_BACKUP_COUNT = 2
 _HANDLER_MARKER = "_peaks_diagnostic_handler"
+
+
+class DiagnosticFormatter(logging.Formatter):
+    """Sanitize before either destination; never append raw traceback/source text."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        safe = copy(record)
+        try:
+            safe.msg = sanitize_diagnostic_message(record.getMessage())
+        except Exception:
+            safe.msg = "diagnostics.redacted"
+        if record.exc_info and record.exc_info[0]:
+            name = record.exc_info[0].__name__
+            safe.msg += f" exception_type={name if name in ERROR_TYPES else 'Exception'}"
+        safe.args = ()
+        safe.exc_info = None
+        safe.exc_text = None
+        safe.stack_info = None
+        # Logger names and levels must not become another free-text channel.
+        safe.name = "peaks"
+        safe.levelname = {10: "DEBUG", 20: "INFO", 30: "WARNING", 40: "ERROR", 50: "CRITICAL"}.get(
+            record.levelno, "LOG"
+        )
+        return super().format(safe)
 
 
 def _log_level(value: str | None) -> int:
@@ -52,7 +79,7 @@ def configure_diagnostics(data_directory: Path) -> Path:
             logger.removeHandler(handler)
             handler.close()
 
-    formatter = logging.Formatter(
+    formatter = DiagnosticFormatter(
         "%(asctime)s %(levelname)s %(name)s %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )

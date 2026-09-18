@@ -1,3 +1,4 @@
+import {accountRegionLabel, accountRegionLabels} from '../accountRegions'
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 import {useState} from 'react'
@@ -12,6 +13,7 @@ import {Icon} from '@astryxdesign/core/Icon'
 import {List, ListItem} from '@astryxdesign/core/List'
 import {MoreMenu} from '@astryxdesign/core/MoreMenu'
 import {Section} from '@astryxdesign/core/Section'
+import {Spinner} from '@astryxdesign/core/Spinner'
 import {StatusDot} from '@astryxdesign/core/StatusDot'
 import {Tab, TabList} from '@astryxdesign/core/TabList'
 import {Text} from '@astryxdesign/core/Text'
@@ -32,6 +34,8 @@ export interface AccountDetailScreenProps {
   onBack: () => void
   onCopy: () => void | Promise<void>
   onConnect: () => void
+  onEnableMfa: () => Promise<void>
+  isEnablingMfa?: boolean
   onDelete: () => void | Promise<void>
   onPasteQr: (payload: QrImageRequest) => Promise<void>
   onRefresh: () => void | Promise<void>
@@ -43,6 +47,8 @@ export function AccountDetailScreen({
   onBack,
   onCopy,
   onConnect,
+  onEnableMfa,
+  isEnablingMfa = false,
   onDelete,
   onPasteQr,
   onRefresh,
@@ -86,11 +92,14 @@ export function AccountDetailScreen({
               <Button
                 icon={<Icon icon={Radio} />}
                 label={(account.canConnectQr ?? account.connected) ? t("Connect Riot Client") : t("Sign in to Riot again")}
+                isDisabled={isEnablingMfa}
                 onClick={onConnect}
                 variant="primary"
               />
               <MoreMenu
                 alignment="end"
+                isDisabled={isEnablingMfa}
+                icon={isEnablingMfa ? <Spinner size="sm" aria-label={t('Enabling MFA…')} /> : undefined}
                 items={[
                   ...((account.canConnectQr ?? account.connected) ? [{
                     id: 'paste-qr',
@@ -99,6 +108,13 @@ export function AccountDetailScreen({
                     icon: <Icon icon={QrCode} />,
                     onClick: () => setPasteQrOpen(true),
                   }] : []),
+                  {
+                    id: 'enable-mfa',
+                    label: account.hasTotp ? t('Authenticator saved') : t('Enable MFA'),
+                    icon: <Icon icon={ShieldCheck} />,
+                    isDisabled: Boolean(account.hasTotp) || account.owned === false,
+                    onClick: () => { void onEnableMfa().catch(() => undefined) },
+                  },
                   {
                     id: 'copy-totp',
                     label: t('Copy authenticator code'),
@@ -116,14 +132,14 @@ export function AccountDetailScreen({
                     onClick: () => setDeleteOpen(true),
                   },
                 ]}
-                label={t("More Riot account actions")}
+                label={isEnablingMfa ? t('Enabling MFA…') : t("More Riot account actions")}
                 placement="below"
                 variant="primary"
               />
             </ButtonGroup>
           </>
         }
-        description={t("{{region}} · Level {{value2}} · {{value3}}", {region: account.region, value2: account.level ?? '—', value3: displayText(account.lastUpdated ?? 'Last synced just now')})}
+        description={t("{{region}} · Level {{value2}} · {{value3}}", {region: accountRegionLabel(account), value2: account.level ?? '—', value3: displayText(account.lastUpdated ?? 'Last synced just now')})}
         screen="account-detail"
         title={t("Account details")}>
         <VStack className="pd-detail" gap={6}>
@@ -135,7 +151,7 @@ export function AccountDetailScreen({
             size="sm"
             variant="ghost"
           />
-          <Text className="pd-detail__eyebrow" type="supporting">{t("YOUR ACCOUNT /")} {account.region}</Text>
+          <Text className="pd-detail__eyebrow" type="supporting">{t("YOUR ACCOUNT /")} {accountRegionLabel(account)}</Text>
         </HStack>
 
         <Grid className="pd-detail__identity" columns={2} gap={0}>
@@ -148,7 +164,7 @@ export function AccountDetailScreen({
                 <Avatar className="pd-detail__avatar" name={displayName(account.riotId)} size="lg" tooltip={false} />
                 <Heading className="pd-detail__identity-name" level={2} type="display-2">{displayName(account.riotId)}</Heading>
                 <HStack align="center" gap={3} wrap="wrap">
-                  <Token color="gray" label={account.region} size="sm" />
+                  {accountRegionLabels(account).map(label => <Token key={label} color="gray" label={label} size="sm" />)}
                   <Text color="secondary">{t("Level")} {account.level ?? '—'}</Text>
                   <Text color="secondary">{t('{{count}} recorded matches', {count: account.matches?.length ?? 0})}</Text>
                 </HStack>

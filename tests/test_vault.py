@@ -300,7 +300,7 @@ def test_database_migrates_existing_accounts_to_persist_level(tmp_path: Path) ->
     schema_version = database.connection.execute(
         "SELECT value FROM schema_meta WHERE key = 'version'"
     ).fetchone()[0]
-    assert schema_version == "2"
+    assert schema_version == str(Database.SCHEMA_VERSION)
     database.close()
 
 
@@ -327,3 +327,33 @@ def test_database_settings_followed_order_and_cascade(tmp_path: Path) -> None:
     assert database.list_matches("owned") == []
     assert database.remove_account("missing") is False
     database.close()
+
+
+
+def test_region_migration_preserves_existing_profile_and_survives_restart(tmp_path: Path) -> None:
+    path = tmp_path / "regions.sqlite3"
+    connection = sqlite3.connect(path)
+    connection.executescript("""
+        CREATE TABLE schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+        INSERT INTO schema_meta VALUES ('version', '2');
+        CREATE TABLE accounts (
+            account_id TEXT PRIMARY KEY, game_name TEXT NOT NULL, tag_line TEXT NOT NULL,
+            region TEXT NOT NULL, puuid TEXT, is_owned INTEGER NOT NULL,
+            created_at TEXT NOT NULL, last_seen_at TEXT, account_level INTEGER
+        );
+        INSERT INTO accounts VALUES ('owner', 'Player', 'TEST', 'euw', 'owner', 1, '2026-09-01T00:00:00Z', NULL, 42);
+    """)
+    connection.close()
+    with Database(path) as database:
+        before = database.get_account("owner")
+        assert before is not None
+        assert before.region == "euw" and before.valorant_region is None and before.level == 42
+        database.add_account(Account.from_dict({**before.to_dict(), "valorant_region": "eu"}))
+        # Older clients and responses with no optional metadata preserve it.
+        database.add_account(before)
+    with Database(path) as database:
+        after = database.get_account("owner")
+        assert after is not None
+        assert after.valorant_region == "EU" and after.region == "euw"
+        assert after.level == 42 and after.created_at == before.created_at
+        assert after.with_ranks([]).valorant_region == "EU"

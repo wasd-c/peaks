@@ -1,0 +1,2273 @@
+{
+  "version": "16.18.1",
+  "source": "https://developer.riotgames.com/docs/lol#data-dragon",
+  "gameIconSources": [
+    "https://www.leagueoflegends.com/en-us/",
+    "https://playvalorant.com/en-us/"
+  ],
+  "champions": [
+    {
+      "id": "Aatrox",
+      "key": "266",
+      "name": "Aatrox",
+      "names": {
+        "en": "Aatrox",
+        "fr": "Aatrox",
+        "ko": "아트록스"
+      },
+      "path": "champions/Aatrox.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Aatrox.png",
+      "sha256": "852d739fb696684549064266851df91ecd03729e06b1a192dc14af01549b7f3f"
+    },
+    {
+      "id": "Ahri",
+      "key": "103",
+      "name": "Ahri",
+      "names": {
+        "en": "Ahri",
+        "fr": "Ahri",
+        "ko": "아리"
+      },
+      "path": "champions/Ahri.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ahri.png",
+      "sha256": "8e93368d97e3d302463c4e83ac5980d1f0a3a0aaf92ac44435730fecbd55b565"
+    },
+    {
+      "id": "Akali",
+      "key": "84",
+      "name": "Akali",
+      "names": {
+        "en": "Akali",
+        "fr": "Akali",
+        "ko": "아칼리"
+      },
+      "path": "champions/Akali.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Akali.png",
+      "sha256": "a62acc32c454b5cc39cebd0769f940b34f3d39ddaf157b95acb176027f81e17a"
+    },
+    {
+      "id": "Akshan",
+      "key": "166",
+      "name": "Akshan",
+      "names": {
+        "en": "Akshan",
+        "fr": "Akshan",
+        "ko": "아크샨"
+      },
+      "path": "champions/Akshan.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Akshan.png",
+      "sha256": "da9a6cec8d8085b85e35b7ef0f4fb0ef368992b86760ea72a6539095482e5043"
+    },
+    {
+      "id": "Alistar",
+      "key": "12",
+      "name": "Alistar",
+      "names": {
+        "en": "Alistar",
+        "fr": "Alistar",
+        "ko": "알리스타"
+      },
+      "path": "champions/Alistar.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Alistar.png",
+      "sha256": "a1b9e0dc85d186fea8b7eccb91b7dc770ea6d3c5d5b53d9698cdf33524879259"
+    },
+    {
+      "id": "Ambessa",
+      "key": "799",
+      "name": "Ambessa",
+      "names": {
+        "en": "Ambessa",
+        "fr": "Ambessa",
+        "ko": "암베사"
+      },
+      "path": "champions/Ambessa.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ambessa.png",
+      "sha256": "ce2bf0adfc1cb9e46430f318e73ec1c0bf257e5afe84b584acb88f15bfdb3646"
+    },
+    {
+      "id": "Amumu",
+      "key": "32",
+      "name": "Amumu",
+      "names": {
+        "en": "Amumu",
+        "fr": "Amumu",
+        "ko": "아무무"
+      },
+      "path": "champions/Amumu.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Amumu.png",
+      "sha256": "bb20e52d6f4808d3c3cb5038397fdbff174544ee7c9cf9271deee9240a4b1204"
+    },
+    {
+      "id": "Anivia",
+      "key": "34",
+      "name": "Anivia",
+      "names": {
+        "en": "Anivia",
+        "fr": "Anivia",
+        "ko": "애니비아"
+      },
+      "path": "champions/Anivia.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Anivia.png",
+      "sha256": "f10e316692a616d9f27ff5548a52aa128e794ce736b8daa3e1a2b86217a406d5"
+    },
+    {
+      "id": "Annie",
+      "key": "1",
+      "name": "Annie",
+      "names": {
+        "en": "Annie",
+        "fr": "Annie",
+        "ko": "애니"
+      },
+      "path": "champions/Annie.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Annie.png",
+      "sha256": "97720fcc698033b18382e7475800d4aac6c436712d997d99df4a0ae99f6829e2"
+    },
+    {
+      "id": "Aphelios",
+      "key": "523",
+      "name": "Aphelios",
+      "names": {
+        "en": "Aphelios",
+        "fr": "Aphelios",
+        "ko": "아펠리오스"
+      },
+      "path": "champions/Aphelios.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Aphelios.png",
+      "sha256": "1db20831bdc7a01918adac84c3afffe3ce4ea8e2f2bee54d70dec220bd1ea6fc"
+    },
+    {
+      "id": "Ashe",
+      "key": "22",
+      "name": "Ashe",
+      "names": {
+        "en": "Ashe",
+        "fr": "Ashe",
+        "ko": "애쉬"
+      },
+      "path": "champions/Ashe.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ashe.png",
+      "sha256": "423666bdb0685355be4576f78eb6406fd49469b4f6e9f780f1c5eb4349fed91f"
+    },
+    {
+      "id": "AurelionSol",
+      "key": "136",
+      "name": "Aurelion Sol",
+      "names": {
+        "en": "Aurelion Sol",
+        "fr": "Aurelion Sol",
+        "ko": "아우렐리온 솔"
+      },
+      "path": "champions/AurelionSol.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/AurelionSol.png",
+      "sha256": "a8888510b555c75b35f291a1474e28f46875a543eafcbf4d3595a71654856d7c"
+    },
+    {
+      "id": "Aurora",
+      "key": "893",
+      "name": "Aurora",
+      "names": {
+        "en": "Aurora",
+        "fr": "Aurora",
+        "ko": "오로라"
+      },
+      "path": "champions/Aurora.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Aurora.png",
+      "sha256": "cb291047d565205ffe91bbbd3fc34592452b2f55b7706430a31c8ac188d99a33"
+    },
+    {
+      "id": "Azir",
+      "key": "268",
+      "name": "Azir",
+      "names": {
+        "en": "Azir",
+        "fr": "Azir",
+        "ko": "아지르"
+      },
+      "path": "champions/Azir.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Azir.png",
+      "sha256": "fa90e249ef38adeabd757f24fc4069db8caccdf64353868d9683a5a9c4c81a35"
+    },
+    {
+      "id": "Bard",
+      "key": "432",
+      "name": "Bard",
+      "names": {
+        "en": "Bard",
+        "fr": "Bard",
+        "ko": "바드"
+      },
+      "path": "champions/Bard.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Bard.png",
+      "sha256": "18ee517f6453831c0730d73cbf1628001e53a5acced928d4d78e34a28051094d"
+    },
+    {
+      "id": "Belveth",
+      "key": "200",
+      "name": "Bel'Veth",
+      "names": {
+        "en": "Bel'Veth",
+        "fr": "Bel'Veth",
+        "ko": "벨베스"
+      },
+      "path": "champions/Belveth.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Belveth.png",
+      "sha256": "9959345f8316af4ff29d9bf68ab6c8450c85a3742ba4f3e6952ab19d4d0057f1"
+    },
+    {
+      "id": "Blitzcrank",
+      "key": "53",
+      "name": "Blitzcrank",
+      "names": {
+        "en": "Blitzcrank",
+        "fr": "Blitzcrank",
+        "ko": "블리츠크랭크"
+      },
+      "path": "champions/Blitzcrank.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Blitzcrank.png",
+      "sha256": "753db19576c52ab7af43bd5ec2631023654567ecb2e0d83389d016927610d74c"
+    },
+    {
+      "id": "Brand",
+      "key": "63",
+      "name": "Brand",
+      "names": {
+        "en": "Brand",
+        "fr": "Brand",
+        "ko": "브랜드"
+      },
+      "path": "champions/Brand.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Brand.png",
+      "sha256": "c50bbafb3ed2beea470479b28cd9b2e233a9f88760e61a76cd413d68bafbac52"
+    },
+    {
+      "id": "Braum",
+      "key": "201",
+      "name": "Braum",
+      "names": {
+        "en": "Braum",
+        "fr": "Braum",
+        "ko": "브라움"
+      },
+      "path": "champions/Braum.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Braum.png",
+      "sha256": "1ada9222fe928d32cca4b91fc374fb41cacb6157f0122a390ca611c3e2c29daa"
+    },
+    {
+      "id": "Briar",
+      "key": "233",
+      "name": "Briar",
+      "names": {
+        "en": "Briar",
+        "fr": "Briar",
+        "ko": "브라이어"
+      },
+      "path": "champions/Briar.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Briar.png",
+      "sha256": "dbecebf6559e79383b208ea340c1cffeea0867b757dff0b8525dd0e0a751ff1c"
+    },
+    {
+      "id": "Caitlyn",
+      "key": "51",
+      "name": "Caitlyn",
+      "names": {
+        "en": "Caitlyn",
+        "fr": "Caitlyn",
+        "ko": "케이틀린"
+      },
+      "path": "champions/Caitlyn.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Caitlyn.png",
+      "sha256": "f7a515360f30f33dfe5ab4e8886ce59a70c2d333f924252f48f5f9a2fbc6edf4"
+    },
+    {
+      "id": "Camille",
+      "key": "164",
+      "name": "Camille",
+      "names": {
+        "en": "Camille",
+        "fr": "Camille",
+        "ko": "카밀"
+      },
+      "path": "champions/Camille.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Camille.png",
+      "sha256": "54bfa2dc66fc3885279d4546a4d9651f3a16bd4e4474ceaf2e319bf7f673138a"
+    },
+    {
+      "id": "Cassiopeia",
+      "key": "69",
+      "name": "Cassiopeia",
+      "names": {
+        "en": "Cassiopeia",
+        "fr": "Cassiopeia",
+        "ko": "카시오페아"
+      },
+      "path": "champions/Cassiopeia.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Cassiopeia.png",
+      "sha256": "da2ad096fc5237e31a1e9d9ebb9b6db6de65e2cab126c9a607c3fa7a36bc8e54"
+    },
+    {
+      "id": "Chogath",
+      "key": "31",
+      "name": "Cho'Gath",
+      "names": {
+        "en": "Cho'Gath",
+        "fr": "Cho'Gath",
+        "ko": "초가스"
+      },
+      "path": "champions/Chogath.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Chogath.png",
+      "sha256": "f5381fea0255a8a903381728fec79862dc5c426e25774c5e18def583fb3b1dfb"
+    },
+    {
+      "id": "Corki",
+      "key": "42",
+      "name": "Corki",
+      "names": {
+        "en": "Corki",
+        "fr": "Corki",
+        "ko": "코르키"
+      },
+      "path": "champions/Corki.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Corki.png",
+      "sha256": "db997e48b9a4cda57b6e934c131d4718aca559f2b5bdaacc8e81a19d3c2953bb"
+    },
+    {
+      "id": "Darius",
+      "key": "122",
+      "name": "Darius",
+      "names": {
+        "en": "Darius",
+        "fr": "Darius",
+        "ko": "다리우스"
+      },
+      "path": "champions/Darius.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Darius.png",
+      "sha256": "4c73167413335e00b3ece58fadaa495a0c3fe05184b246b0f8b9af923a0d3d81"
+    },
+    {
+      "id": "Diana",
+      "key": "131",
+      "name": "Diana",
+      "names": {
+        "en": "Diana",
+        "fr": "Diana",
+        "ko": "다이애나"
+      },
+      "path": "champions/Diana.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Diana.png",
+      "sha256": "d967ef71d043a49c60dce6f19725fd17d8e8362ea3c059f9ba38906688905d93"
+    },
+    {
+      "id": "DrMundo",
+      "key": "36",
+      "name": "Dr. Mundo",
+      "names": {
+        "en": "Dr. Mundo",
+        "fr": "Dr. Mundo",
+        "ko": "문도 박사"
+      },
+      "path": "champions/DrMundo.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/DrMundo.png",
+      "sha256": "496b97ef027d5f90b583329269714623701ad12d013c610ee4c7465916ecb8e0"
+    },
+    {
+      "id": "Draven",
+      "key": "119",
+      "name": "Draven",
+      "names": {
+        "en": "Draven",
+        "fr": "Draven",
+        "ko": "드레이븐"
+      },
+      "path": "champions/Draven.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Draven.png",
+      "sha256": "9b62ecd81173ff55d83a7a9e42d7f9553288856e8365cc3bcbbf4ce3bf4091a6"
+    },
+    {
+      "id": "Ekko",
+      "key": "245",
+      "name": "Ekko",
+      "names": {
+        "en": "Ekko",
+        "fr": "Ekko",
+        "ko": "에코"
+      },
+      "path": "champions/Ekko.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ekko.png",
+      "sha256": "6b2219dd6a3888d5572a2b2f2f522c3eeac490578f82f58171adfdf8e647b093"
+    },
+    {
+      "id": "Elise",
+      "key": "60",
+      "name": "Elise",
+      "names": {
+        "en": "Elise",
+        "fr": "Elise",
+        "ko": "엘리스"
+      },
+      "path": "champions/Elise.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Elise.png",
+      "sha256": "cb7e3ec0658c4e8cf86f2829b12203af68cfc9ab95b98579957427134d00c6e0"
+    },
+    {
+      "id": "Evelynn",
+      "key": "28",
+      "name": "Evelynn",
+      "names": {
+        "en": "Evelynn",
+        "fr": "Evelynn",
+        "ko": "이블린"
+      },
+      "path": "champions/Evelynn.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Evelynn.png",
+      "sha256": "7b09f45c7350fe57217f6833fb97427ea6cc8312b902f7fb8bbbf2a6d5c2f506"
+    },
+    {
+      "id": "Ezreal",
+      "key": "81",
+      "name": "Ezreal",
+      "names": {
+        "en": "Ezreal",
+        "fr": "Ezreal",
+        "ko": "이즈리얼"
+      },
+      "path": "champions/Ezreal.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ezreal.png",
+      "sha256": "676467c4362b8745a27db93a44619179820add83be95583d7b2adcfcb4eb7e35"
+    },
+    {
+      "id": "Fiddlesticks",
+      "key": "9",
+      "name": "Fiddlesticks",
+      "names": {
+        "en": "Fiddlesticks",
+        "fr": "Fiddlesticks",
+        "ko": "피들스틱"
+      },
+      "path": "champions/Fiddlesticks.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Fiddlesticks.png",
+      "sha256": "681544df2412f89a96052e835abe3327cfdd73801868aad20d07576a8157cc32"
+    },
+    {
+      "id": "Fiora",
+      "key": "114",
+      "name": "Fiora",
+      "names": {
+        "en": "Fiora",
+        "fr": "Fiora",
+        "ko": "피오라"
+      },
+      "path": "champions/Fiora.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Fiora.png",
+      "sha256": "b76387ea62f007ece3e06e589ac15bc9bf5452472b70a0d847d096b06f6785b7"
+    },
+    {
+      "id": "Fizz",
+      "key": "105",
+      "name": "Fizz",
+      "names": {
+        "en": "Fizz",
+        "fr": "Fizz",
+        "ko": "피즈"
+      },
+      "path": "champions/Fizz.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Fizz.png",
+      "sha256": "447fa01c18cc5bdcd0e014825f7825a93f05d32bde8226bb69fdf58fd6412999"
+    },
+    {
+      "id": "Galio",
+      "key": "3",
+      "name": "Galio",
+      "names": {
+        "en": "Galio",
+        "fr": "Galio",
+        "ko": "갈리오"
+      },
+      "path": "champions/Galio.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Galio.png",
+      "sha256": "25b4acea5a0d8d2b4de819e62fbf7e7bb4afdb94e0d18e8896cb28112a13dc3f"
+    },
+    {
+      "id": "Gangplank",
+      "key": "41",
+      "name": "Gangplank",
+      "names": {
+        "en": "Gangplank",
+        "fr": "Gangplank",
+        "ko": "갱플랭크"
+      },
+      "path": "champions/Gangplank.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Gangplank.png",
+      "sha256": "f2bed51abb3d68897a161e152f03e9c9e0bc13039e6b709f551397a52e5aeb39"
+    },
+    {
+      "id": "Garen",
+      "key": "86",
+      "name": "Garen",
+      "names": {
+        "en": "Garen",
+        "fr": "Garen",
+        "ko": "가렌"
+      },
+      "path": "champions/Garen.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Garen.png",
+      "sha256": "53018603962e1867b391071f159bb4c60d57919422585c33bfd36551e97f3752"
+    },
+    {
+      "id": "Gnar",
+      "key": "150",
+      "name": "Gnar",
+      "names": {
+        "en": "Gnar",
+        "fr": "Gnar",
+        "ko": "나르"
+      },
+      "path": "champions/Gnar.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Gnar.png",
+      "sha256": "d566858ab7ae4a6887f3490cedcd9a7097f5b5214d78c0b7f1b631567f8d739e"
+    },
+    {
+      "id": "Gragas",
+      "key": "79",
+      "name": "Gragas",
+      "names": {
+        "en": "Gragas",
+        "fr": "Gragas",
+        "ko": "그라가스"
+      },
+      "path": "champions/Gragas.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Gragas.png",
+      "sha256": "06599cb8a6b083a3250c3bcd701b1bab1c8f9dab6ea52c7709ac2c895431f4f6"
+    },
+    {
+      "id": "Graves",
+      "key": "104",
+      "name": "Graves",
+      "names": {
+        "en": "Graves",
+        "fr": "Graves",
+        "ko": "그레이브즈"
+      },
+      "path": "champions/Graves.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Graves.png",
+      "sha256": "6f171c830d729e9b8b23c6a4d772f2bd44f90304101f1e6a299920b4ecda67d9"
+    },
+    {
+      "id": "Gwen",
+      "key": "887",
+      "name": "Gwen",
+      "names": {
+        "en": "Gwen",
+        "fr": "Gwen",
+        "ko": "그웬"
+      },
+      "path": "champions/Gwen.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Gwen.png",
+      "sha256": "a7bba2bc0970bc5098396a4578a2cb72908630125011502bd2c0ee183ceb29d9"
+    },
+    {
+      "id": "Hecarim",
+      "key": "120",
+      "name": "Hecarim",
+      "names": {
+        "en": "Hecarim",
+        "fr": "Hecarim",
+        "ko": "헤카림"
+      },
+      "path": "champions/Hecarim.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Hecarim.png",
+      "sha256": "ba5b2d3fd406fdd81e52e359231024ef4877009bdcf61c9d7ca389916fe61509"
+    },
+    {
+      "id": "Heimerdinger",
+      "key": "74",
+      "name": "Heimerdinger",
+      "names": {
+        "en": "Heimerdinger",
+        "fr": "Heimerdinger",
+        "ko": "하이머딩거"
+      },
+      "path": "champions/Heimerdinger.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Heimerdinger.png",
+      "sha256": "3e54bea65546474fa1154f9ac25c73bd51aff36db5c808377553b1e9f252c56d"
+    },
+    {
+      "id": "Hwei",
+      "key": "910",
+      "name": "Hwei",
+      "names": {
+        "en": "Hwei",
+        "fr": "Hwei",
+        "ko": "흐웨이"
+      },
+      "path": "champions/Hwei.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Hwei.png",
+      "sha256": "c8aeb272d4f4990ee87b7b7f857840d214e99f1707c9aebb6529ac6e0bc5f5ff"
+    },
+    {
+      "id": "Illaoi",
+      "key": "420",
+      "name": "Illaoi",
+      "names": {
+        "en": "Illaoi",
+        "fr": "Illaoi",
+        "ko": "일라오이"
+      },
+      "path": "champions/Illaoi.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Illaoi.png",
+      "sha256": "1334b302ec0fb4895e15033351122427786cfc25c6c30b4f9b43e2a8212314c1"
+    },
+    {
+      "id": "Irelia",
+      "key": "39",
+      "name": "Irelia",
+      "names": {
+        "en": "Irelia",
+        "fr": "Irelia",
+        "ko": "이렐리아"
+      },
+      "path": "champions/Irelia.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Irelia.png",
+      "sha256": "a8cd7e83c7b327516869d67eb9cd96499bcf720d799b814830373cb200a98c9c"
+    },
+    {
+      "id": "Ivern",
+      "key": "427",
+      "name": "Ivern",
+      "names": {
+        "en": "Ivern",
+        "fr": "Ivern",
+        "ko": "아이번"
+      },
+      "path": "champions/Ivern.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ivern.png",
+      "sha256": "a79756ca23f8f93a882f47e4ce5d4228b70bf002a1ea320d5a69fa16491c5df4"
+    },
+    {
+      "id": "Janna",
+      "key": "40",
+      "name": "Janna",
+      "names": {
+        "en": "Janna",
+        "fr": "Janna",
+        "ko": "잔나"
+      },
+      "path": "champions/Janna.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Janna.png",
+      "sha256": "d0a7b79a9d7673b429fc94bb2718a27bff8cdbbbafe9fac294f1cf0cc1982d83"
+    },
+    {
+      "id": "JarvanIV",
+      "key": "59",
+      "name": "Jarvan IV",
+      "names": {
+        "en": "Jarvan IV",
+        "fr": "Jarvan IV",
+        "ko": "자르반 4세"
+      },
+      "path": "champions/JarvanIV.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/JarvanIV.png",
+      "sha256": "9da74ae808585eff7f130f47ce4c6c3ddab0b302b1d39902e273ae0253592764"
+    },
+    {
+      "id": "Jax",
+      "key": "24",
+      "name": "Jax",
+      "names": {
+        "en": "Jax",
+        "fr": "Jax",
+        "ko": "잭스"
+      },
+      "path": "champions/Jax.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Jax.png",
+      "sha256": "441e8d865d461bc338a2d2d5a2a09f6151bbfdb4795ec8b59e66ee8654eebcca"
+    },
+    {
+      "id": "Jayce",
+      "key": "126",
+      "name": "Jayce",
+      "names": {
+        "en": "Jayce",
+        "fr": "Jayce",
+        "ko": "제이스"
+      },
+      "path": "champions/Jayce.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Jayce.png",
+      "sha256": "81301e79adf1c92dd700defb5e1ee11cb8b7ef04b7034554aacb067c66256a38"
+    },
+    {
+      "id": "Jhin",
+      "key": "202",
+      "name": "Jhin",
+      "names": {
+        "en": "Jhin",
+        "fr": "Jhin",
+        "ko": "진"
+      },
+      "path": "champions/Jhin.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Jhin.png",
+      "sha256": "dd24ce955ba61995956f1a48cb9b90b9b52936bb23bf05e0cb74cfc9c74a4b0c"
+    },
+    {
+      "id": "Jinx",
+      "key": "222",
+      "name": "Jinx",
+      "names": {
+        "en": "Jinx",
+        "fr": "Jinx",
+        "ko": "징크스"
+      },
+      "path": "champions/Jinx.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Jinx.png",
+      "sha256": "2777d44345974b93f8af378430811670566d0451b6410b2caff2984e93797357"
+    },
+    {
+      "id": "KSante",
+      "key": "897",
+      "name": "K'Sante",
+      "names": {
+        "en": "K'Sante",
+        "fr": "K'Santé",
+        "ko": "크산테"
+      },
+      "path": "champions/KSante.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/KSante.png",
+      "sha256": "d7d62b07df5b66497195c68e3e2bbdc8c3d6078066aa2ed170cfbcb0fc2f5ddf"
+    },
+    {
+      "id": "Kaisa",
+      "key": "145",
+      "name": "Kai'Sa",
+      "names": {
+        "en": "Kai'Sa",
+        "fr": "Kai'Sa",
+        "ko": "카이사"
+      },
+      "path": "champions/Kaisa.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kaisa.png",
+      "sha256": "e0e86ccb7143d20bcbd83f192530f9712bf4b1d6306ec07a06992d4b72676443"
+    },
+    {
+      "id": "Kalista",
+      "key": "429",
+      "name": "Kalista",
+      "names": {
+        "en": "Kalista",
+        "fr": "Kalista",
+        "ko": "칼리스타"
+      },
+      "path": "champions/Kalista.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kalista.png",
+      "sha256": "3809361a78dfb97d3660fd47345145287d48af10909426d353b451cf52dc093b"
+    },
+    {
+      "id": "Karma",
+      "key": "43",
+      "name": "Karma",
+      "names": {
+        "en": "Karma",
+        "fr": "Karma",
+        "ko": "카르마"
+      },
+      "path": "champions/Karma.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Karma.png",
+      "sha256": "e1df55d95c9a90445b59615db2984c3a8a9d8df3578faf968872bbe2e0075bc0"
+    },
+    {
+      "id": "Karthus",
+      "key": "30",
+      "name": "Karthus",
+      "names": {
+        "en": "Karthus",
+        "fr": "Karthus",
+        "ko": "카서스"
+      },
+      "path": "champions/Karthus.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Karthus.png",
+      "sha256": "2b7015e102317b52900f9c69adfe462426301ac0f62c54502fdeae518d30392e"
+    },
+    {
+      "id": "Kassadin",
+      "key": "38",
+      "name": "Kassadin",
+      "names": {
+        "en": "Kassadin",
+        "fr": "Kassadin",
+        "ko": "카사딘"
+      },
+      "path": "champions/Kassadin.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kassadin.png",
+      "sha256": "a7616e721346eef6a2af65470f98757e4ad184a53685d412edec583dd5989a15"
+    },
+    {
+      "id": "Katarina",
+      "key": "55",
+      "name": "Katarina",
+      "names": {
+        "en": "Katarina",
+        "fr": "Katarina",
+        "ko": "카타리나"
+      },
+      "path": "champions/Katarina.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Katarina.png",
+      "sha256": "998f3a479b5441f86f4031aace49bbd70bb83a76c05d39b0697288fe50ba029e"
+    },
+    {
+      "id": "Kayle",
+      "key": "10",
+      "name": "Kayle",
+      "names": {
+        "en": "Kayle",
+        "fr": "Kayle",
+        "ko": "케일"
+      },
+      "path": "champions/Kayle.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kayle.png",
+      "sha256": "63dd90ebddcf8fcda57aa20f6f6b490ceea0958a45f9411946d4b9bd0d1293c6"
+    },
+    {
+      "id": "Kayn",
+      "key": "141",
+      "name": "Kayn",
+      "names": {
+        "en": "Kayn",
+        "fr": "Kayn",
+        "ko": "케인"
+      },
+      "path": "champions/Kayn.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kayn.png",
+      "sha256": "7a7e6e8f8df01879296ed9de5710329a2f3c541418ae277c65175e1ba2212982"
+    },
+    {
+      "id": "Kennen",
+      "key": "85",
+      "name": "Kennen",
+      "names": {
+        "en": "Kennen",
+        "fr": "Kennen",
+        "ko": "케넨"
+      },
+      "path": "champions/Kennen.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kennen.png",
+      "sha256": "71239ebd9236d5d0fdbccfb8741727e6f13dd007a4d6905e5aa82f6b36aceebd"
+    },
+    {
+      "id": "Khazix",
+      "key": "121",
+      "name": "Kha'Zix",
+      "names": {
+        "en": "Kha'Zix",
+        "fr": "Kha'Zix",
+        "ko": "카직스"
+      },
+      "path": "champions/Khazix.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Khazix.png",
+      "sha256": "30007408b2c91e58a8036116f222f70b1d148699b994a109a30eacb4eff6bb63"
+    },
+    {
+      "id": "Kindred",
+      "key": "203",
+      "name": "Kindred",
+      "names": {
+        "en": "Kindred",
+        "fr": "Kindred",
+        "ko": "킨드레드"
+      },
+      "path": "champions/Kindred.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kindred.png",
+      "sha256": "a789f7340a9e390c8627be587cb4f236736f55907c8e36b792ca1f6221ade4ed"
+    },
+    {
+      "id": "Kled",
+      "key": "240",
+      "name": "Kled",
+      "names": {
+        "en": "Kled",
+        "fr": "Kled",
+        "ko": "클레드"
+      },
+      "path": "champions/Kled.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Kled.png",
+      "sha256": "4d71421e5e0a4fd8092fc9b6d91cc10fb36a067fc8a74b5e2fce2e718d3f2566"
+    },
+    {
+      "id": "KogMaw",
+      "key": "96",
+      "name": "Kog'Maw",
+      "names": {
+        "en": "Kog'Maw",
+        "fr": "Kog'Maw",
+        "ko": "코그모"
+      },
+      "path": "champions/KogMaw.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/KogMaw.png",
+      "sha256": "a5836dd40801e9f6275c1b74de8ba6de2de09ab2d24ec2e9695f958917348f1a"
+    },
+    {
+      "id": "Leblanc",
+      "key": "7",
+      "name": "LeBlanc",
+      "names": {
+        "en": "LeBlanc",
+        "fr": "LeBlanc",
+        "ko": "르블랑"
+      },
+      "path": "champions/Leblanc.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Leblanc.png",
+      "sha256": "e48b97ce2451c37d4e4a747b37663bd1095730b4182b2805f397f60fd12c7c5d"
+    },
+    {
+      "id": "LeeSin",
+      "key": "64",
+      "name": "Lee Sin",
+      "names": {
+        "en": "Lee Sin",
+        "fr": "Lee Sin",
+        "ko": "리 신"
+      },
+      "path": "champions/LeeSin.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/LeeSin.png",
+      "sha256": "890f439dd16bfa686b3c6f06f9749eb5477e5b706a8ff85cb8161f91adcff9a8"
+    },
+    {
+      "id": "Leona",
+      "key": "89",
+      "name": "Leona",
+      "names": {
+        "en": "Leona",
+        "fr": "Leona",
+        "ko": "레오나"
+      },
+      "path": "champions/Leona.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Leona.png",
+      "sha256": "d7e170e1d5c37b243663e03d480a4befe727d86d0733e3e411b90297cb192461"
+    },
+    {
+      "id": "Lillia",
+      "key": "876",
+      "name": "Lillia",
+      "names": {
+        "en": "Lillia",
+        "fr": "Lillia",
+        "ko": "릴리아"
+      },
+      "path": "champions/Lillia.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Lillia.png",
+      "sha256": "b270de6af7ec29bb2fb91d6effec79f3c0b6d93811315dc54d101ee55f61fb31"
+    },
+    {
+      "id": "Lissandra",
+      "key": "127",
+      "name": "Lissandra",
+      "names": {
+        "en": "Lissandra",
+        "fr": "Lissandra",
+        "ko": "리산드라"
+      },
+      "path": "champions/Lissandra.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Lissandra.png",
+      "sha256": "ece7fc0269138d30380dbb0420ccf822e7ca95819d7d911a0e29f7d10cf7445d"
+    },
+    {
+      "id": "Locke",
+      "key": "805",
+      "name": "Locke",
+      "names": {
+        "en": "Locke",
+        "fr": "Locke",
+        "ko": "로크"
+      },
+      "path": "champions/Locke.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Locke.png",
+      "sha256": "f05b0779ef6873f798d42f0bff433d54a7ba761d487ef36dd3de0c32bdf98d28"
+    },
+    {
+      "id": "Lucian",
+      "key": "236",
+      "name": "Lucian",
+      "names": {
+        "en": "Lucian",
+        "fr": "Lucian",
+        "ko": "루시안"
+      },
+      "path": "champions/Lucian.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Lucian.png",
+      "sha256": "75e3de3e43f732f815293472167e0022118a0be55a627f10794bc8043e2602cb"
+    },
+    {
+      "id": "Lulu",
+      "key": "117",
+      "name": "Lulu",
+      "names": {
+        "en": "Lulu",
+        "fr": "Lulu",
+        "ko": "룰루"
+      },
+      "path": "champions/Lulu.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Lulu.png",
+      "sha256": "ca22c4a042d66085ef7794c8b351b57880739be454aa4128fbdd7506c02d1a50"
+    },
+    {
+      "id": "Lux",
+      "key": "99",
+      "name": "Lux",
+      "names": {
+        "en": "Lux",
+        "fr": "Lux",
+        "ko": "럭스"
+      },
+      "path": "champions/Lux.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Lux.png",
+      "sha256": "64639bea2aa7d622dd07287de7a7820950e567f0993c7dcc422e1e699fd743fd"
+    },
+    {
+      "id": "Malphite",
+      "key": "54",
+      "name": "Malphite",
+      "names": {
+        "en": "Malphite",
+        "fr": "Malphite",
+        "ko": "말파이트"
+      },
+      "path": "champions/Malphite.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Malphite.png",
+      "sha256": "233005b989ae25fc6e5e22d1325291bce2d64e49767ebb83413c0f91e1b157c6"
+    },
+    {
+      "id": "Malzahar",
+      "key": "90",
+      "name": "Malzahar",
+      "names": {
+        "en": "Malzahar",
+        "fr": "Malzahar",
+        "ko": "말자하"
+      },
+      "path": "champions/Malzahar.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Malzahar.png",
+      "sha256": "c0f9eb031b22805d1bbed0cd0ee2a7f148541076c1655271665325e2dbf06911"
+    },
+    {
+      "id": "Maokai",
+      "key": "57",
+      "name": "Maokai",
+      "names": {
+        "en": "Maokai",
+        "fr": "Maokai",
+        "ko": "마오카이"
+      },
+      "path": "champions/Maokai.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Maokai.png",
+      "sha256": "7e68c320efa332ba9126c6d2d6ccd3a51939d7d1f2b31785fbec8594a0e6f6b3"
+    },
+    {
+      "id": "MasterYi",
+      "key": "11",
+      "name": "Master Yi",
+      "names": {
+        "en": "Master Yi",
+        "fr": "Maître Yi",
+        "ko": "마스터 이"
+      },
+      "path": "champions/MasterYi.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/MasterYi.png",
+      "sha256": "1c23534926a7956a260591fb3cee8f38cb6de3d9d4f064fe93fb88c8f76b1b66"
+    },
+    {
+      "id": "Mel",
+      "key": "800",
+      "name": "Mel",
+      "names": {
+        "en": "Mel",
+        "fr": "Mel",
+        "ko": "멜"
+      },
+      "path": "champions/Mel.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Mel.png",
+      "sha256": "e464fe1e53f45f3c603cdf1bab1cd182ce6a429840e008d30ed41411d4a68ea0"
+    },
+    {
+      "id": "Milio",
+      "key": "902",
+      "name": "Milio",
+      "names": {
+        "en": "Milio",
+        "fr": "Milio",
+        "ko": "밀리오"
+      },
+      "path": "champions/Milio.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Milio.png",
+      "sha256": "86517cc10c6c5670dcd6821a2e5c7bbb9e16aac597cda5d04578933bd5861343"
+    },
+    {
+      "id": "MissFortune",
+      "key": "21",
+      "name": "Miss Fortune",
+      "names": {
+        "en": "Miss Fortune",
+        "fr": "Miss Fortune",
+        "ko": "미스 포츈"
+      },
+      "path": "champions/MissFortune.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/MissFortune.png",
+      "sha256": "a8c3048bfb76b4e8b34e00193ed2febe69669918055ffda835ddb24905588733"
+    },
+    {
+      "id": "Mordekaiser",
+      "key": "82",
+      "name": "Mordekaiser",
+      "names": {
+        "en": "Mordekaiser",
+        "fr": "Mordekaiser",
+        "ko": "모데카이저"
+      },
+      "path": "champions/Mordekaiser.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Mordekaiser.png",
+      "sha256": "3d3521dedf02d446ae2a506b8b5395a9fba690567dbf6be3cf4523e8c439d9b8"
+    },
+    {
+      "id": "Morgana",
+      "key": "25",
+      "name": "Morgana",
+      "names": {
+        "en": "Morgana",
+        "fr": "Morgana",
+        "ko": "모르가나"
+      },
+      "path": "champions/Morgana.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Morgana.png",
+      "sha256": "bd170027904c2e5a354e53dca0f5d50516a4f3d60a4fbb0c286c9eb32d8d8954"
+    },
+    {
+      "id": "Naafiri",
+      "key": "950",
+      "name": "Naafiri",
+      "names": {
+        "en": "Naafiri",
+        "fr": "Naafiri",
+        "ko": "나피리"
+      },
+      "path": "champions/Naafiri.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Naafiri.png",
+      "sha256": "75a82287766d7bc333305390675eb5bd3a0b7522d0a69a46543e7bdc301a4ed7"
+    },
+    {
+      "id": "Nami",
+      "key": "267",
+      "name": "Nami",
+      "names": {
+        "en": "Nami",
+        "fr": "Nami",
+        "ko": "나미"
+      },
+      "path": "champions/Nami.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Nami.png",
+      "sha256": "f43e652c61cd4998274e966a1e91e00fb3d51cc6202f7e53a5f2c7da160ddd23"
+    },
+    {
+      "id": "Nasus",
+      "key": "75",
+      "name": "Nasus",
+      "names": {
+        "en": "Nasus",
+        "fr": "Nasus",
+        "ko": "나서스"
+      },
+      "path": "champions/Nasus.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Nasus.png",
+      "sha256": "80b838812e5f14b1e37900d1c14c54835b535d5bd36af6ace19fd23344989be3"
+    },
+    {
+      "id": "Nautilus",
+      "key": "111",
+      "name": "Nautilus",
+      "names": {
+        "en": "Nautilus",
+        "fr": "Nautilus",
+        "ko": "노틸러스"
+      },
+      "path": "champions/Nautilus.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Nautilus.png",
+      "sha256": "6e8dfa2e6ba3d4564745fe69ace7c796898aa023a2af2727b0be127316712c2c"
+    },
+    {
+      "id": "Neeko",
+      "key": "518",
+      "name": "Neeko",
+      "names": {
+        "en": "Neeko",
+        "fr": "Neeko",
+        "ko": "니코"
+      },
+      "path": "champions/Neeko.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Neeko.png",
+      "sha256": "0fd600e0aeeca36f9245bcbc02ca666a2493b2b68a60ecd298a2ad26c33c8a92"
+    },
+    {
+      "id": "Nidalee",
+      "key": "76",
+      "name": "Nidalee",
+      "names": {
+        "en": "Nidalee",
+        "fr": "Nidalee",
+        "ko": "니달리"
+      },
+      "path": "champions/Nidalee.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Nidalee.png",
+      "sha256": "f6291b72f4ea9ea1fa272f61443bc3580e3f61b870be31c0743824a1c25abf33"
+    },
+    {
+      "id": "Nilah",
+      "key": "895",
+      "name": "Nilah",
+      "names": {
+        "en": "Nilah",
+        "fr": "Nilah",
+        "ko": "닐라"
+      },
+      "path": "champions/Nilah.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Nilah.png",
+      "sha256": "564103bc6f32863242ea0d39fc40eb39c70cf4a1f28297c756f83d44195048b2"
+    },
+    {
+      "id": "Nocturne",
+      "key": "56",
+      "name": "Nocturne",
+      "names": {
+        "en": "Nocturne",
+        "fr": "Nocturne",
+        "ko": "녹턴"
+      },
+      "path": "champions/Nocturne.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Nocturne.png",
+      "sha256": "b9968b3e2bd60257ed23cede9e69b184ef78096bc196d157c1f6eff9b3d900d5"
+    },
+    {
+      "id": "Nunu",
+      "key": "20",
+      "name": "Nunu & Willump",
+      "names": {
+        "en": "Nunu & Willump",
+        "fr": "Nunu et Willump",
+        "ko": "누누와 윌럼프"
+      },
+      "path": "champions/Nunu.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Nunu.png",
+      "sha256": "dab4f686598e93d0d430db32d824a98f34b5a0055331a654c84ea3759fe6ed6a"
+    },
+    {
+      "id": "Olaf",
+      "key": "2",
+      "name": "Olaf",
+      "names": {
+        "en": "Olaf",
+        "fr": "Olaf",
+        "ko": "올라프"
+      },
+      "path": "champions/Olaf.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Olaf.png",
+      "sha256": "17d439590f461a2d4d5bdacd33d4d2c31009ea8f57b46a6a427b0db96f6bd0ab"
+    },
+    {
+      "id": "Orianna",
+      "key": "61",
+      "name": "Orianna",
+      "names": {
+        "en": "Orianna",
+        "fr": "Orianna",
+        "ko": "오리아나"
+      },
+      "path": "champions/Orianna.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Orianna.png",
+      "sha256": "7d70d8bcb2991de3f3512efb565c453a9d470dca78088c05aec3691d22dd7511"
+    },
+    {
+      "id": "Ornn",
+      "key": "516",
+      "name": "Ornn",
+      "names": {
+        "en": "Ornn",
+        "fr": "Ornn",
+        "ko": "오른"
+      },
+      "path": "champions/Ornn.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ornn.png",
+      "sha256": "91374f0919871a6490ac7b8ff9b073efb8b6a797f28302cc3751294c47c58d6e"
+    },
+    {
+      "id": "Pantheon",
+      "key": "80",
+      "name": "Pantheon",
+      "names": {
+        "en": "Pantheon",
+        "fr": "Pantheon",
+        "ko": "판테온"
+      },
+      "path": "champions/Pantheon.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Pantheon.png",
+      "sha256": "0ab8b436d5d7dd0a4163ec105a4977fc77abfd16757d46a9e958242f2d6858c1"
+    },
+    {
+      "id": "Poppy",
+      "key": "78",
+      "name": "Poppy",
+      "names": {
+        "en": "Poppy",
+        "fr": "Poppy",
+        "ko": "뽀삐"
+      },
+      "path": "champions/Poppy.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Poppy.png",
+      "sha256": "c2cdd3a868b4b9ac5f1f3fef5ca77e930f32b0c98a5c3b83bcb099f75a4b6b7c"
+    },
+    {
+      "id": "Pyke",
+      "key": "555",
+      "name": "Pyke",
+      "names": {
+        "en": "Pyke",
+        "fr": "Pyke",
+        "ko": "파이크"
+      },
+      "path": "champions/Pyke.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Pyke.png",
+      "sha256": "384a69fbcbfed183b2ef591923e51cb56d5f55835a4dae2da716f858cd8a7a6f"
+    },
+    {
+      "id": "Qiyana",
+      "key": "246",
+      "name": "Qiyana",
+      "names": {
+        "en": "Qiyana",
+        "fr": "Qiyana",
+        "ko": "키아나"
+      },
+      "path": "champions/Qiyana.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Qiyana.png",
+      "sha256": "b7bc7f2b7b4acd45b994005e87710c779c1c9bb89343e02f1fd1e98533a1f93f"
+    },
+    {
+      "id": "Quinn",
+      "key": "133",
+      "name": "Quinn",
+      "names": {
+        "en": "Quinn",
+        "fr": "Quinn",
+        "ko": "퀸"
+      },
+      "path": "champions/Quinn.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Quinn.png",
+      "sha256": "69ac72c21c771fe80492a7a6316dbe7053c0f20f0bb35ecb59d43f6d916d90e4"
+    },
+    {
+      "id": "Rakan",
+      "key": "497",
+      "name": "Rakan",
+      "names": {
+        "en": "Rakan",
+        "fr": "Rakan",
+        "ko": "라칸"
+      },
+      "path": "champions/Rakan.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Rakan.png",
+      "sha256": "b0252249ed33b226421595e5cf4f7a6b4e4fbe9441140e65cee05f82463f87fd"
+    },
+    {
+      "id": "Rammus",
+      "key": "33",
+      "name": "Rammus",
+      "names": {
+        "en": "Rammus",
+        "fr": "Rammus",
+        "ko": "람머스"
+      },
+      "path": "champions/Rammus.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Rammus.png",
+      "sha256": "911faa8b6e8a2b5e018fa1c5f36617488036782e163faa8029d1475885cef6ab"
+    },
+    {
+      "id": "RekSai",
+      "key": "421",
+      "name": "Rek'Sai",
+      "names": {
+        "en": "Rek'Sai",
+        "fr": "Rek'Sai",
+        "ko": "렉사이"
+      },
+      "path": "champions/RekSai.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/RekSai.png",
+      "sha256": "881fcd45ab0566be11312e358b9fe33f61656bbafe5b0ae4c95e5b3ca9cacfc3"
+    },
+    {
+      "id": "Rell",
+      "key": "526",
+      "name": "Rell",
+      "names": {
+        "en": "Rell",
+        "fr": "Rell",
+        "ko": "렐"
+      },
+      "path": "champions/Rell.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Rell.png",
+      "sha256": "47c0724d3b71c8b4d2ae4eed8d3b793550e1f4ef0e2bf3807696c6bf2ebaa91c"
+    },
+    {
+      "id": "Renata",
+      "key": "888",
+      "name": "Renata Glasc",
+      "names": {
+        "en": "Renata Glasc",
+        "fr": "Renata Glasc",
+        "ko": "레나타 글라스크"
+      },
+      "path": "champions/Renata.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Renata.png",
+      "sha256": "59f70a9f29de3a7740594e7f0a635e2d75f7e32b44c04f1d5b2576e91494baf0"
+    },
+    {
+      "id": "Renekton",
+      "key": "58",
+      "name": "Renekton",
+      "names": {
+        "en": "Renekton",
+        "fr": "Renekton",
+        "ko": "레넥톤"
+      },
+      "path": "champions/Renekton.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Renekton.png",
+      "sha256": "a3b94121970f7649896ef8c695be265d31c617e33ff9c7c86cff56d1e19724fd"
+    },
+    {
+      "id": "Rengar",
+      "key": "107",
+      "name": "Rengar",
+      "names": {
+        "en": "Rengar",
+        "fr": "Rengar",
+        "ko": "렝가"
+      },
+      "path": "champions/Rengar.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Rengar.png",
+      "sha256": "afc37ac7e29cbc58e31e3d127e26a9c1e09f05fcc489adbb512ad6710b63ff5e"
+    },
+    {
+      "id": "Riven",
+      "key": "92",
+      "name": "Riven",
+      "names": {
+        "en": "Riven",
+        "fr": "Riven",
+        "ko": "리븐"
+      },
+      "path": "champions/Riven.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Riven.png",
+      "sha256": "4527ba3804c0b78e0127608708b2a425d1c6eef5f95925c5dcfd707f5fa32139"
+    },
+    {
+      "id": "Rumble",
+      "key": "68",
+      "name": "Rumble",
+      "names": {
+        "en": "Rumble",
+        "fr": "Rumble",
+        "ko": "럼블"
+      },
+      "path": "champions/Rumble.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Rumble.png",
+      "sha256": "e14a39464abbdb4aba3ac5827e8f717ff7ce5b13d9c6a932da3fc13caa783f36"
+    },
+    {
+      "id": "Ryze",
+      "key": "13",
+      "name": "Ryze",
+      "names": {
+        "en": "Ryze",
+        "fr": "Ryze",
+        "ko": "라이즈"
+      },
+      "path": "champions/Ryze.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ryze.png",
+      "sha256": "abb747c8b8402625d4cc6b5b3c48950b192823216532c74f26d4b5ccf8851290"
+    },
+    {
+      "id": "Samira",
+      "key": "360",
+      "name": "Samira",
+      "names": {
+        "en": "Samira",
+        "fr": "Samira",
+        "ko": "사미라"
+      },
+      "path": "champions/Samira.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Samira.png",
+      "sha256": "0a30028f649d72534fddf5c66e713792511dc79cb4ce882b7b7828eeabe35aa7"
+    },
+    {
+      "id": "Sejuani",
+      "key": "113",
+      "name": "Sejuani",
+      "names": {
+        "en": "Sejuani",
+        "fr": "Sejuani",
+        "ko": "세주아니"
+      },
+      "path": "champions/Sejuani.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Sejuani.png",
+      "sha256": "a84f6106746dd2cc0c173e6a995d7310a2ee676c7a22630f041fa1869bc6ef86"
+    },
+    {
+      "id": "Senna",
+      "key": "235",
+      "name": "Senna",
+      "names": {
+        "en": "Senna",
+        "fr": "Senna",
+        "ko": "세나"
+      },
+      "path": "champions/Senna.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Senna.png",
+      "sha256": "9ea2bd78c36f3c9b466a0f6df52154007663bb77cab7c07d87496885f0f86683"
+    },
+    {
+      "id": "Seraphine",
+      "key": "147",
+      "name": "Seraphine",
+      "names": {
+        "en": "Seraphine",
+        "fr": "Séraphine",
+        "ko": "세라핀"
+      },
+      "path": "champions/Seraphine.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Seraphine.png",
+      "sha256": "87bfe49f6595aa4b3b002f9768487d5d410badf25dfbb0f7bb54de11b0d50254"
+    },
+    {
+      "id": "Sett",
+      "key": "875",
+      "name": "Sett",
+      "names": {
+        "en": "Sett",
+        "fr": "Sett",
+        "ko": "세트"
+      },
+      "path": "champions/Sett.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Sett.png",
+      "sha256": "95823a0688664a52d1d46ebb0392c3cc45e26ab7e7a2510292a4f36239d9eea0"
+    },
+    {
+      "id": "Shaco",
+      "key": "35",
+      "name": "Shaco",
+      "names": {
+        "en": "Shaco",
+        "fr": "Shaco",
+        "ko": "샤코"
+      },
+      "path": "champions/Shaco.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Shaco.png",
+      "sha256": "83ad990c0196b9b33c06b6cdf672db2d1ab3025cde131961ba767ddfff9c7a8a"
+    },
+    {
+      "id": "Shen",
+      "key": "98",
+      "name": "Shen",
+      "names": {
+        "en": "Shen",
+        "fr": "Shen",
+        "ko": "쉔"
+      },
+      "path": "champions/Shen.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Shen.png",
+      "sha256": "6570a91fb958ef079805dadd8c7a628da569d9601883b6b24610f0858bda8239"
+    },
+    {
+      "id": "Shyvana",
+      "key": "102",
+      "name": "Shyvana",
+      "names": {
+        "en": "Shyvana",
+        "fr": "Shyvana",
+        "ko": "쉬바나"
+      },
+      "path": "champions/Shyvana.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Shyvana.png",
+      "sha256": "f65317e9ded51d97ea2e53293984b7a5c640242a7099df7fb3de0aad356594b0"
+    },
+    {
+      "id": "Singed",
+      "key": "27",
+      "name": "Singed",
+      "names": {
+        "en": "Singed",
+        "fr": "Singed",
+        "ko": "신지드"
+      },
+      "path": "champions/Singed.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Singed.png",
+      "sha256": "0429cad926e909454d99f3286b091a143780b87f67f867b54ab4ee152bdbec99"
+    },
+    {
+      "id": "Sion",
+      "key": "14",
+      "name": "Sion",
+      "names": {
+        "en": "Sion",
+        "fr": "Sion",
+        "ko": "사이온"
+      },
+      "path": "champions/Sion.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Sion.png",
+      "sha256": "4908e30a48ec3cbdb080de1667833e2d018ea03fb296e9760066a46793adb528"
+    },
+    {
+      "id": "Sivir",
+      "key": "15",
+      "name": "Sivir",
+      "names": {
+        "en": "Sivir",
+        "fr": "Sivir",
+        "ko": "시비르"
+      },
+      "path": "champions/Sivir.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Sivir.png",
+      "sha256": "dd8642cd3fb6df0d85d1837dc94c7128e4292554a93451081a5537d0b888172b"
+    },
+    {
+      "id": "Skarner",
+      "key": "72",
+      "name": "Skarner",
+      "names": {
+        "en": "Skarner",
+        "fr": "Skarner",
+        "ko": "스카너"
+      },
+      "path": "champions/Skarner.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Skarner.png",
+      "sha256": "cefd97204e9634f6d46216b736279b988f5e0f3ce1ca49ed43a519effd6f05c9"
+    },
+    {
+      "id": "Smolder",
+      "key": "901",
+      "name": "Smolder",
+      "names": {
+        "en": "Smolder",
+        "fr": "Smolder",
+        "ko": "스몰더"
+      },
+      "path": "champions/Smolder.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Smolder.png",
+      "sha256": "8a7ffc62f2fe7904aee014201fe75e138b2bf82710d2bc3a6cf34d50d171e076"
+    },
+    {
+      "id": "Sona",
+      "key": "37",
+      "name": "Sona",
+      "names": {
+        "en": "Sona",
+        "fr": "Sona",
+        "ko": "소나"
+      },
+      "path": "champions/Sona.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Sona.png",
+      "sha256": "e77557069fdc32b412190e8218d2df235d89265100758f0fd8a3399e7b585548"
+    },
+    {
+      "id": "Soraka",
+      "key": "16",
+      "name": "Soraka",
+      "names": {
+        "en": "Soraka",
+        "fr": "Soraka",
+        "ko": "소라카"
+      },
+      "path": "champions/Soraka.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Soraka.png",
+      "sha256": "ca2774023350198da7025b950c85be65e3506e2f40947ca4151f0e8df4a8be15"
+    },
+    {
+      "id": "Swain",
+      "key": "50",
+      "name": "Swain",
+      "names": {
+        "en": "Swain",
+        "fr": "Swain",
+        "ko": "스웨인"
+      },
+      "path": "champions/Swain.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Swain.png",
+      "sha256": "9f4550dd903cf19ee587bd0870f630ce90d6f62fac2a2d07fe46bda153db8f9b"
+    },
+    {
+      "id": "Sylas",
+      "key": "517",
+      "name": "Sylas",
+      "names": {
+        "en": "Sylas",
+        "fr": "Sylas",
+        "ko": "사일러스"
+      },
+      "path": "champions/Sylas.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Sylas.png",
+      "sha256": "3e724fcd4fffd0b36ea3dd2a60d7d3ed9aeb20ebc5e2dec2e8019b31c3097647"
+    },
+    {
+      "id": "Syndra",
+      "key": "134",
+      "name": "Syndra",
+      "names": {
+        "en": "Syndra",
+        "fr": "Syndra",
+        "ko": "신드라"
+      },
+      "path": "champions/Syndra.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Syndra.png",
+      "sha256": "51424965682912746a4ac1a66c9c7d4e3d08333aaf8a59b9865725166580f7b3"
+    },
+    {
+      "id": "TahmKench",
+      "key": "223",
+      "name": "Tahm Kench",
+      "names": {
+        "en": "Tahm Kench",
+        "fr": "Tahm Kench",
+        "ko": "탐 켄치"
+      },
+      "path": "champions/TahmKench.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/TahmKench.png",
+      "sha256": "138eaa3abe89c804e7ef287f8d3bf69172be797965df958b259663c3d4389e42"
+    },
+    {
+      "id": "Taliyah",
+      "key": "163",
+      "name": "Taliyah",
+      "names": {
+        "en": "Taliyah",
+        "fr": "Taliyah",
+        "ko": "탈리야"
+      },
+      "path": "champions/Taliyah.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Taliyah.png",
+      "sha256": "436958c1d99411e473c7065bd969cec65ebdf61702d5b266db7e0720a3937c85"
+    },
+    {
+      "id": "Talon",
+      "key": "91",
+      "name": "Talon",
+      "names": {
+        "en": "Talon",
+        "fr": "Talon",
+        "ko": "탈론"
+      },
+      "path": "champions/Talon.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Talon.png",
+      "sha256": "fc05e5ae6e6d4705a9db3a842fdbce11f429bf333b278f8183caef1d669919d9"
+    },
+    {
+      "id": "Taric",
+      "key": "44",
+      "name": "Taric",
+      "names": {
+        "en": "Taric",
+        "fr": "Taric",
+        "ko": "타릭"
+      },
+      "path": "champions/Taric.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Taric.png",
+      "sha256": "3a91b21a88d562717fb78ada18c95a0b7a077e0c3b941d34829ba5e4d7eceaed"
+    },
+    {
+      "id": "Teemo",
+      "key": "17",
+      "name": "Teemo",
+      "names": {
+        "en": "Teemo",
+        "fr": "Teemo",
+        "ko": "티모"
+      },
+      "path": "champions/Teemo.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Teemo.png",
+      "sha256": "bbf4b7238b1f62dc02b39208db764588d18a712a7ea96205f5932730c08a62ee"
+    },
+    {
+      "id": "Thresh",
+      "key": "412",
+      "name": "Thresh",
+      "names": {
+        "en": "Thresh",
+        "fr": "Thresh",
+        "ko": "쓰레쉬"
+      },
+      "path": "champions/Thresh.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Thresh.png",
+      "sha256": "27f9bfc32eb28d9e17e42e29f8d555c91110e040991d56577f433ddc9eca6c7e"
+    },
+    {
+      "id": "Tristana",
+      "key": "18",
+      "name": "Tristana",
+      "names": {
+        "en": "Tristana",
+        "fr": "Tristana",
+        "ko": "트리스타나"
+      },
+      "path": "champions/Tristana.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Tristana.png",
+      "sha256": "9f46e6dd9d49bf8fd2c6dc7397fa4badb35bf0f355334301782c7f9e13f00aa5"
+    },
+    {
+      "id": "Trundle",
+      "key": "48",
+      "name": "Trundle",
+      "names": {
+        "en": "Trundle",
+        "fr": "Trundle",
+        "ko": "트런들"
+      },
+      "path": "champions/Trundle.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Trundle.png",
+      "sha256": "e77d99af3ac328a80a247fafec728df7be4eda7200300a597b38f093fffe234e"
+    },
+    {
+      "id": "Tryndamere",
+      "key": "23",
+      "name": "Tryndamere",
+      "names": {
+        "en": "Tryndamere",
+        "fr": "Tryndamere",
+        "ko": "트린다미어"
+      },
+      "path": "champions/Tryndamere.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Tryndamere.png",
+      "sha256": "e715ed3a7eb5f3a0dcfb6da2a9c8ae05d9c197ef514f959d5a94bff38d4dff48"
+    },
+    {
+      "id": "TwistedFate",
+      "key": "4",
+      "name": "Twisted Fate",
+      "names": {
+        "en": "Twisted Fate",
+        "fr": "Twisted Fate",
+        "ko": "트위스티드 페이트"
+      },
+      "path": "champions/TwistedFate.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/TwistedFate.png",
+      "sha256": "5f5944763b0d7c8fc68edad413a908799e2cfcae8a850a6ff746a16afc553670"
+    },
+    {
+      "id": "Twitch",
+      "key": "29",
+      "name": "Twitch",
+      "names": {
+        "en": "Twitch",
+        "fr": "Twitch",
+        "ko": "트위치"
+      },
+      "path": "champions/Twitch.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Twitch.png",
+      "sha256": "823c7394b6cdc9fcc0b70f0e71578d8fbe1f06533e1010aa7785ebae4d1209ad"
+    },
+    {
+      "id": "Udyr",
+      "key": "77",
+      "name": "Udyr",
+      "names": {
+        "en": "Udyr",
+        "fr": "Udyr",
+        "ko": "우디르"
+      },
+      "path": "champions/Udyr.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Udyr.png",
+      "sha256": "5fa439ae56b9b7a7bdc2ee35661caf8080c19bf2ef5fc0b87ad0315271ac9b93"
+    },
+    {
+      "id": "Urgot",
+      "key": "6",
+      "name": "Urgot",
+      "names": {
+        "en": "Urgot",
+        "fr": "Urgot",
+        "ko": "우르곳"
+      },
+      "path": "champions/Urgot.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Urgot.png",
+      "sha256": "35d3f774ca9b1430aa32fcacb9add8daa7cecb51411985a178e0d72d5571ec3d"
+    },
+    {
+      "id": "Varus",
+      "key": "110",
+      "name": "Varus",
+      "names": {
+        "en": "Varus",
+        "fr": "Varus",
+        "ko": "바루스"
+      },
+      "path": "champions/Varus.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Varus.png",
+      "sha256": "1a300d007f9a3bc76342534a16cdf025ac111e733f69667bb4f065869a5ae9f4"
+    },
+    {
+      "id": "Vayne",
+      "key": "67",
+      "name": "Vayne",
+      "names": {
+        "en": "Vayne",
+        "fr": "Vayne",
+        "ko": "베인"
+      },
+      "path": "champions/Vayne.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Vayne.png",
+      "sha256": "d9ea091b8d2eddbf7d08001866d7a0798f2649a7067c61dce15ac92fbc3cb723"
+    },
+    {
+      "id": "Veigar",
+      "key": "45",
+      "name": "Veigar",
+      "names": {
+        "en": "Veigar",
+        "fr": "Veigar",
+        "ko": "베이가"
+      },
+      "path": "champions/Veigar.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Veigar.png",
+      "sha256": "ace2c32c06d8a96b4de943228b01812f220adf3a4dfaa396e922f7c696221024"
+    },
+    {
+      "id": "Velkoz",
+      "key": "161",
+      "name": "Vel'Koz",
+      "names": {
+        "en": "Vel'Koz",
+        "fr": "Vel'Koz",
+        "ko": "벨코즈"
+      },
+      "path": "champions/Velkoz.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Velkoz.png",
+      "sha256": "263e174bec40da4a00656390621f4bb7e81677c39527ed98ad63ed12c52308ee"
+    },
+    {
+      "id": "Vex",
+      "key": "711",
+      "name": "Vex",
+      "names": {
+        "en": "Vex",
+        "fr": "Vex",
+        "ko": "벡스"
+      },
+      "path": "champions/Vex.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Vex.png",
+      "sha256": "aaa93d7fab2d5d469778128ccdbe59bde00e601da065d17e3ae7bce4fe53c758"
+    },
+    {
+      "id": "Vi",
+      "key": "254",
+      "name": "Vi",
+      "names": {
+        "en": "Vi",
+        "fr": "Vi",
+        "ko": "바이"
+      },
+      "path": "champions/Vi.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Vi.png",
+      "sha256": "282bd7a3e6a3bdd309f90eebf03b1fb7009a5357e6f53e158dd8c7df8103b4ab"
+    },
+    {
+      "id": "Viego",
+      "key": "234",
+      "name": "Viego",
+      "names": {
+        "en": "Viego",
+        "fr": "Viego",
+        "ko": "비에고"
+      },
+      "path": "champions/Viego.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Viego.png",
+      "sha256": "582fda91453e711bf45146e75ae7b0db0a2aa148499cffd4919050a1b96e9316"
+    },
+    {
+      "id": "Viktor",
+      "key": "112",
+      "name": "Viktor",
+      "names": {
+        "en": "Viktor",
+        "fr": "Viktor",
+        "ko": "빅토르"
+      },
+      "path": "champions/Viktor.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Viktor.png",
+      "sha256": "caf7df593c7713892aac575d1031e9693066c57b86c25ff19542f4ca98c2159a"
+    },
+    {
+      "id": "Vladimir",
+      "key": "8",
+      "name": "Vladimir",
+      "names": {
+        "en": "Vladimir",
+        "fr": "Vladimir",
+        "ko": "블라디미르"
+      },
+      "path": "champions/Vladimir.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Vladimir.png",
+      "sha256": "eebcd73ab4ba404c4c5b45b7665e5f31399515402b36d9ff8953bb02d4d4c0b3"
+    },
+    {
+      "id": "Volibear",
+      "key": "106",
+      "name": "Volibear",
+      "names": {
+        "en": "Volibear",
+        "fr": "Volibear",
+        "ko": "볼리베어"
+      },
+      "path": "champions/Volibear.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Volibear.png",
+      "sha256": "36ab730707d6835a6a6fefe216ae3d8bf9d416970fc3223c857f109f404ee5ab"
+    },
+    {
+      "id": "Warwick",
+      "key": "19",
+      "name": "Warwick",
+      "names": {
+        "en": "Warwick",
+        "fr": "Warwick",
+        "ko": "워윅"
+      },
+      "path": "champions/Warwick.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Warwick.png",
+      "sha256": "f5df0cb82ea9fba63308254d04d68307c09d1b17b1a28426d1550da39d9c79b8"
+    },
+    {
+      "id": "MonkeyKing",
+      "key": "62",
+      "name": "Wukong",
+      "names": {
+        "en": "Wukong",
+        "fr": "Wukong",
+        "ko": "오공"
+      },
+      "path": "champions/MonkeyKing.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/MonkeyKing.png",
+      "sha256": "2264db1ffde08659aee3380c8ac5643771d872d95a9c9090951d7f2849e61353"
+    },
+    {
+      "id": "Xayah",
+      "key": "498",
+      "name": "Xayah",
+      "names": {
+        "en": "Xayah",
+        "fr": "Xayah",
+        "ko": "자야"
+      },
+      "path": "champions/Xayah.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Xayah.png",
+      "sha256": "4ecd1e37697ebc5ee54ca05f1914101ee49be334798287bb8a432f8dd42a5b3d"
+    },
+    {
+      "id": "Xerath",
+      "key": "101",
+      "name": "Xerath",
+      "names": {
+        "en": "Xerath",
+        "fr": "Xerath",
+        "ko": "제라스"
+      },
+      "path": "champions/Xerath.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Xerath.png",
+      "sha256": "b204c7007dfe3dd7203c36a65ac6798f39fd96ba10ab981fa82e488aa170ed38"
+    },
+    {
+      "id": "XinZhao",
+      "key": "5",
+      "name": "Xin Zhao",
+      "names": {
+        "en": "Xin Zhao",
+        "fr": "Xin Zhao",
+        "ko": "신 짜오"
+      },
+      "path": "champions/XinZhao.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/XinZhao.png",
+      "sha256": "f70e9570c60a33328b4e0c0437bcb33cc2320056ba0724e0279e553436da5667"
+    },
+    {
+      "id": "Yasuo",
+      "key": "157",
+      "name": "Yasuo",
+      "names": {
+        "en": "Yasuo",
+        "fr": "Yasuo",
+        "ko": "야스오"
+      },
+      "path": "champions/Yasuo.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Yasuo.png",
+      "sha256": "25a7597bfbd3198740b56d369734542f9e7b2100645d9f1199d969c7e1538ffb"
+    },
+    {
+      "id": "Yone",
+      "key": "777",
+      "name": "Yone",
+      "names": {
+        "en": "Yone",
+        "fr": "Yone",
+        "ko": "요네"
+      },
+      "path": "champions/Yone.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Yone.png",
+      "sha256": "cc02f91c39f7336562fb8fa5792eeaeeb1540517a54e7713f7c70732add51c6d"
+    },
+    {
+      "id": "Yorick",
+      "key": "83",
+      "name": "Yorick",
+      "names": {
+        "en": "Yorick",
+        "fr": "Yorick",
+        "ko": "요릭"
+      },
+      "path": "champions/Yorick.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Yorick.png",
+      "sha256": "151b64e886222db394d6397734f5297862ddc4216fcc1db4a6ad5d33d5dc241a"
+    },
+    {
+      "id": "Yunara",
+      "key": "804",
+      "name": "Yunara",
+      "names": {
+        "en": "Yunara",
+        "fr": "Yunara",
+        "ko": "유나라"
+      },
+      "path": "champions/Yunara.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Yunara.png",
+      "sha256": "1502b9641f838af84749a8b10db447942fa8f1661c1fc9c3d43330489427a9d5"
+    },
+    {
+      "id": "Yuumi",
+      "key": "350",
+      "name": "Yuumi",
+      "names": {
+        "en": "Yuumi",
+        "fr": "Yuumi",
+        "ko": "유미"
+      },
+      "path": "champions/Yuumi.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Yuumi.png",
+      "sha256": "63283c06c2b3a4873a83cb9d00b2ee5892f7bcd7cd009fd8b6ff893f92138b9e"
+    },
+    {
+      "id": "Zaahen",
+      "key": "904",
+      "name": "Zaahen",
+      "names": {
+        "en": "Zaahen",
+        "fr": "Zaahen",
+        "ko": "자헨"
+      },
+      "path": "champions/Zaahen.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Zaahen.png",
+      "sha256": "2028854176d35cf2f1f926044f071bcd0b7cc8eed839590296e64852bedd35d4"
+    },
+    {
+      "id": "Zac",
+      "key": "154",
+      "name": "Zac",
+      "names": {
+        "en": "Zac",
+        "fr": "Zac",
+        "ko": "자크"
+      },
+      "path": "champions/Zac.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Zac.png",
+      "sha256": "be2426155e937aa048cd22cab2342dd7ecbc591a90c5417d0bd3759ab5876aa6"
+    },
+    {
+      "id": "Zed",
+      "key": "238",
+      "name": "Zed",
+      "names": {
+        "en": "Zed",
+        "fr": "Zed",
+        "ko": "제드"
+      },
+      "path": "champions/Zed.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Zed.png",
+      "sha256": "3ad3e956e9ad5ca3127d8f685faf69d4251fb726e9b4f0be989764f0027e9c5f"
+    },
+    {
+      "id": "Zeri",
+      "key": "221",
+      "name": "Zeri",
+      "names": {
+        "en": "Zeri",
+        "fr": "Zeri",
+        "ko": "제리"
+      },
+      "path": "champions/Zeri.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Zeri.png",
+      "sha256": "5fc4e7ed3b8184495375ea0b8e35a625521cddc7d17d1d6e30e13b683b36100c"
+    },
+    {
+      "id": "Ziggs",
+      "key": "115",
+      "name": "Ziggs",
+      "names": {
+        "en": "Ziggs",
+        "fr": "Ziggs",
+        "ko": "직스"
+      },
+      "path": "champions/Ziggs.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ziggs.png",
+      "sha256": "cc3ea57671db30642002b5c36c0a6c851aacb7b2d6a5af10069f9f00b00775a9"
+    },
+    {
+      "id": "Zilean",
+      "key": "26",
+      "name": "Zilean",
+      "names": {
+        "en": "Zilean",
+        "fr": "Zilean",
+        "ko": "질리언"
+      },
+      "path": "champions/Zilean.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Zilean.png",
+      "sha256": "07c45f7285e5d741f17ebdc07889971c46c67f09846fdb9a3f0f0123aedd8850"
+    },
+    {
+      "id": "Zoe",
+      "key": "142",
+      "name": "Zoe",
+      "names": {
+        "en": "Zoe",
+        "fr": "Zoé",
+        "ko": "조이"
+      },
+      "path": "champions/Zoe.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Zoe.png",
+      "sha256": "2413cb98c5f863b8570a012e1927e4908ee78be0f7619ab3ce471e8c7da56bb2"
+    },
+    {
+      "id": "Zyra",
+      "key": "143",
+      "name": "Zyra",
+      "names": {
+        "en": "Zyra",
+        "fr": "Zyra",
+        "ko": "자이라"
+      },
+      "path": "champions/Zyra.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Zyra.png",
+      "sha256": "9993a6caf52f955ad41077e56b56f2472c07c1a589fb4d1c66097ddf775feda4"
+    }
+  ],
+  "games": [
+    {
+      "game": "League of Legends",
+      "path": "league.svg",
+      "source": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d3b7bd9decb1e1672dcb80be4f8bc1aa05490dc1-110x70.svg?accountingTag=LoL",
+      "sha256": "ef05825d9d8fe46ee7aeb70be1dc15ecb0925eb47e22d2dcf19049d9c9cb216b"
+    },
+    {
+      "game": "VALORANT",
+      "path": "valorant.png",
+      "source": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cbf4460132cdfeb2a97fad5f9dd25ba0bc058f76-128x128.png?accountingTag=VAL",
+      "sha256": "d947a1f3afddaa19a0405cd900ec63efeb813dea4993f30a2153fed4dbc5e364"
+    }
+  ]
+}

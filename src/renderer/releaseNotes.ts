@@ -2,27 +2,33 @@
  * Update this content as part of preparing a release, before changing its version.
  */
 export const releaseNotes = {
-  summary: 'Peaks now speaks your language, with a changelog after each update and a steadier Discord activity timer.',
+  summary: 'A redesigned account picker, unified Riot profiles and clearer live matches, in English, French and Korean.',
   added: [
-    'English, French and Korean throughout Peaks.',
-    'Language selection on the welcome screen, lock screen and in Settings.',
-    'A changelog after updates, available again from Settings.',
+    'Personalize accounts with nicknames and VALORANT agent or League champion icons.',
+    'Choose English, French or Korean during onboarding, on the lock screen or in Settings.',
+    'Read the changelog after each update or reopen it from Settings.',
   ],
   fixed: [
     'Discord activity keeps its elapsed time when match statistics change.',
-    'The Settings button is centered in the sidebar.',
-    'Incorrect passcodes show a clear, simple message.',
+    'Refresh Riot sign-in now opens a fresh sign-in instead of reusing the saved session.',
+    'Account nicknames and chosen icons survive Riot session renewal.',
+    'Account hover transitions are smooth, and Settings is centered in the sidebar.',
   ],
   changed: [
-    'Peaks starts in your device language when supported, with English as the fallback.',
-    'Match cards, statistics, tags and shared images follow your chosen language.',
+    'Accounts focus on selection, with compact editing and animated sign-in feedback.',
+    'Profiles bring Riot games together, with neutral profile and current-match headers.',
+    'VALORANT rosters adapt to the window to keep all ten agents visible, with team-colored scores.',
+    'Peaks uses your device language by default, falling back to English.',
+    'Updated dependencies and stricter filtering of technical diagnostics.',
   ],
-  removed: [],
-} satisfies {summary: string; added: string[]; fixed: string[]; changed: string[]; removed: string[]}
+  removed: ['Account summary tiles and redundant live-match labels.'],
+  knownIssues: ['Enabling MFA directly from Peaks is not yet functional. Configure MFA through your Riot account for now.'],
+} satisfies {summary: string; added: string[]; fixed: string[]; changed: string[]; removed: string[]; knownIssues: string[]}
 
 export const releaseNoteSections = [
   {key: 'added', label: 'New features'},
   {key: 'fixed', label: 'Bug fixes'},
   {key: 'changed', label: 'Changes'},
   {key: 'removed', label: 'Removed'},
+  {key: 'knownIssues', label: 'Known issues'},
 ] as const

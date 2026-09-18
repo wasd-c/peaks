@@ -369,6 +369,10 @@ body:has(.reduce-motion) [role='dialog'] .pmc-stat-skeleton.astryx-skeleton {
   letter-spacing: var(--peaks-tracking-heading);
 }
 
+.pmc-score--ally { color: color-mix(in srgb, var(--peaks-team-ally) 45%, var(--color-on-dark)); }
+.pmc-score--enemy { color: color-mix(in srgb, var(--peaks-team-enemy) 45%, var(--color-on-dark)); }
+.pmc-score--neutral { color: var(--color-text-primary); }
+
 .pmc-match-toolbar {
   min-width: 0;
 }

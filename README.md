@@ -94,10 +94,11 @@ owned-player identity, and a recent file timestamp. Older or unrelated reports
 cannot supply current HP. No additional API key is needed.
 
 **Share app diagnostics** in Settings is optional and starts off. When enabled,
-Peaks sends limited app version, platform, performance and error-count events to
-the project's OpenObserve service. It sends no account or match data, raw error
-messages, credentials, or persistent device identifier. Technical details and
-the server's strict ingestion schema are in [the telemetry deployment guide](deploy/telemetry/README.md).
+Peaks sends a small, sampled set of app version, platform, operation outcomes and
+timing events to the project's diagnostics service. It sends no account or match
+data, raw error messages, credentials, or persistent device identifier. Collected
+fields, consent and delivery limits are documented in
+[Diagnostics and privacy](docs/telemetry.md).
 
 For an explicitly requested diagnostic recording, `scripts/record_tft_events.py`
 can follow the standalone TFT client's logs, local session changes, and periodic
@@ -131,17 +132,23 @@ change MFA, and it does not extract a TOTP secret. MFA enrollment is a separate
 action described below and is never part of Add account or Save reusable Riot
 session.
 
-**Set up Riot authenticator** is an explicit, two-step action for an already
-verified owned account. It first opens the temporary Riot browser, reads the
-fixed account-identity and MFA-factor endpoints, and requires the browser
-PUUID and canonical Riot ID to match both the selected account and a separately
-minted SSO identity. This preparation step is read-only. It requires email MFA
+**Known issue (0.4.0): enabling MFA directly from Peaks is not yet functional.**
+Configure MFA at [your Riot account](https://account.riotgames.com/) for now.
+
+The **Enable MFA** integration, in the account's sign-in **More** menu, is still
+in progress. It uses the saved Riot session. Peaks exchanges that
+session through Riot's fixed account OAuth flow without opening a browser. It
+checks the account's PUUID and canonical Riot ID against both the selected
+account and a separately minted SSO identity. This preparation is read-only.
+Expired sessions or additional Riot verification stop with an in-app message;
+Peaks does not open a browser automatically. The operation requires email MFA
 to be enabled and refuses to continue when Riot Mobile authentication is
 already enabled or Peaks already has a seed, so it cannot silently rotate an
 existing factor.
 
-Only after the user reviews the account and presses **Enable and save** does
-Peaks call Riot's fixed Riot Mobile enable endpoint. A valid returned seed is
+The **Enable MFA** click authorizes the security change for that account.
+After the identity and factor checks, Peaks calls Riot's fixed Riot Mobile
+enable endpoint. A valid returned seed is
 normalized and written immediately to that account's typed entry in the
 encrypted vault before Peaks submits a generated code to Riot's verification
 endpoint. Account-site cookies, CSRF values, and the short-lived access token
@@ -299,7 +306,7 @@ selection is available before unlocking and does not change vault settings.
 
 Before preparing an authorized release, update `src/renderer/releaseNotes.ts`
 and its translations alongside the version. Notes are bundled with that build,
-work offline, and display in summary/added/fixed/changed/removed order. In a
+work offline, and display in summary/added/fixed/changed/removed/known-issues order. In a
 browser-only development preview, `?firstRun=1` shows onboarding and
 `?changelogPreview=1` shows the update modal after unlocking. Development and
 demo runs never acknowledge the installed app's pending changelog.

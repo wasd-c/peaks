@@ -8,6 +8,7 @@ const AUTO_LOCK_PAUSED_COMMANDS = new Set([
   'add_account',
   'change_pin',
   'confirm_totp_setup',
+  'enable_riot_mfa',
   'connect_riot_client',
   'connect_riot_qr_image',
   'import_session',

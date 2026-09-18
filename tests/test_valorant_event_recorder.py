@@ -69,7 +69,12 @@ def test_presence_only_projects_own_valorant_record():
     result = redactor.presence({"presences": [row("other-id", 19), row("self-id", 9)]})
     assert result["self"]["partyOwnerMatchScoreAllyTeam"] == 9
     assert "PrivateName" not in json.dumps(result)
-    assert "19" not in json.dumps(result)
+    # Random aliases can contain the digits "19"; compare the projected record
+    # instead of searching serialized text for another player's numeric score.
+    assert result == {
+        "count": 2,
+        "self": redactor.project({"partyOwnerMatchScoreAllyTeam": 9, "gameName": "PrivateName"}),
+    }
 
 
 def test_log_signals_never_save_whole_line():

@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from peaks.adapters.riot.redaction import redact_player
+from peaks.domain.regions import normalize_valorant_region
 
 if TYPE_CHECKING:
     from peaks.adapters.riot.valorant import (
@@ -1251,6 +1252,12 @@ class CurrentGameService:
             return None
 
         snapshot = self._valorant_snapshot_view(level, rank, matches)
+        routing = getattr(self, "_valorant_enrichment_key", None)
+        if routing and routing[0] == puuid:
+            route = re.fullmatch(r"https://pd\.([a-z0-9-]+)\.a\.pvp\.net/?", routing[1])
+            region = normalize_valorant_region(route.group(1)) if route else None
+            if region:
+                snapshot["valorantRegion"] = region
         LOGGER.info(
             "current_game.owned_snapshot.complete level_available=%s rank_count=%s match_count=%s",
             level is not None, len(snapshot["ranks"]), len(snapshot["matches"]),

@@ -42,11 +42,14 @@ from yaml.events import (  # type: ignore[import-untyped]
     SequenceEndEvent,
 )
 
+from peaks.domain.regions import normalize_league_region, normalize_valorant_region
+
 LOGGER = logging.getLogger(__name__)
 
 RIOT_AUTHORIZATION_URL = "https://auth.riotgames.com/api/v1/authorization"
 RIOT_USERINFO_URL = "https://auth.riotgames.com/userinfo"
 RIOT_TOKEN_URL = "https://auth.riotgames.com/token"
+RIOT_VALORANT_REGION_URL = "https://riot-geo.pas.si.riotgames.com/pas/v1/product/valorant"
 RIOT_CLIENT_SETTINGS_NAME = "RiotGamesPrivateSettings.yaml"
 RIOT_CLIENT_SETTINGS_RELATIVE_PATH = Path(
     "Riot Games", "Riot Client", "Data", RIOT_CLIENT_SETTINGS_NAME
@@ -123,8 +126,12 @@ class AuthenticatedRiotIdentity:
     puuid: str = field(repr=False)
     game_name: str | None = field(default=None, repr=False)
     tag_line: str | None = field(default=None, repr=False)
+    league_region: str | None = None
+    valorant_region: str | None = None
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "league_region", normalize_league_region(self.league_region))
+        object.__setattr__(self, "valorant_region", normalize_valorant_region(self.valorant_region))
         object.__setattr__(
             self, "puuid", _validate_opaque(self.puuid, "PUUID", max_length=MAX_PUUID_LENGTH)
         )
@@ -395,6 +402,8 @@ class RiotSessionImporter:
         self.max_response_bytes = int(max_response_bytes)
         self._yaml_loader = yaml_loader
         self._logger = logger or LOGGER
+        # One authorization only; ID and geo tokens never leave this adapter.
+        self._region_authorization: tuple[bytes, str] | None = None
 
     @property
     def supported(self) -> bool:
@@ -603,11 +612,15 @@ class RiotSessionImporter:
     ) -> RefreshedRiotAuthorization:
         uri, refreshed_cookies = self._request_authorization(cookies, _AUTHORIZATION_BODY)
         token = self._token_from_uri(uri)
+        if isinstance(uri, str):
+            values = parse_qs(urlsplit(uri).fragment).get("id_token", [])
+            self._remember_region_authorization(token, values[0] if len(values) == 1 else None)
         return RefreshedRiotAuthorization(token, refreshed_cookies)
 
     def _request_authorization(
         self, cookies: Mapping[str, str], authorization_body: Mapping[str, str]
     ) -> tuple[object, dict[str, str]]:
+        self._region_authorization = None
         if not isinstance(cookies, Mapping) or "ssid" not in cookies:
             raise SessionSettingsError("Riot session cookies are incomplete")
         headers = {
@@ -711,6 +724,7 @@ class RiotSessionImporter:
         self, form: Mapping[str, str], cookies: Mapping[str, str],
         *, previous_refresh_token: str | None = None,
     ) -> RefreshedRiotAuthorization:
+        self._region_authorization = None
         try:
             response = self._session.request(
                 "POST", RIOT_TOKEN_URL,
@@ -748,6 +762,7 @@ class RiotSessionImporter:
         if refresh_token is not None and not isinstance(refresh_token, str):
             raise SessionAuthorizationError("Riot returned an invalid refresh token")
         result = RefreshedRiotAuthorization(token, {**cookies, **updates}, refresh_token)
+        self._remember_region_authorization(result.access_token, payload.get("id_token"))
         self._logger.info(
             "riot_session.token.complete refresh_token_issued=%s grant=%s",
             bool(refresh_token), "refresh_token" if previous_refresh_token else "authorization_code",
@@ -827,6 +842,57 @@ class RiotSessionImporter:
 
         return self.refresh_authorization(cookies).access_token
 
+    def _remember_region_authorization(self, access_token: str, id_token: object) -> None:
+        self._region_authorization = None
+        if (
+            isinstance(id_token, str) and 0 < len(id_token) <= MAX_REFRESH_TOKEN_LENGTH
+            and _ACCESS_TOKEN_RE.fullmatch(id_token)
+        ):
+            self._region_authorization = (hashlib.sha256(access_token.encode()).digest(), id_token)
+
+    def _fetch_valorant_region(self, access_token: str, puuid: str) -> str | None:
+        authorization, self._region_authorization = self._region_authorization, None
+        if authorization is None or not hmac.compare_digest(
+            authorization[0], hashlib.sha256(access_token.encode()).digest(),
+        ):
+            return None
+        id_token = authorization[1]
+        try:
+            # This claim is only a consistency check. Identity comes from the
+            # authenticated userinfo response; Riot verifies the token pair.
+            parts = id_token.split(".")
+            if len(parts) != 3:
+                return None
+            claims = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)))
+            if not isinstance(claims, dict) or claims.get("sub") != puuid:
+                return None
+            clear = getattr(getattr(self._session, "cookies", None), "clear", None)
+            if callable(clear):
+                clear()
+            response = self._session.request(
+                "PUT", RIOT_VALORANT_REGION_URL,
+                headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+                json={"id_token": id_token}, timeout=min(self.timeout, 5.0),
+                allow_redirects=False, verify=True, stream=True,
+            )
+            status = getattr(response, "status_code", 0)
+            body = self._read_response_body(response)
+            if status != 200:
+                self._logger.info(
+                    "riot_session.region.unavailable game=valorant status=%s",
+                    status if isinstance(status, int) else 0,
+                )
+                return None
+            payload = json.loads(body)
+            affinities = payload.get("affinities") if isinstance(payload, dict) else None
+            return normalize_valorant_region(affinities.get("live")) if isinstance(affinities, dict) else None
+        except Exception as exc:
+            # Optional metadata must never prevent cookie rotation or sign-in.
+            self._logger.info(
+                "riot_session.region.unavailable game=valorant error_type=%s", type(exc).__name__,
+            )
+            return None
+
     def fetch_identity(self, access_token: str) -> AuthenticatedRiotIdentity:
         """Fetch an authoritative, redacted identity for account binding.
 
@@ -888,14 +954,30 @@ class RiotSessionImporter:
             account_payload = payload
         game_name = account_payload.get("gameName", account_payload.get("game_name"))
         tag_line = account_payload.get("tagLine", account_payload.get("tag_line"))
+        league_payload = payload.get("lol")
+        league_regions = {
+            region for region in (
+                normalize_league_region(payload.get("cpid")),
+                normalize_league_region(league_payload.get("cpid")) if isinstance(league_payload, Mapping) else None,
+            ) if region is not None
+        }
         try:
             identity = AuthenticatedRiotIdentity(
                 puuid=subject,
                 game_name=game_name if isinstance(game_name, str) else None,
                 tag_line=tag_line if isinstance(tag_line, str) else None,
+                league_region=next(iter(league_regions)) if len(league_regions) == 1 else None,
             )
         except ValueError as exc:
             raise SessionAuthorizationError("Riot returned invalid account identity data") from exc
+        identity = AuthenticatedRiotIdentity(
+            identity.puuid, identity.game_name, identity.tag_line, identity.league_region,
+            self._fetch_valorant_region(token, identity.puuid),
+        )
+        self._logger.info(
+            "riot_session.region.complete league=%s valorant=%s",
+            identity.league_region or "unknown", identity.valorant_region or "unknown",
+        )
         self._logger.info("riot_session.identity.complete")
         return identity
 
@@ -940,6 +1022,7 @@ class RiotSessionImporter:
     import_current = import_current_session
 
     def close(self) -> None:
+        self._region_authorization = None
         close = getattr(self._session, "close", None)
         if callable(close):
             close()

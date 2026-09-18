@@ -93,14 +93,17 @@ challenge Riot presents. The browser integration is private and undocumented
 and can stop working when Riot changes its pages or session behavior.
 
 Riot Mobile TOTP enrollment is deliberately isolated from normal onboarding
-and connection. The user must select an owned account, complete a new temporary
-browser sign-in, pass exact PUUID and Riot-ID binding through both the account
-site and SSO identity, and then confirm the named security change in a second
-UI step. Preparation reads only fixed identity and factor endpoints. Email MFA
+and connection. The user selects **Enable MFA** for an owned account to
+authorize enrollment. Peaks exchanges its saved SSO session through validated
+HTTPS account OAuth redirects with matching state, without opening a browser.
+It requires exact PUUID and Riot-ID binding through both the account site and
+SSO identity before changing any factor. A missing or expired session or an
+additional Riot verification challenge stops the operation without falling
+back to a browser. Preparation reads only fixed identity and factor endpoints. Email MFA
 must already be enabled, and Peaks fails closed if Riot Mobile is already
 enabled or a local seed already exists; it does not rotate either secret.
 
-After confirmation, the fixed enable endpoint may change external Riot account
+After those checks, the fixed enable endpoint may change external Riot account
 state. Peaks validates and normalizes the returned seed, then commits it to the
 typed encrypted-vault entry before attempting verification. This ordering is
 intentional: if verification fails after enable, the Riot factor may already
@@ -108,8 +111,9 @@ exist, so the encrypted seed is retained and the UI reports partial success
 with recovery guidance. A persistence failure after Riot returns a seed is
 reported as an external-state warning and verification is not attempted. No
 account cookie, CSRF value, access token, generated TOTP, or seed value is
-logged or returned to the renderer. Pending browser sessions are one-time,
-expire after five minutes, and are discarded on cancel or vault lock.
+logged or returned to the renderer. The one-click action consumes its internal
+one-time preparation immediately. Legacy two-step preparations expire after
+five minutes and are discarded on cancel or vault lock.
 
 The explicit session-import action is Windows-only and restricted to an
 account selected by the user. It reads only

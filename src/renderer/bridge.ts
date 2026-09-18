@@ -1,4 +1,4 @@
-import type {Account, AppState, Game, MatchPlayer, MatchTeam, Player, PlayerStats, TotpSetupProposal, TotpSetupResult} from './types'
+import type {Account, AccountIconSelection, AppState, Game, MatchPlayer, MatchTeam, Player, PlayerStats, TotpSetupProposal, TotpSetupResult} from './types'
 import {samePlayerIdentity} from './playerProfiles'
 
 export const RESET_APPLICATION_CONFIRMATION = 'clear-encrypted-data'
@@ -204,7 +204,7 @@ const accounts: Account[] = [
       {game: 'VALORANT', tier: 'diamond', division: '3', rating: 41},
     ],
     matches: [
-      {id: 'l-1', game: 'League of Legends', result: 'Win', score: '32 — 21', mode: 'Ranked Solo', map: "Summoner's Rift", playedAt: '1h ago', delta: '+24 LP', performance: '8 / 2 / 11 · 7.8 CS/min', positive: true},
+      {id: 'l-1', game: 'League of Legends', agent: 'Ahri', result: 'Win', score: '32 — 21', mode: 'Ranked Solo', map: "Summoner's Rift", playedAt: '1h ago', delta: '+24 LP', performance: '8 / 2 / 11 · 7.8 CS/min', positive: true},
       {id: 'l-2', game: 'League of Legends', result: 'Loss', score: '19 — 28', mode: 'Ranked Solo', map: "Summoner's Rift", playedAt: '5h ago', delta: '-18 LP', performance: '4 / 7 / 9 · 6.9 CS/min', positive: false},
     ],
   },
@@ -284,6 +284,13 @@ const clone = <T,>(value: T): T => structuredClone(value)
 // Development-only browser fixtures for visual checks across roster formats.
 // Native invokes always bypass webState; these samples never reach Discord.
 if (import.meta.env.DEV && typeof window !== 'undefined' && !window.peaks) {
+  const accountCount = Number(new URLSearchParams(window.location?.search ?? '').get('accounts'))
+  if (accountCount > 0 && accountCount <= 30) {
+    webState.accounts = Array.from({length: Math.floor(accountCount)}, (_, index) => {
+      const source = accounts[index % accounts.length]
+      return {...source, id: `preview-account-${index}`, riotId: index < accounts.length ? source.riotId : `Player ${index + 1}#DEMO`}
+    })
+  }
   const layout = new URLSearchParams(window.location?.search ?? '').get('matchLayout')
   if (layout && ['deathmatch', 'retake', 'gauntlet', 'asymmetric'].includes(layout)) {
     const source = webState.currentMatch.teams?.flatMap(team => team.players) ?? []
@@ -485,6 +492,22 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
         : account),
     }
   }
+  if (command === 'set_account_icon') {
+    const accountId = String(payload.accountId ?? '')
+    const icon = payload.icon as AccountIconSelection | null
+    const preferences = 'nickname' in payload ? {nickname: String(payload.nickname ?? '').trim() || undefined} : {}
+    webState = {...webState, accounts: webState.accounts.map(account => account.id === accountId
+      ? {...account, ...preferences, accountIcon: icon ?? undefined} : account)}
+  }
+  if (command === 'connect_riot_client') {
+    // Browser-only approval simulation; native commands always bypass this adapter.
+    await new Promise(resolve => setTimeout(resolve, 2200))
+    if (import.meta.env.DEV && new URLSearchParams(window.location?.search ?? '').get('accountConnect') === 'error') {
+      throw new Error('No readable Riot sign-in QR was found.')
+    }
+    webState = {...webState, accounts: webState.accounts.map(account => account.id === payload.accountId
+      ? {...account, connected: true} : account)}
+  }
   if (command === 'connect_riot_qr_image') {
     const accountId = String(payload.accountId ?? '')
     webState = {
@@ -513,6 +536,23 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
   }
   if (command === 'copy_totp') {
     await navigator.clipboard?.writeText('482106').catch(() => undefined)
+  }
+  if (command === 'enable_riot_mfa') {
+    if (webState.locked) throw new Error('Unlock Peaks before enabling MFA')
+    const accountId = String(payload.accountId ?? '')
+    // Native requests bypass this synthetic browser-only state entirely.
+    await new Promise(resolve => setTimeout(resolve, 450))
+    const account = webState.accounts.find(item => item.id === accountId)
+    if (!account || account.owned === false) throw new Error('Choose an owned account for MFA')
+    if (account.hasTotp) throw new Error('An authenticator secret is already saved for this account')
+    if (!(account.canConnectQr ?? account.connected)) throw new Error('Save a reusable Riot session for this account before setting up Riot MFA')
+    webState = {
+      ...webState,
+      accounts: webState.accounts.map(item => item.id === accountId
+        ? {...item, hasTotp: true, canSetupMfa: false}
+        : item),
+    }
+    return clone<TotpSetupResult>({state: webState, seedSaved: true, verified: true, warning: null}) as T
   }
   if (command === 'prepare_totp_setup') {
     const accountId = String(payload.accountId ?? '')

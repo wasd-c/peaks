@@ -8,6 +8,19 @@ Object.defineProperty(globalThis, 'window', {
 })
 
 describe('web bridge account connection', () => {
+  it('saves an account nickname alongside its icon without changing the Riot ID', async () => {
+    const before = await invoke<AppState>('pin', {pin: '2580'})
+    const account = before.accounts[0]
+    const changed = await invoke<AppState>('set_account_icon', {
+      accountId: account.id, icon: null, nickname: '  Ranked main  ',
+    })
+    expect(changed.accounts[0]).toMatchObject({riotId: account.riotId, nickname: 'Ranked main'})
+    const iconOnly = await invoke<AppState>('set_account_icon', {accountId: account.id, icon: null})
+    expect(iconOnly.accounts[0].nickname).toBe('Ranked main')
+    const cleared = await invoke<AppState>('set_account_icon', {accountId: account.id, icon: null, nickname: ''})
+    expect(cleared.accounts[0].nickname).toBeUndefined()
+  })
+
   it('changes the code only after verifying the current code and preserves accounts', async () => {
     const before = await invoke<AppState>('pin', {pin: '2580'})
     await expect(invoke('change_pin', {oldPin: '9999', newPin: '2468', confirmPin: '2468'})).rejects.toThrow('current passcode')
@@ -59,7 +72,7 @@ describe('web bridge account connection', () => {
     )
   })
 
-  it('requires a separate confirmation before saving an authenticator secret', async () => {
+  it('keeps the legacy authenticator confirmation command compatible', async () => {
     const unlocked = await invoke<AppState>('pin', {pin: '2580'})
     const account = unlocked.accounts.find(candidate => !candidate.hasTotp)
     expect(account).toBeDefined()
@@ -77,5 +90,25 @@ describe('web bridge account connection', () => {
     expect(result.seedSaved).toBe(true)
     expect(result.verified).toBe(true)
     expect(result.state.accounts.find(candidate => candidate.id === account?.id)?.hasTotp).toBe(true)
+  })
+
+  it('enables MFA for the selected account in one request without a proposal or secret response', async () => {
+    await invoke('pin', {pin: '2580'})
+    const before = await invoke<AppState>('add_account')
+    const account = before.accounts[before.accounts.length - 1]
+    const result = await invoke<TotpSetupResult>('enable_riot_mfa', {accountId: account.id})
+    expect(result).toMatchObject({seedSaved: true, verified: true, warning: null})
+    expect(result.state.accounts.find(candidate => candidate.id === account.id))
+      .toMatchObject({hasTotp: true, canSetupMfa: false})
+    expect(result.state.accounts.filter(candidate => candidate.id !== account.id))
+      .toEqual(before.accounts.filter(candidate => candidate.id !== account.id))
+    expect(Object.keys(result).sort()).toEqual(['seedSaved', 'state', 'verified', 'warning'])
+    await expect(invoke('enable_riot_mfa', {accountId: account.id})).rejects.toThrow('already saved')
+  })
+
+  it('requires the vault to be unlocked before one-click MFA', async () => {
+    await invoke('lock')
+    await expect(invoke('enable_riot_mfa', {accountId: 'any'})).rejects.toThrow('Unlock Peaks')
+    await invoke('pin', {pin: '2580'})
   })
 })

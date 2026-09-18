@@ -287,6 +287,7 @@ export function PlayerMatchCards({teams, onSelectPlayer, ...context}: PlayerMatc
   const scope = JSON.stringify([context.game, context.matchId, context.map, context.phase, layout.kind, canReorder,
     sortedTeams.map(team => [team.name, team.players.map(player => [player.riotId, player.name, player.self])])])
   const orders = canReorder && manualOrder?.scope === scope ? manualOrder.teams : suggestedOrder
+  const hasCustomOrder = orders.some((order, team) => order.some((player, position) => player !== suggestedOrder[team][position]))
   const selected = keyboardMove?.scope === scope ? keyboardMove : null
   const partyCounts = new Map<string, number>()
   for (const team of sortedTeams) for (const player of team.players) if (player.partyId) partyCounts.set(player.partyId, (partyCounts.get(player.partyId) ?? 0) + 1)
@@ -369,13 +370,13 @@ export function PlayerMatchCards({teams, onSelectPlayer, ...context}: PlayerMatc
     }
   }
 
-  const resetOrder = <Button label={t("Reset order")} icon={<Icon icon={RotateCcw} />} size="sm" variant="ghost" isDisabled={manualOrder?.scope !== scope} onClick={() => { setManualOrder(null); setKeyboardMove(null); finishDrag(); setAnnouncement('Suggested card order restored.') }} />
+  const resetOrder = hasCustomOrder ? <Button label={t("Reset order")} icon={<Icon icon={RotateCcw} />} size="sm" variant="ghost" onClick={() => { setManualOrder(null); setKeyboardMove(null); finishDrag(); setAnnouncement('Suggested card order restored.') }} /> : null
 
   return <VStack className={`pmc-lineup${fitToHeight ? ' pmc-lineup--fit' : ''}`} gap={fitToHeight ? 2 : 6}>
     {canReorder ? <VisuallyHidden id={instructionsId}>{freeForAll ? t('Drag cards within this lobby.') : t('Drag cards within the same team.')} {t('With a keyboard, press Enter or Space to select a card, use arrow keys to move, then Enter or Space to place. Escape cancels the move.')}</VisuallyHidden> : null}
     {canReorder ? <VisuallyHidden role="status" aria-live="polite" aria-atomic="true">{displayText(announcement)}</VisuallyHidden> : null}
     {!fitToHeight && sortedTeams.some(reorderableTeam) ? <HStack className="pmc-reorder-toolbar" align="center" justify="between" gap={3}>
-      <Text type="supporting">{manualOrder?.scope === scope ? freeForAll ? t("Custom order · drag within this lobby") : t("Custom order · drag within each team") : layout.canAlignRoles ? t("Matched by role · drag to arrange") : freeForAll ? t("Drag cards to arrange the lobby") : t("Drag cards to arrange each team")}</Text>
+      <Text type="supporting">{hasCustomOrder ? freeForAll ? t("Custom order · drag within this lobby") : t("Custom order · drag within each team") : layout.canAlignRoles ? t("Matched by role · drag to arrange") : freeForAll ? t("Drag cards to arrange the lobby") : t("Drag cards to arrange each team")}</Text>
       {resetOrder}
     </HStack> : null}
     <Grid className="pmc-teams" data-layout={layout.kind} columns={duos || sortedTeams.length > 2 ? {minWidth: 400, max: 2, repeat: 'fit'} : 1} gap={fitToHeight ? 2 : 6}>

@@ -1,7 +1,7 @@
 """Confirmation-gated Riot Mobile TOTP enrollment.
 
-Preparation authenticates in a temporary browser, binds the session to the
-selected account, and checks existing factors without changing Riot state.
+Preparation exchanges a saved SSO session (or uses the explicit browser flow),
+binds it to the selected account, and checks factors without changing Riot state.
 Only :meth:`confirm` calls the enable endpoint.  Once Riot returns a valid
 seed, the caller-provided encrypted persistence callback runs *before*
 verification so a partial verification failure cannot discard the only copy.
@@ -18,6 +18,10 @@ from dataclasses import dataclass, field
 from threading import RLock, Timer
 from typing import Protocol
 
+from peaks.adapters.riot.account_session import (
+    RiotAccountSessionError,
+    acquire_riot_account_session,
+)
 from peaks.adapters.riot.browser_login import (
     RiotAccountBrowserSession,
     login_riot_account_for_mfa,
@@ -184,7 +188,7 @@ def _check_prerequisites(factors: tuple[RiotMfaFactor, ...]) -> None:
 def _login_with_reusable_session(
     cookies: Mapping[str, str],
 ) -> RiotAccountBrowserSession | None:
-    return login_riot_account_for_mfa(reusable_sso_cookies=cookies)
+    return acquire_riot_account_session(cookies)
 
 
 class RiotMobileTotpSetupService:
@@ -336,6 +340,12 @@ class RiotMobileTotpSetupService:
                 if reusable_sso_cookies is not None
                 else self._browser_login()
             )
+        except RiotAccountSessionError as exc:
+            self._logger.warning(
+                "riot_mobile_totp.prepare.session_failed error_type=%s",
+                type(exc).__name__,
+            )
+            raise RiotMobileTotpSetupError(str(exc)) from None
         except Exception as exc:
             self._logger.warning(
                 "riot_mobile_totp.prepare.browser_failed error_type=%s",
@@ -442,6 +452,41 @@ class RiotMobileTotpSetupService:
             riot_id=expected_riot_id,
             expires_in_seconds=int(self._confirmation_ttl),
         )
+
+    def enable(
+        self,
+        *,
+        account_id: str,
+        expected_puuid: str,
+        expected_riot_id: str,
+        reusable_sso_cookies: Mapping[str, str],
+        persist_seed: Callable[[str], None],
+    ) -> RiotMobileTotpSetupResult:
+        """Enroll after an explicit Enable MFA click without opening a browser.
+
+        Preserve the same identity/prerequisite rechecks and persist-before-
+        verify ordering as the two-step flow. A missing session cannot fall
+        through to interactive sign-in.
+        """
+
+        if not isinstance(reusable_sso_cookies, Mapping) or not reusable_sso_cookies.get("ssid"):
+            raise RiotMobileTotpSetupError(
+                "Reconnect this account in Peaks before enabling MFA"
+            )
+        proposal = self.prepare(
+            account_id=account_id,
+            expected_puuid=expected_puuid,
+            expected_riot_id=expected_riot_id,
+            reusable_sso_cookies=reusable_sso_cookies,
+        )
+        try:
+            return self.confirm(
+                confirmation_id=proposal.confirmation_id,
+                account_id=account_id,
+                persist_seed=persist_seed,
+            )
+        finally:
+            self.cancel(proposal.confirmation_id)
 
     def cancel(self, confirmation_id: str) -> None:
         """Discard one pending browser session without changing Riot state."""

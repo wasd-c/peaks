@@ -67,11 +67,13 @@ function startBackend() {
       }
     } catch { /* malformed backend output is ignored */ }
   })
-  child.stderr.on('data', data => console.error(`[backend] ${data}`))
-  child.on('error', error => {
+  // Python writes sanitized diagnostics to its rotating peaks.log. Do not copy
+  // arbitrary library stderr/tracebacks (which can contain credentials) to Electron.
+  child.stderr.resume()
+  child.on('error', () => {
     telemetry?.track('backend.failed')
     discordPresence?.clear()
-    console.error(`[backend] launch failed: ${error.name}`)
+    console.error('[backend] launch failed')
     if (backend === child) backend = null
     rejectPendingBackendRequests(pending, new Error('Peaks service could not start'))
   })
@@ -91,17 +93,11 @@ function callBackend(command: string, payload: unknown, presenceEpoch: number | 
     if (activityRequest && activityRequest.epoch === presenceEpoch) return activityRequest.promise
   }
   if (!backend) startBackend()
-  const startedAt = Date.now()
-  const telemetryEpoch = telemetry?.captureConsentEpoch() ?? null
   const promise = new Promise((resolve, reject) => {
     const id = ++serial
     pending.set(id, {resolve, reject, presenceEpoch})
     backend!.stdin.write(`${JSON.stringify({id, command, payload})}\n`)
   })
-  void promise.then(
-    () => telemetry?.track('command.completed', {command, outcome: 'success', duration_ms: Date.now() - startedAt}, telemetryEpoch),
-    () => telemetry?.track('command.completed', {command, outcome: 'failure', duration_ms: Date.now() - startedAt}, telemetryEpoch),
-  )
   if (command === 'activity') {
     const request = {epoch: presenceEpoch, promise}
     activityRequest = request
@@ -259,14 +255,15 @@ app.whenReady().then(() => {
   discordHeartbeat = new DiscordActivityHeartbeat({
     canRefresh: () => Boolean(window && !window.isDestroyed() && backend && discordPresence?.canRefreshActivity()),
     isBusy: () => pending.size > 0,
-    refresh: () => callBackend('activity', {}, discordPresence?.captureSnapshotEpoch()),
+    refresh: () => telemetry!.runCommand('activity', () => callBackend('activity', {}, discordPresence?.captureSnapshotEpoch())),
   })
   startBackend(); ipcMain.handle('peaks:invoke', async (event, command: unknown, payload: unknown) => {
   if (!isTrustedSender(event)) {
     throw new Error('Peaks rejected an untrusted renderer request')
   }
-  if (command === 'discord_presence') return discordPresence!.handle(payload ?? {})
   if (command === 'telemetry_settings') return telemetry!.handle(payload ?? {})
+  return telemetry!.runCommand(command, async () => {
+  if (command === 'discord_presence') return discordPresence!.handle(payload ?? {})
   if (command === 'update_status' || command === 'update_check' || command === 'update_install') return appUpdater!.handle(command, payload)
   if (command === 'release_history' || command === 'release_history_ack') return releaseHistory!.handle(command, payload ?? {})
   if (command === 'copy_match_image') {
@@ -299,8 +296,8 @@ app.whenReady().then(() => {
     let capture: QrCaptureResult
     try {
       capture = await captureRiotClientWindows()
-    } catch (error) {
-      console.error(`[riot-qr] capture.error type=${error instanceof Error ? error.name : 'UnknownError'}`)
+    } catch {
+      console.error('[riot-qr] capture.error')
       capture = {captures: [], state: 'capture_error'}
     }
     safePayload.qrCaptures = capture.captures
@@ -323,6 +320,7 @@ app.whenReady().then(() => {
     return result.state
   }
   return result
+  })
 }); createWindow(); app.on('activate', () => BrowserWindow.getAllWindows().length === 0 && createWindow()) })
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
 app.on('before-quit', () => {
