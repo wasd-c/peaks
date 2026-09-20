@@ -65,7 +65,7 @@ class Database(AbstractContextManager["Database"]):
     ``":memory:"`` for tests.
     """
 
-    SCHEMA_VERSION = 4
+    SCHEMA_VERSION = 5
 
     def __init__(self, path: str | os.PathLike[str] | None = None) -> None:
         self.path = Path(path) if path is not None and str(path) != ":memory:" else None
@@ -176,6 +176,22 @@ class Database(AbstractContextManager["Database"]):
                     );
                     CREATE INDEX IF NOT EXISTS idx_matches_account_time
                         ON matches(account_id, played_at DESC);
+                    CREATE TABLE IF NOT EXISTS profile_observations (
+                        event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        account_id TEXT NOT NULL REFERENCES accounts(account_id) ON DELETE CASCADE,
+                        kind TEXT NOT NULL CHECK(kind IN ('connection', 'identity', 'rank')),
+                        game TEXT NOT NULL DEFAULT '',
+                        observed_at REAL NOT NULL,
+                        day TEXT NOT NULL,
+                        value_json TEXT NOT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_profile_observation_account
+                        ON profile_observations(account_id, kind, game, event_id);
+                    CREATE TABLE IF NOT EXISTS player_profile_cache (
+                        profile_key TEXT PRIMARY KEY,
+                        updated_at REAL NOT NULL,
+                        profile_json TEXT NOT NULL
+                    );
                     CREATE INDEX IF NOT EXISTS idx_search_time
                         ON search_history(searched_at DESC);
                     CREATE INDEX IF NOT EXISTS idx_followed_time
@@ -360,6 +376,7 @@ class Database(AbstractContextManager["Database"]):
             )
             for rank in account.ranks:
                 self.add_rank(account.account_id, rank)
+            self.observe_profile(account.account_id, "identity", {"riotId": account.display_name})
         return self.get_account(account.account_id) or account
 
     def add_accounts(self, accounts: Sequence[Account]) -> list[Account]:
@@ -476,7 +493,33 @@ class Database(AbstractContextManager["Database"]):
                 int(rank.ranked),
             ),
         )
+        if rank.ranked:
+            self.observe_profile(account_id, "rank", {"game": rank.game.value, "tier": str(tier), "division": rank.division, "rating": rank.rating})
         return rank
+
+    def observe_profile(self, account_id: str, kind: str, value: dict[str, Any]) -> None:
+        from .profile_history import observe_profile
+
+        observe_profile(self, account_id, kind, value)
+
+    def profile_activity(self, account_id: str) -> dict[str, Any]:
+        from .profile_history import profile_activity
+
+        return profile_activity(self, account_id)
+
+    def get_account_match(self, account_id: str, match_id: str) -> MatchRecord | None:
+        row = self._execute("SELECT * FROM matches WHERE account_id=? AND match_id=?", (account_id, match_id)).fetchone()
+        return self._match_from_row(row) if row is not None else None
+
+    def cached_player_profile(self, riot_id: str) -> dict[str, Any] | None:
+        from .player_profiles import cached_profile
+
+        return cached_profile(self, riot_id)
+
+    def remember_player_profile(self, profile: dict[str, Any]) -> dict[str, Any]:
+        from .player_profiles import remember_profile
+
+        return remember_profile(self, profile)
 
     def remove_rank(self, account_id: str, game: Game | str) -> bool:
         cursor = self._execute(
@@ -666,6 +709,50 @@ class Database(AbstractContextManager["Database"]):
     # -- matches ----------------------------------------------------------
 
     def add_match(self, match: MatchRecord) -> MatchRecord:
+        with self._lock:
+            previous = self.get_account_match(match.account_id, match.match_id)
+            if previous is not None and previous.game == match.game:
+                incoming_local = match.game is Game.TFT and match.metadata.get('localEndOfGame') is True
+                if incoming_local and previous.metadata.get('localEndOfGame') is not True and self._has_tft_placement(previous):
+                    # A delayed local capture must not replace a richer Riot
+                    # report. A bare history ID is not a completed report.
+                    return previous
+                if (match.game is Game.TFT and not incoming_local
+                        and previous.metadata.get('localEndOfGame') is True
+                        and self._has_tft_placement(previous) and not self._has_tft_placement(match)):
+                    return previous
+                metadata = {**previous.metadata, **{key: value for key, value in match.metadata.items()
+                                                   if value is not None and (key != 'teams' or value)}}
+                if not incoming_local and self._has_tft_placement(match):
+                    # Remove provenance from the old local capture only once
+                    # Riot supplies the final placement, not on an ID-only stub.
+                    metadata.pop('localEndOfGame', None)
+                missing = {key: getattr(previous, key) for key in ('duration_seconds', 'kills', 'deaths', 'assists', 'rank_delta', 'queue', 'map_name') if getattr(match, key) is None}
+                match = replace(match, metadata=metadata, **missing,
+                                result=previous.result if match.result is MatchResult.UNKNOWN else match.result)
+            return self._upsert_match(match)
+
+    @staticmethod
+    def _has_tft_placement(match: MatchRecord) -> bool:
+        if match.game is not Game.TFT:
+            return False
+        teams = match.metadata.get('teams')
+        if not isinstance(teams, (list, tuple)):
+            return False
+        for team in teams:
+            players = team.get('players') if isinstance(team, Mapping) else None
+            if not isinstance(players, (list, tuple)):
+                continue
+            for player in players:
+                if not isinstance(player, Mapping) or player.get('self') is not True:
+                    continue
+                stats = player.get('stats')
+                placement = stats.get('placement') if isinstance(stats, Mapping) else None
+                if type(placement) is int and 1 <= placement <= 8:
+                    return True
+        return False
+
+    def _upsert_match(self, match: MatchRecord) -> MatchRecord:
         if self.get_account(match.account_id) is None:
             raise KeyError(f"Unknown account: {match.account_id}")
         self._execute(

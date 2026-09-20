@@ -149,10 +149,10 @@ def test_history_and_requests_are_bounded_and_duplicate_matches_are_not_refetche
     http = ProfileHTTP()
     http.history_ids = ["duplicate", "duplicate", *[f"match-{index}" for index in range(40)]]
     profile = client_for(http).player_profile("target", limit=500)
-    assert profile is not None and len(profile.matches) == 9
-    assert "/match-history/v1/history/target?startIndex=0&endIndex=10" in http.calls
+    assert profile is not None and len(profile.matches) == 19
+    assert "/match-history/v1/history/target?startIndex=0&endIndex=20" in http.calls
     assert http.calls.count("/match-details/v1/matches/duplicate") == 1
-    assert len(http.calls) <= 24
+    assert len(http.calls) <= 36
 
 
 @pytest.mark.parametrize("info", [
@@ -169,7 +169,7 @@ def test_mismatched_or_live_details_do_not_expose_roster_data(info: dict[str, An
 
 def test_elapsed_request_budget_stops_scheduling_more_history_work() -> None:
     http = ProfileHTTP()
-    http.history_ids = [f"match-{index}" for index in range(10)]
+    http.history_ids = [f"match-{index}" for index in range(40)]
     now = [0.0]
 
     def clock() -> float:
@@ -178,7 +178,8 @@ def test_elapsed_request_budget_stops_scheduling_more_history_work() -> None:
 
     client = client_for(http)
     client.enrichment = ValorantEnrichmentCache(clock=clock)
-    profile = client.player_profile("target")
+    profile = client.player_profile("target", limit=20)
     assert profile is not None and profile.rank is not None
-    assert len(http.calls) < 10
+    assert len(http.calls) < 20
+    assert sum('/match-details/' in path for path in http.calls) < 20
     assert not any(match.enrichment_pending for match in profile.matches)

@@ -5,6 +5,8 @@ export const TELEMETRY_ENDPOINT = 'https://metrics.gemstud.io/peaks/v1/events'
 const EVENTS = new Set(['app.started', 'backend.started', 'backend.failed', 'backend.stopped', 'renderer.failed', 'command.completed', 'update.state'])
 // Only operation names are collected, including for account/security actions.
 // Their arguments, results, errors and clipboard contents never enter the event.
+// Favorite-game launches are intentionally omitted until the relay supports
+// their own category; do not send unknown names or label them as another action.
 const COMMANDS = new Set([
   'state', 'activity', 'refresh', 'search', 'settings',
   'add_account', 'remove_account', 'set_account_icon', 'import_session', 'connect_riot_client', 'connect_riot_qr_image',
@@ -35,9 +37,12 @@ export function safeTelemetryEvent(name: unknown, fields: unknown, version: stri
   const event: TelemetryEvent = {event: name, version, platform}
   const input = record(fields) ?? {}
   if (name === 'command.completed') {
-    if (typeof input.command !== 'string' || !COMMANDS.has(input.command)) return null
+    // Local history reads use existing schema-1 categories. Older relays keep
+    // accepting the batch; no gameplay or identity data is added to telemetry.
+    const command = input.command === 'account_activity' ? 'account' : input.command === 'account_match' ? 'match' : input.command
+    if (typeof command !== 'string' || !COMMANDS.has(command)) return null
     if (input.outcome !== 'success' && input.outcome !== 'failure') return null
-    event.command = input.command
+    event.command = command
     event.outcome = input.outcome
     if (typeof input.duration_ms === 'number' && Number.isFinite(input.duration_ms) && input.duration_ms >= 0) event.duration_ms = Math.min(300_000, Math.round(input.duration_ms / 100) * 100)
   }

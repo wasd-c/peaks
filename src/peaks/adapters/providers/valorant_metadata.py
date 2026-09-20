@@ -364,6 +364,10 @@ class ValorantMetadataClient:
         payload = self._get_json(path)
         return tuple(ValorantRankAsset.from_payload(item) for item in self._data(payload, path=path))
 
+    def get_seasons(self) -> tuple[Mapping[str, Any], ...]:
+        path = "/v1/seasons"
+        return tuple(self._data(self._get_json(path), path=path)[:512])
+
     def get_map_assets(self) -> tuple[ValorantMapAsset, ...]:
         path = "/v1/maps"
         payload = self._get_json(path)

@@ -209,6 +209,10 @@ class AccountOnboardingService:
     # A product-neutral alias is useful to non-UI callers.
     onboard = add_account
 
+    def read_local_account(self) -> AccountOnboardingResult:
+        """Identify a verified active client without opening a login or importing secrets."""
+        return self._add_from_local_client(import_session=False)
+
     def _verified_lockfile(self) -> RiotLockfile:
         for attempt in range(self._local_retry_attempts):
             try:
@@ -251,7 +255,7 @@ class AccountOnboardingService:
             "VALORANT is running, but its verified Riot lockfile is unavailable"
         )
 
-    def _add_from_local_client(self) -> AccountOnboardingResult:
+    def _add_from_local_client(self, *, import_session: bool = True) -> AccountOnboardingResult:
         self._logger.info("account_onboarding.local.start")
         lockfile = self._verified_lockfile()
         client: _LocalClient | None = None
@@ -277,6 +281,8 @@ class AccountOnboardingService:
                     "Riot local session identity does not match the active account"
                 )
             self._logger.info("account_onboarding.local.identity.verified")
+            if not import_session:
+                return AccountOnboardingResult(identity=identity, source="local_client")
             cookies, refresh_token, session_identity = self._try_import_session_authorization(importer, expected_puuid=subject)
             if session_identity is not None:
                 identity = replace(

@@ -4,18 +4,19 @@ import {Center} from '@astryxdesign/core/Center'
 import {Icon} from '@astryxdesign/core/Icon'
 import {SideNav, SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav'
 import {VStack} from '@astryxdesign/core/VStack'
-import {Crosshair, Fingerprint, LockKeyhole, Mountain, Search, Settings2, UsersRound} from 'lucide-react'
+import {Crosshair, Fingerprint, LockKeyhole, Mountain, Search, Settings2, UserRound, UsersRound} from 'lucide-react'
 import type {AppState} from '../types'
 import {SidebarUpdate} from './SidebarUpdate'
 
-export type Page = 'overview' | 'search' | 'watchlist' | 'current' | 'settings'
+export type Page = 'account' | 'overview' | 'search' | 'watchlist' | 'current' | 'settings'
 interface AppNavigationProps {
   page: Page
   state: AppState
   onPage: (page: Page) => void
   onLock: () => void
+  hasAccount?: boolean
 }
-export function AppNavigation({page, state, onPage, onLock}: AppNavigationProps) {
+export function AppNavigation({page, state, onPage, onLock, hasAccount}: AppNavigationProps) {
   useLocale()
   return (
     <SideNav className="pd-navigation" aria-label={t("Main navigation")}
@@ -29,6 +30,7 @@ export function AppNavigation({page, state, onPage, onLock}: AppNavigationProps)
         <Button label={t("Lock Peaks")} tooltip={t("Lock Peaks")} icon={<Icon icon={LockKeyhole} />} isIconOnly variant="ghost" onClick={onLock} />
       </VStack>}>
       <SideNavSection title={t("Accounts and players")} isHeaderHidden>
+        {hasAccount ? <SideNavItem label={t('Account')} icon={UserRound} isSelected={page === 'account'} onClick={() => onPage('account')} /> : null}
         <SideNavItem label={t("Accounts")} icon={Fingerprint} isSelected={page === 'overview'} onClick={() => onPage('overview')} />
         <SideNavItem label={t("Player search")} icon={Search} isSelected={page === 'search'} onClick={() => onPage('search')} />
         <SideNavItem label={t("Watchlist")} icon={UsersRound} isSelected={page === 'watchlist'} onClick={() => onPage('watchlist')} />

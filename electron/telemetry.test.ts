@@ -46,8 +46,9 @@ describe('optional bounded app diagnostics', () => {
     expect(safeTelemetryEvent('command.completed', {command: 'private-command', outcome: 'success'}, '0.3.0', 'win32')).toBeNull()
     expect(safeTelemetryEvent('update.state', {state: 'private-stacktrace'}, '0.3.0', 'win32')).toBeNull()
   })
-  it('covers every exposed backend operation without copying sensitive fields', () => {
+  it('covers tracked backend operations without copying sensitive fields', () => {
     for (const command of BACKEND_COMMANDS) {
+      if (command === 'launch_favorite_game') continue
       expect(safeTelemetryEvent('command.completed', {
         command, outcome: 'failure', duration_ms: 149,
         accountId: 'private-account', riotId: 'Private#EU', pin: '1234', code: '123456',
@@ -55,9 +56,15 @@ describe('optional bounded app diagnostics', () => {
         error: new Error('private error'), payload: {key: 'private-api-key'},
       }, '0.3.0', 'win32')).toEqual({
         event: 'command.completed', version: '0.3.0', platform: 'win32',
-        command, outcome: 'failure', duration_ms: 100,
+        command: command === 'account_activity' ? 'account' : command === 'account_match' ? 'match' : command, outcome: 'failure', duration_ms: 100,
       })
     }
+  })
+  it.each(['success', 'failure'])('omits favorite-game launch %s until the relay supports its category', outcome => {
+    expect(safeTelemetryEvent('command.completed', {
+      command: 'launch_favorite_game', outcome, duration_ms: 149,
+      game: 'VALORANT', accountId: 'private-account',
+    }, '0.3.0', 'win32')).toBeNull()
   })
   it('records icon saves without collecting the account or icon preference', async () => {
     const {service, send} = create()

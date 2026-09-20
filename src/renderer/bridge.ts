@@ -167,6 +167,7 @@ const accounts: Account[] = [
     riotId: 'Aurélïne#EUW',
     region: 'EUW',
     level: 284,
+    leagueLevel: 284,
     connected: true,
     hasTotp: true,
     canConnectQr: true,
@@ -232,6 +233,33 @@ const accounts: Account[] = [
   },
 ]
 
+// Synthetic cross-game profile fixtures for the browser preview only.
+accounts[0].matches?.push(...['Ahri', 'Ahri', 'Jinx'].map((champion, index) => ({
+  id: `lol-profile-${index}`, game: 'League of Legends' as const, result: index === 2 ? 'Defeat' : 'Win',
+  mode: '420', map: "Summoner's Rift", playedAt: index ? 'yesterday' : '3h ago', durationSeconds: 1800 + index * 120,
+  playedAtTimestamp: Date.now() - (3 + index * 24) * 3600_000, delta: index === 2 ? '-18 LP' : '+22 LP',
+  teams: [{name: 'Your team', players: [{name: accounts[0].riotId, self: true, agent: champion, stats: {kills: 12 - index * 2, deaths: 4 + index, assists: 9, minions: 224, damage: 28460, gold: 14800, vision: 26}}]}],
+})), ...[1, 3, 6].map((placement, index) => ({
+  id: `tft-profile-${index}`, game: 'Teamfight Tactics' as const, result: placement <= 4 ? 'Top 4' : 'Placement',
+  mode: '1100', playedAt: index ? 'yesterday' : '5h ago', durationSeconds: 2010 - index * 90,
+  playedAtTimestamp: Date.now() - (5 + index * 24) * 3600_000, delta: index === 2 ? '-21 LP' : '+33 LP',
+  teams: [{name: 'Lobby', players: [{name: accounts[0].riotId, self: true, agent: 'TFT tactician',
+    stats: {placement, level: 9 - index, damage: 142 - index * 31},
+    composition: {
+      units: ['Briar', 'Belveth', 'Jinx', 'Illaoi', 'Akali', 'Bard', 'Aurora', 'Fiora'].map((name, unit) => ({
+        id: unit === 0 && index === 0 ? 'DA_Sentinel18' : `TFT17_${name}`, stars: unit === 0 ? 3 : 2,
+        items: unit < 3 ? ['TFT_Item_InfinityEdge', 'TFT_Item_Bloodthirster', 'TFT_Item_GuinsoosRageblade'] : [],
+      })),
+      traits: [{id: 'TFT17_AnimaSquad', count: 4, tier: 2}, {id: 'TFT17_ASTrait', count: 3, tier: 1}],
+      augments: ['TFT6_Augment_SecondWind2'],
+    },
+  }]}],
+})))
+for (const [index, match] of (accounts[0].matches ?? []).filter(match => match.game === 'VALORANT').entries()) {
+  match.playedAtTimestamp = Date.now() - (index === 0 ? 42 * 60_000 : index === 1 ? 3 * 3600_000 : 24 * 3600_000)
+  match.durationSeconds = 2052 + index * 60
+}
+
 const followed: Player[] = [
   {id: 'follow-tenz', riotId: 'quietly#EUW', region: 'EUW', games: ['League of Legends', 'VALORANT'], game: 'League of Legends', currentRank: 'Immortal 2 · 112 RR', peakRank: 'Radiant #418', lastGame: '18 min ago', lastUpdated: 'Live cache', followed: true, initials: 'QU'},
   {id: 'follow-lumen', riotId: 'lumen#soft', region: 'NA', games: ['League of Legends', 'Teamfight Tactics'], game: 'League of Legends', currentRank: 'Master · 184 LP', peakRank: 'Grandmaster · 421 LP', lastGame: '6h ago', lastUpdated: '12 min ago', followed: true, initials: 'LU'},
@@ -270,6 +298,8 @@ let webState: AppState = {
   gameDetected: true,
   settings: {
     autoLockMinutes: 15,
+    favoriteGame: 'VALORANT',
+    autoLaunchFavoriteGame: false,
     streamerMode: false,
     lockOnBlur: true,
     reduceMotion: false,
@@ -277,6 +307,7 @@ let webState: AppState = {
     clipboardClearSeconds: 15,
   },
   riotClient: {detected: true, label: 'VALORANT · Competitive', game: 'VALORANT'},
+  activeAccountId: accounts[0]?.id,
 }
 
 const clone = <T,>(value: T): T => structuredClone(value)
@@ -364,6 +395,13 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
     }
   }
   if (command === 'state' || command === 'activity' || command === 'refresh') return clone(webState) as T
+  if (command === 'account_activity' || command === 'account_match') {
+    if (webState.locked) throw new Error('Unlock Peaks to continue')
+    const account = webState.accounts.find(item => item.id === payload.accountId && item.owned !== false)
+    if (!account) throw new Error('Choose an owned account')
+    if (command === 'account_match') return clone(account.matches?.find(match => match.id === payload.matchId) ?? null) as T
+    return clone({matches: account.matches ?? [], ranks: [], connectionDays: Array.from({length: 5}, (_, index) => new Date(Date.now() - index * 86400_000).toLocaleDateString('sv-SE')), identities: [{riotId: account.riotId, observedAt: Date.now()}]}) as T
+  }
 
   if (command === 'pin') {
     const pin = String(payload.pin ?? '')
@@ -406,6 +444,8 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
       gameDetected: false,
       settings: {
         autoLockMinutes: 15,
+        favoriteGame: 'VALORANT',
+        autoLaunchFavoriteGame: false,
         streamerMode: false,
         lockOnBlur: true,
         reduceMotion: false,
@@ -455,6 +495,7 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
   }
   if (command === 'lock') webState = {...webState, locked: true}
   if (command === 'settings') webState = {...webState, settings: {...webState.settings, ...payload}}
+  if (command === 'launch_favorite_game') return {...clone(webState), operationNotice: 'Game launch is unavailable in preview mode.'} as T
   if (command === 'api_key') {
     if (!String(payload.key ?? '').trim()) throw new Error('Enter an API key')
     webState = {...webState, settings: {...webState.settings, riotApiConfigured: true}}
@@ -472,6 +513,7 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
       owned: true,
       lastUpdated: 'just now',
     }]}
+    return {...clone(webState), openedAccountId: webState.accounts.at(-1)?.id} as T
   }
   if (command === 'remove_account') {
     const accountId = String(payload.accountId ?? '')
@@ -491,6 +533,7 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
         ? {...account, connected: true, lastUpdated: 'Demo Riot session'}
         : account),
     }
+    return {...clone(webState), openedAccountId: String(payload.accountId)} as T
   }
   if (command === 'set_account_icon') {
     const accountId = String(payload.accountId ?? '')
@@ -507,6 +550,8 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
     }
     webState = {...webState, accounts: webState.accounts.map(account => account.id === payload.accountId
       ? {...account, connected: true} : account)}
+    webState.activeAccountId = String(payload.accountId)
+    return {...clone(webState), openedAccountId: String(payload.accountId)} as T
   }
   if (command === 'connect_riot_qr_image') {
     const accountId = String(payload.accountId ?? '')
@@ -519,6 +564,7 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
     return {
       ...clone(webState),
       operationNotice: 'Pasted Riot QR connected to the selected identity',
+      openedAccountId: accountId,
     } as T
   }
   if (command === 'toggle_watchlist' || command === 'toggle_follow') {
@@ -602,15 +648,25 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
       riotId: query,
       region: String(payload.region ?? 'EUW'),
       game,
-      games: game ? [game] : ['League of Legends', 'Teamfight Tactics'],
+      games: game ? [game] : ['League of Legends', 'Teamfight Tactics', 'VALORANT'],
       ranks: game ? undefined : [
         {game: 'League of Legends', tier: 'Diamond IV', rating: 62},
         {game: 'Teamfight Tactics', tier: 'Gold III', rating: 68},
+        {game: 'VALORANT', tier: 'Ascendant 2', rating: 74},
       ],
       currentRank: game === 'VALORANT' ? 'Ascendant 1 · 48 RR' : 'Diamond IV · 62 LP',
       peakRank: game === 'VALORANT' ? 'Immortal 1' : 'Master',
       lastUpdated: 'Demo data',
       followed: false,
+      matches: clone(accounts[0].matches ?? []).map(match => {
+        const target = match.teams?.flatMap(team => team.players).find(participant => (participant.riotId ?? participant.name).toLowerCase() === query.toLowerCase())
+        return {...match, teams: match.teams?.map(team => ({...team, players: team.players.map(participant => {
+          const self = target ? participant === target : participant.self
+          return {...participant, self, ...(self ? {name: query, riotId: query} : {})}
+        })}))}
+      }),
+      leagueLevel: 284, valorantLevel: 284,
+      leagueRegion: 'EUW', valorantRegion: 'EU',
     }
     webState = {...webState, searchHistory: [query, ...webState.searchHistory.filter(item => item.toLowerCase() !== query.toLowerCase())]}
     return [player] as T

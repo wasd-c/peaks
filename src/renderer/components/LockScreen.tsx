@@ -93,6 +93,31 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
     inputRef.current?.focus()
   }, [mode])
 
+  useEffect(() => {
+    if (resetStep !== 'closed') return
+    let focusFrame = 0
+    const cancelFocus = () => window.cancelAnimationFrame(focusFrame)
+    const restoreFocus = () => {
+      cancelFocus()
+      // Let the window finish activating before restoring keyboard input.
+      focusFrame = window.requestAnimationFrame(() => {
+        const input = inputRef.current
+        if (document.hasFocus() && document.visibilityState !== 'hidden' && input && !input.disabled) {
+          input.focus({preventScroll: true})
+        }
+      })
+    }
+    window.addEventListener('focus', restoreFocus)
+    window.addEventListener('blur', cancelFocus)
+    document.addEventListener('visibilitychange', restoreFocus)
+    return () => {
+      cancelFocus()
+      window.removeEventListener('focus', restoreFocus)
+      window.removeEventListener('blur', cancelFocus)
+      document.removeEventListener('visibilitychange', restoreFocus)
+    }
+  }, [resetStep])
+
   const submit = async (candidate: string) => {
     if (submittingRef.current) return
     submittingRef.current = true

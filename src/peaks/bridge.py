@@ -24,6 +24,7 @@ from typing import Any
 
 from platformdirs import user_data_path
 
+from peaks.adapters.riot.tft_composition import composition_view
 from peaks.application.demo_data import (
     DEMO_PIN,
     DEMO_TOTP_SEED,
@@ -93,6 +94,11 @@ def _rank(value: dict[str, Any]) -> dict[str, Any]:
         "tier": parts[0].lower(),
         "division": embedded_division or explicit_division,
         "rating": _optional_int(value.get("rating")),
+        **({"peakTier": str(value["peak_tier"]), "peakDivision": str(value.get("peak_division") or "")}
+           if value.get("peak_tier") else {}),
+        **({"peakRating": _optional_int(value["peak_rating"])} if value.get("peak_rating") is not None else {}),
+        **({"peakSeason": value["peak_season"]} if isinstance(value.get("peak_season"), str)
+           and re.fullmatch(r"(?:E[1-9]\d?|V\d{2}):A[1-6]", value["peak_season"]) else {}),
     }
 
 
@@ -201,6 +207,13 @@ def _match_stats(value: object) -> dict[str, Any]:
         "combatScore",
         "roundsPlayed",
         "roundsAnalyzed",
+        "impactRounds",
+        "kastRounds",
+        "damageReceived",
+        "firstKills",
+        "firstDeaths",
+        "flawlessRounds",
+        "aces",
         "headshots",
         "bodyshots",
         "legshots",
@@ -288,6 +301,7 @@ def _match_teams(value: object) -> list[dict[str, Any]]:
                     "stats": _match_stats(raw_player.get("stats")),
                     "self": bool(raw_player.get("self")),
                     "hidden": hidden,
+                    **({"composition": composition_view(raw_player["composition"])} if not hidden and "composition" in raw_player else {}),
                     **_player_enrichment(raw_player, hidden=hidden),
                 }
             )
@@ -366,34 +380,73 @@ def _match(value: Any) -> dict[str, Any]:
         "draw": "Draw",
         "tie": "Draw",
         "top_4": "Top 4",
+        "top_2": "Top 2",
         "1st place": "Top 4",
         "2nd place": "Top 4",
         "3rd place": "Top 4",
         "4th place": "Top 4",
         "placement": "Placement",
     }.get(result, "Recent match")
-    duration = _optional_int(data.get("duration_seconds"))
+    duration = _optional_int(data.get("duration_seconds", data.get("durationSeconds")))
     metadata = data.get("metadata")
     if not isinstance(metadata, Mapping):
         metadata = {}
+    game = _game(str(data.get("game", "VALORANT")))
+    mode = str(data.get("queue") or data.get("mode") or "Match")
+    duos = data.get("teamMode") == "duos" or metadata.get("teamMode") == "duos"
+    free_for_all = bool(data.get("freeForAll") or metadata.get("freeForAll"))
+    teams = data.get("teams") or metadata.get("teams")
+    if game == "Teamfight Tactics":
+        from peaks.adapters.riot.league import is_tft_double_up
+        from peaks.adapters.riot.tft_damage import clear_empty_lobby_damage
+
+        duos = duos or is_tft_double_up(mode, mode)
+        free_for_all = not duos
+        teams = clear_empty_lobby_damage(teams)
     return {
         "id": str(data.get("match_id", data.get("id", ""))),
-        "game": _game(str(data.get("game", "VALORANT"))),
+        "game": game,
         "result": result_label,
-        "mode": str(data.get("queue") or data.get("mode") or "Match"),
+        "mode": mode,
         "map": str(data.get("map_name") or data.get("map") or "Map unavailable"),
         "playedAt": _played_label(data.get("played_at")) or data.get("playedAt"),
         **({"playedAtTimestamp": timestamp} if timestamp is not None else {}),
-        "duration": f"{duration // 60}m" if duration is not None else None,
+        "duration": f"{duration // 60}m" if duration is not None else (_safe_presentation_text(data.get("duration"), limit=32) or None),
+        **({"durationSeconds": duration} if duration is not None and 0 <= duration <= 86400 else {}),
+        **({"season": season} if isinstance(season := metadata.get("season", data.get("season")), str)
+           and re.fullmatch(r"(?:E[1-9]\d?|V\d{2}):A[1-6]", season) else {}),
         "score": data.get("score") or metadata.get("score"),
-        "delta": data.get("rank_delta") or data.get("delta"),
+        "delta": f"{data['rank_delta']:+d} {'RR' if _game(str(data.get('game', ''))) == 'VALORANT' else 'LP'}" if type(data.get('rank_delta')) is int else data.get('delta'),
         "performance": data.get("performance"),
         "positive": data.get("positive"),
-        "teams": _match_teams(data.get("teams") or metadata.get("teams")),
-        "freeForAll": bool(data.get("freeForAll") or metadata.get("freeForAll")),
-        **({"teamMode": "duos"} if data.get("teamMode") == "duos" or metadata.get("teamMode") == "duos" else {}),
+        "teams": _match_teams(teams),
+        "freeForAll": free_for_all,
+        **({"teamMode": "duos"} if duos else {}),
         **({"enrichmentPending": True} if data.get("enrichmentPending") is True or metadata.get("enrichmentPending") is True else {}),
+        **({"localEndOfGame": True} if data.get("localEndOfGame") is True or metadata.get("localEndOfGame") is True else {}),
     }
+
+
+def _has_final_tft_placement(match: Mapping[str, Any]) -> bool:
+    if _game(str(match.get("game", ""))) != "Teamfight Tactics":
+        return False
+    selves = [player for team in match.get("teams", ()) if isinstance(team, Mapping)
+              for player in team.get("players", ()) if isinstance(player, Mapping) and player.get("self") is True]
+    if len(selves) != 1 or not isinstance(selves[0].get("stats"), Mapping):
+        return False
+    placement = selves[0]["stats"].get("placement")
+    return type(placement) is int and 1 <= placement <= 8
+
+
+def _history_match_id(game: str, match_id: str, region: object) -> str:
+    """Compare LCU numeric IDs only within the owner's authoritative shard."""
+    if _game(game) not in {"League of Legends", "Teamfight Tactics"}:
+        return match_id
+    from peaks.adapters.riot.tft_local_history import platform_match_id
+
+    prefix = "tft" if _game(game) == "Teamfight Tactics" else "league"
+    numeric = match_id.removeprefix(f"{prefix}-")
+    return platform_match_id(numeric, region) or match_id
 
 
 def _vault_has_pin(vault: Any) -> bool:
@@ -459,6 +512,8 @@ class Bridge:
         self._session_import_in_progress = False
         self._observed_live_match: tuple[str, str, str] | None = None
         self._post_match_refresh: dict[str, Any] | None = None
+        self._next_tft_local_history_at = 0.0
+        self._last_tft_local_snapshot: tuple[str, dict[str, Any]] | None = None
         self._current_match: dict[str, Any] = {}
         self._game_detected = False
         self._riot_client_status: dict[str, Any] = {
@@ -483,6 +538,8 @@ class Bridge:
         )
         self.settings = {
             "autoLockMinutes": 15,
+            "favoriteGame": "VALORANT",
+            "autoLaunchFavoriteGame": False,
             "lockOnBlur": True,
             "streamerMode": False,
             "reduceMotion": False,
@@ -504,7 +561,7 @@ class Bridge:
         games = [_game(game) for game in item.get("games", ()) or ()]
         ranks = [_rank(dict(rank)) for rank in item.get("ranks", ()) or () if isinstance(rank, Mapping)]
         matches = [
-            _match(match) if "match_id" in match else dict(match)
+            _match(match) if any(key in match for key in ("match_id", "metadata", "duration_seconds")) else dict(match)
             for match in item.get("matches", ()) or () if isinstance(match, Mapping)
         ]
         return {**item, "games": games, "ranks": ranks, "matches": matches, **({"game": games[0]} if games else {})}
@@ -702,7 +759,10 @@ class Bridge:
                 list_matches = getattr(self._repository, "list_matches", None)
                 if callable(list_matches):
                     with suppress(Exception):
-                        matches = [_match(match) for match in list_matches(str(item.id), limit=20)]
+                        from peaks.domain.models import Game
+
+                        matches = [_match(match) for game in Game for match in list_matches(str(item.id), game=game, limit=20)]
+                        matches.sort(key=lambda match: match.get("playedAtTimestamp", 0), reverse=True)
                 loaded.append(
                     {
                         "id": str(item.id),
@@ -740,6 +800,8 @@ class Bridge:
                 self.settings.update(
                     {
                         "autoLockMinutes": max(0, round(timeout_seconds / 60)),
+                        "favoriteGame": _game(getattr(stored_settings, "favorite_game", "valorant")),
+                        "autoLaunchFavoriteGame": getattr(stored_settings, "auto_launch_favorite_game", False) is True,
                         "lockOnBlur": bool(
                             getattr(stored_settings, "lock_on_blur", True)
                         ),
@@ -757,6 +819,14 @@ class Bridge:
 
         updates: dict[str, Any] = {}
         persisted: dict[str, Any] = {}
+        if "favoriteGame" in payload:
+            from peaks.domain.models import Game
+
+            favorite = payload["favoriteGame"]
+            if not isinstance(favorite, str) or favorite not in {game.label for game in Game}:
+                raise ValueError("Choose a supported favorite game.")
+            updates["favoriteGame"] = favorite
+            persisted["favorite_game"] = Game.parse(favorite).value
         if "autoLockMinutes" in payload:
             value = payload["autoLockMinutes"]
             if isinstance(value, bool):
@@ -773,6 +843,7 @@ class Bridge:
             ("lockOnBlur", "lock_on_blur"),
             ("reduceMotion", "reduce_motion"),
             ("streamerMode", "streamer_mode"),
+            ("autoLaunchFavoriteGame", "auto_launch_favorite_game"),
         ):
             if renderer_key not in payload:
                 continue
@@ -787,6 +858,14 @@ class Bridge:
             if callable(update_setting):
                 update_setting(persisted)
         self.settings.update(updates)
+
+    def _launch_favorite_game(self) -> str:
+        if self.demo:
+            return "Game launch is unavailable in preview mode."
+        from peaks.adapters.riot.launcher import launch_game
+
+        launch_game(str(self.settings["favoriteGame"]))
+        return "Launch request sent to Riot Client."
 
     def _refresh_account_secret_flags(self) -> None:
         """Hydrate presentation flags only after the encrypted vault is unlocked."""
@@ -887,8 +966,12 @@ class Bridge:
         self._next_owned_account_refresh_at = 0.0
         self._observed_live_match = None
         self._post_match_refresh = None
+        self._next_tft_local_history_at = 0.0
+        self._last_tft_local_snapshot = None
         self.settings = {
             "autoLockMinutes": 15,
+            "favoriteGame": "VALORANT",
+            "autoLaunchFavoriteGame": False,
             "lockOnBlur": True,
             "streamerMode": False,
             "reduceMotion": False,
@@ -1282,6 +1365,13 @@ class Bridge:
         self._logger.info("bridge.activity.start")
         try:
             current = service.detect()
+            subject_reader = getattr(service, "active_riot_subject", None)
+            active_subject = subject_reader() if callable(subject_reader) else getattr(service, "active_account_puuid", None)
+            self._recognize_local_account(active_subject)
+            self._active_account_id = next((
+                str(account["id"]) for account in self.accounts
+                if active_subject and account.get("puuid") == active_subject and account.get("owned", True)
+            ), None)
             status = service.client_status
             if not isinstance(status, Mapping):
                 status = {}
@@ -1324,6 +1414,7 @@ class Bridge:
                 game.casefold() if game else "none",
             )
         except Exception as exc:
+            self._active_account_id = None
             self._mark_activity_stale()
             self._game_detected = bool(self._current_match.get("game"))
             self._riot_client_status = {
@@ -1332,6 +1423,34 @@ class Bridge:
                 "game": "",
             }
             self._logger.warning("bridge.activity.failed error_type=%s", type(exc).__name__)
+
+    def _recognize_local_account(self, subject: str | None) -> None:
+        """Remember the active verified identity, without capturing reusable credentials."""
+        if subject != getattr(self, "_dismissed_active_subject", None):
+            self._dismissed_active_subject = None
+        if not subject or subject == getattr(self, "_dismissed_active_subject", None):
+            return
+        if any(account.get("puuid") == subject and account.get("owned", True) for account in self.accounts):
+            return
+        if not getattr(self, "_repository", None) or self._locked:
+            return
+        if monotonic() < getattr(self, "_next_local_recognition_at", 0.0):
+            return
+        self._next_local_recognition_at = monotonic() + 60
+        try:
+            from peaks.application.account_onboarding import AccountOnboardingService
+
+            factory = self._account_onboarding_factory or AccountOnboardingService
+            reader = getattr(factory(), "read_local_account", None)
+            if not callable(reader):
+                return
+            result = reader()
+            if result.identity.puuid != subject or result.source != "local_client" or result.cookies is not None:
+                return
+            self._persist_authenticated_account(result)
+            self._next_owned_account_refresh_at = 0.0
+        except Exception as exc:
+            self._logger.info("bridge.account.recognition_unavailable error_type=%s", type(exc).__name__)
 
     def _mark_activity_stale(self) -> None:
         """Missing telemetry never proves an observed match has ended."""
@@ -1345,8 +1464,9 @@ class Bridge:
         """Arm only an owned live match, then refresh its exact final record."""
 
         current = self._current_match
-        game = str(current.get("game", ""))
-        match_id = str(current.get("id", ""))
+        game = _game(str(current.get("game", "")))
+        account = next((value for value in self.accounts if value.get("id") == account_id), {})
+        match_id = _history_match_id(game, str(current.get("id", "")), account.get("region"))
         previous = getattr(self, "_observed_live_match", None)
         if previous and (game, match_id) != previous[:2]:
             now = monotonic()
@@ -1359,8 +1479,33 @@ class Bridge:
                 "expires_at": now + 120,
             }
             self._observed_live_match = None
-        if game == "VALORANT" and match_id and account_id and current.get("phase") == "live":
+        if game in {"VALORANT", "League of Legends", "Teamfight Tactics"} and match_id and account_id and current.get("phase") == "live":
             self._observed_live_match = (game, match_id, account_id)
+
+    def _refresh_local_tft_history_if_due(self) -> None:
+        """Persist confirmed local results on the activity cadence, independently of Riot history."""
+        if self.demo or monotonic() < getattr(self, "_next_tft_local_history_at", 0.0):
+            return
+        self._next_tft_local_history_at = monotonic() + 15
+        pending = getattr(self, "_post_match_refresh", None) or {}
+        previous_owner = pending.get("account_id") if pending.get("game") == "Teamfight Tactics" else None
+        account_id = previous_owner or getattr(self, "_active_account_id", None)
+        account = next((value for value in self.accounts if value.get("id") == account_id and value.get("owned", True)), None)
+        if account is None or not account.get("puuid"):
+            return
+        service = getattr(self, "_current_game_service", None)
+        reader = getattr(service, "owned_tft_local_snapshot", None)
+        if not callable(reader):
+            return
+        try:
+            snapshot = self._snapshot_mapping(reader(account["puuid"], platform=str(account.get("region") or "")))
+            if not snapshot or (account_id, snapshot) == getattr(self, "_last_tft_local_snapshot", None):
+                return
+            self._persist_account_snapshot(str(account_id), snapshot)
+            self._merge_account_snapshot(account, snapshot)
+            self._last_tft_local_snapshot = (str(account_id), snapshot)
+        except Exception as exc:
+            self._logger.info("bridge.match.local_tft_unavailable error_type=%s", type(exc).__name__)
 
     def _refresh_completed_match_if_due(self) -> None:
         """Retry final history at most four times over two minutes, without sleeps."""
@@ -1382,8 +1527,10 @@ class Bridge:
             self._post_match_refresh = None
             return
         try:
+            priority_match_id = _history_match_id(pending["game"], pending["match_id"], account.get("region"))
             updated = self._refresh_owned_accounts(
-                account_id=pending["account_id"], fail_if_unavailable=False
+                account_id=pending["account_id"], fail_if_unavailable=False,
+                priority_match_id=priority_match_id, priority_game=pending["game"],
             )
         except Exception as exc:
             updated = 0
@@ -1395,16 +1542,18 @@ class Bridge:
         recorded = next(
             (
                 match for match in account.get("matches", [])
-                if match.get("id") == pending["match_id"]
-                and str(match.get("game", "")).casefold() == pending["game"].casefold()
+                if _game(str(match.get("game", ""))) == pending["game"]
+                and _history_match_id(pending["game"], str(match.get("id", "")), account.get("region")) == priority_match_id
             ),
             None,
         )
         # History can precede match details. Keep polling until final result or
         # a recorded FFA roster is available rather than stopping at an ID stub.
         complete = recorded and (
-            str(recorded.get("result", "")).casefold() in {"win", "loss", "draw", "victory", "defeat"}
-            or (recorded.get("freeForAll") and recorded.get("teams"))
+            _has_final_tft_placement(recorded) if pending["game"] == "Teamfight Tactics" else (
+                str(recorded.get("result", "")).casefold() in {"win", "loss", "draw", "victory", "defeat"}
+                or (recorded.get("freeForAll") and recorded.get("teams"))
+            )
         )
         if complete or pending["attempts"] >= 4:
             self._post_match_refresh = None
@@ -1473,7 +1622,7 @@ class Bridge:
         for value in snapshot.get("matches", ()) or ():
             try:
                 data = value.to_dict() if hasattr(value, "to_dict") else dict(value)
-                if not data.get("played_at"):
+                if _played_timestamp(data.get("played_at")) is None:
                     continue
                 data["account_id"] = account_id
                 # Fetch progress belongs to this running session, never to a
@@ -1525,13 +1674,30 @@ class Bridge:
                 ranks.append(view)
         account["ranks"] = ranks
 
-        matches = list(account.get("matches", []))
+        valorant_level = snapshot.get("valorantLevel")
+        if isinstance(valorant_level, int) and not isinstance(valorant_level, bool) and 0 <= valorant_level <= 100_000:
+            account["valorantLevel"] = valorant_level
+        league_level = snapshot.get("leagueLevel")
+        if isinstance(league_level, int) and not isinstance(league_level, bool) and 0 <= league_level <= 100_000:
+            account["leagueLevel"] = league_level
+        act = snapshot.get("valorantAct")
+        if isinstance(act, str) and re.fullmatch(r"(?:E[1-9]\d?|V\d{2}):A[1-6]", act):
+            account["valorantAct"] = act
+
+        matches = [{**match, "game": _game(str(match.get("game", "VALORANT")))} for match in account.get("matches", [])]
         incoming: list[dict[str, Any]] = []
         incoming_ids: set[str] = set()
+        previous_by_id = {str(match.get("id", "")): match for match in matches}
         for raw in snapshot.get("matches", ()) or ():
             view = _match(raw)
             match_id = str(view.get("id", ""))
             if not match_id or match_id in incoming_ids:
+                continue
+            previous = previous_by_id.get(match_id)
+            if previous and _has_final_tft_placement(previous) and (
+                (view.get("localEndOfGame") and not previous.get("localEndOfGame"))
+                or not _has_final_tft_placement(view)
+            ):
                 continue
             incoming_ids.add(match_id)
             incoming.append(view)
@@ -1548,11 +1714,14 @@ class Bridge:
         priority = next((match for match in merged_matches if match.get("id") == priority_match_id), None)
         # A report reached through an older saved page must survive a refresh
         # of the newest page, otherwise the view falls back to its stale copy.
-        account["matches"] = (
-            [*merged_matches[:19], priority]
-            if priority is not None and priority not in merged_matches[:20]
-            else merged_matches[:20]
-        )
+        retained: list[dict[str, Any]] = []
+        for game in ("VALORANT", "League of Legends", "Teamfight Tactics"):
+            rows = [match for match in merged_matches if match.get("game") == game][:20]
+            if priority is not None and priority.get("game") == game and priority not in rows:
+                rows = [*rows[:19], priority]
+            retained.extend(rows)
+        retained.sort(key=lambda match: _played_timestamp(match.get("playedAtTimestamp")) or 0, reverse=True)
+        account["matches"] = retained
         account["lastUpdated"] = "just now"
 
     def _refresh_owned_accounts(
@@ -1561,6 +1730,7 @@ class Bridge:
         account_id: str = "",
         fail_if_unavailable: bool = True,
         priority_match_id: str | None = None,
+        priority_game: str | None = None,
     ) -> int:
         if self.demo:
             for account in self.accounts:
@@ -1657,9 +1827,10 @@ class Bridge:
                             type(exc).__name__,
                         )
                 try:
+                    valorant_priority = priority_match_id if priority_game is None or _game(priority_game) == "VALORANT" else None
                     snapshot_result = (
-                        local_service.owned_valorant_snapshot(puuid, priority_match_id=priority_match_id)
-                        if priority_match_id else local_service.owned_valorant_snapshot(puuid)
+                        local_service.owned_valorant_snapshot(puuid, priority_match_id=valorant_priority)
+                        if valorant_priority else local_service.owned_valorant_snapshot(puuid)
                     )
                     local_snapshot = self._snapshot_mapping(snapshot_result)
                 except Exception as exc:
@@ -2699,6 +2870,11 @@ class Bridge:
 
     def state(self) -> dict[str, Any]:
         visible = not self._locked
+        active_account = getattr(self, "_active_account_id", None)
+        if visible and not self.demo and active_account and any(account.get("id") == active_account for account in self.accounts):
+            observe = getattr(self._repository, "observe_profile", None)
+            if callable(observe):
+                observe(active_account, "connection", {})
         visible_accounts: list[dict[str, Any]] = []
         if visible:
             for account in self.accounts:
@@ -2748,6 +2924,13 @@ class Bridge:
             "gameDetected": bool(current_match.get("game")),
             "settings": self.settings,
             "riotClient": riot_client,
+            "activeAccountId": (
+                visible_accounts[0]["id"] if self.demo and visible_accounts
+                else self._renderer_account_id(str(active_id))
+                if visible and (active_id := getattr(self, "_active_account_id", None))
+                and any(account.get("id") == active_id for account in self.accounts)
+                else None
+            ),
         }
 
     def _change_security_code(self, payload: Mapping[str, Any]) -> None:
@@ -2793,6 +2976,7 @@ class Bridge:
         if command == "activity":
             if not self._locked:
                 self._poll_activity()
+                self._refresh_local_tft_history_if_due()
                 self._refresh_completed_match_if_due()
                 self._refresh_owned_accounts_if_due()
                 self._refresh_saved_sessions_if_due()
@@ -2841,6 +3025,27 @@ class Bridge:
             return self._reset_application(payload.get("confirmation"))
         if self._locked:
             raise PermissionError("Unlock Peaks to continue")
+        if command in {"account_activity", "account_match"}:
+            account_id = self._internal_account_id(str(payload.get("accountId", "")))
+            account = next((item for item in self.accounts if item.get("id") == account_id and item.get("owned", True)), None)
+            if account is None:
+                raise ValueError("Choose an owned account")
+            if self.demo:
+                if command == "account_match":
+                    return next((match for match in account.get("matches", []) if match.get("id") == payload.get("matchId")), None)
+                return {"matches": account.get("matches", []), "connectionDays": [], "identities": [], "ranks": []}
+            if command == "account_activity":
+                observer = getattr(self._repository, "observe_profile", None)
+                if callable(observer):
+                    observer(account_id, "identity", {"riotId": account.get("riotId", "")})
+                    for rank in account.get("ranks", []):
+                        observer(account_id, "rank", rank)
+                return self._repository.profile_activity(account_id)
+            match_id = payload.get("matchId")
+            if not isinstance(match_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,160}", match_id):
+                raise ValueError("Choose a recorded match")
+            match = self._repository.get_account_match(account_id, match_id)
+            return _match(match) if match is not None else None
         if command == "lock":
             self._clear_sensitive_configuration()
             self._close_totp_setup_service()
@@ -2849,15 +3054,22 @@ class Bridge:
             self._locked = True
             self._observed_live_match = None
             self._post_match_refresh = None
+            self._last_tft_local_snapshot = None
+            self._next_tft_local_history_at = 0.0
             self._current_match = {}
             self._game_detected = False
+            self._active_account_id = None
         elif command == "settings":
             self._update_settings(payload)
+        elif command == "launch_favorite_game":
+            notice = self._launch_favorite_game()
+            return {**self.state(), "operationNotice": notice}
         elif command == "change_pin":
             self._change_security_code(payload)
         elif command == "add_account":
             account = self._add_authenticated_account()
             result = self.state()
+            result["openedAccountId"] = str(account["id"]) if self.demo else self._renderer_account_id(str(account["id"]))
             if not account.get("connected"):
                 result["operationNotice"] = (
                     "Account recognized from the active Riot Client; a reusable session was "
@@ -2865,9 +3077,11 @@ class Bridge:
                 )
             return result
         elif command == "remove_account":
-            self._remove_account(
-                self._internal_account_id(str(payload.get("accountId", "")))
-            )
+            internal_id = self._internal_account_id(str(payload.get("accountId", "")))
+            removed = next((account for account in self.accounts if account.get("id") == internal_id), None)
+            self._remove_account(internal_id)
+            if removed:
+                self._dismissed_active_subject = removed.get("puuid")
         elif command == "set_account_icon":
             if "icon" not in payload:
                 raise ValueError("Choose a character icon or restore the automatic icon")
@@ -2936,6 +3150,10 @@ class Bridge:
                 self._internal_account_id(str(payload.get("accountId", ""))),
                 force_sign_in=force_sign_in,
             )
+            self._next_owned_account_refresh_at = 0.0
+            result = self.state()
+            result["openedAccountId"] = str(payload.get("accountId", ""))
+            return result
         elif command in {"connect_riot_client", "connect_riot_qr_image"}:
             self._connect_riot_client(
                 self._internal_account_id(str(payload.get("accountId", ""))),
@@ -2943,11 +3161,23 @@ class Bridge:
                 payload.get("qrCaptureState"),
             )
             result = self.state()
+            result["openedAccountId"] = str(payload.get("accountId", ""))
+            self._next_owned_account_refresh_at = 0.0
             result["operationNotice"] = (
                 "Pasted Riot QR connected to the selected identity"
                 if command == "connect_riot_qr_image"
                 else "Riot Client connected to the selected identity"
             )
+            if self.settings.get("autoLaunchFavoriteGame") is True:
+                try:
+                    result["operationNotice"] += " · " + self._launch_favorite_game()
+                except Exception as exc:
+                    # A launcher failure must not turn an approved sign-in into
+                    # a failed connection or cause a second QR approval.
+                    self._logger.warning("bridge.game.auto_launch_failed error_type=%s", type(exc).__name__)
+                    result["operationWarning"] = (
+                        "Riot account connected, but your favorite game could not be launched. Try the launch button."
+                    )
             return result
         elif command == "enable_riot_mfa":
             return self._enable_riot_mfa(
@@ -2991,6 +3221,7 @@ class Bridge:
                     str(payload.get("accountId", ""))
                 ),
                 priority_match_id=priority_match_id,
+                fail_if_unavailable=payload.get("background") is not True,
             )
         return self.state()
 
@@ -3008,11 +3239,23 @@ class Bridge:
         search = getattr(self._get_riot_search_service(), "search_player", None)
         if not callable(search):
             return []
-        return [
-            self._player(item)
-            for item in search(query, region=region, game=game)
-            if isinstance(item, dict)
-        ]
+        repository = getattr(self, "_repository", None)
+        remember = getattr(repository, "remember_player_profile", None)
+        try:
+            rows = search(query, region=region, game=game)
+        except Exception:
+            cached = getattr(repository, "cached_player_profile", None)
+            previous = cached(query) if callable(cached) else None
+            if previous is not None:
+                return [{**previous, "lastUpdated": "Saved history"}]
+            raise
+        result = []
+        for item in rows:
+            if isinstance(item, dict):
+                normalized = self._player(item)
+                normalized["matches"] = [_match(match) for match in normalized.get("matches", [])]
+                result.append(remember(normalized) if callable(remember) else normalized)
+        return result
 
 
 def _bridge_response_line(response: Mapping[str, Any]) -> str:
@@ -3038,6 +3281,8 @@ def _configure_bridge_stdio() -> None:
 _DIAGNOSTIC_BRIDGE_COMMANDS = frozenset(
     {
         "activity",
+        "account_activity",
+        "account_match",
         "add_account",
         "api_key",
         "copy_totp",
@@ -3048,6 +3293,7 @@ _DIAGNOSTIC_BRIDGE_COMMANDS = frozenset(
         "connect_riot_qr_image",
         "enable_riot_mfa",
         "import_session",
+        "launch_favorite_game",
         "lock",
         "pin",
         "prepare_totp_setup",

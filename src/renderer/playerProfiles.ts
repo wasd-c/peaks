@@ -25,6 +25,7 @@ export function mergeRiotProfile(selected: Player, accounts: Account[], followed
   const accountProfiles: Player[] = accounts.filter(account => identityMatches(account)).map(account => ({
     id: account.id, riotId: account.riotId, region: account.region, ranks: account.ranks,
     peakRanks: account.peakRanks, matches: account.matches, lastUpdated: account.lastUpdated,
+    leagueLevel: account.leagueLevel, valorantLevel: account.valorantLevel, leagueRegion: account.leagueRegion, valorantRegion: account.valorantRegion, valorantAct: account.valorantAct,
   }))
   const sources = [...followed.filter(identityMatches), ...accountProfiles, selected, ...fetched.filter(identityMatches)]
   const ranks = new Map<Game, Rank>()
@@ -50,6 +51,13 @@ export function mergeRiotProfile(selected: Player, accounts: Account[], followed
     region: recent.find(source => source.region && source.region !== 'GLOBAL')?.region ?? selected.region,
     lastUpdated: recent.find(source => source.lastUpdated)?.lastUpdated,
     lastGame: recent.find(source => source.lastGame)?.lastGame,
+    leagueLevel: recent.find(source => source.leagueLevel != null)?.leagueLevel,
+    valorantLevel: recent.find(source => source.valorantLevel != null)?.valorantLevel,
+    leagueRegion: recent.find(source => source.leagueRegion)?.leagueRegion,
+    valorantRegion: recent.find(source => source.valorantRegion)?.valorantRegion,
+    valorantAct: recent.find(source => source.valorantAct)?.valorantAct,
+    activity: recent.find(source => source.activity)?.activity,
+    cachedAt: recent.find(source => source.cachedAt)?.cachedAt,
     games: [...games], ranks: [...ranks.values()], peakRanks: [...peaks.values()], matches: [...matches.values()],
   }
 }

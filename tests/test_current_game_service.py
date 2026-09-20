@@ -521,7 +521,7 @@ def test_owned_valorant_snapshot_returns_only_rank_and_bounded_history(
         log_handler.close()
 
     assert snapshot == {
-        "level": 284,
+        "valorantLevel": 284,
         "ranks": [
             {
                 "game": "valorant",

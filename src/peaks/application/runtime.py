@@ -15,11 +15,14 @@ from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import asdict, is_dataclass, replace
 from datetime import UTC, datetime
+from math import isfinite
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from peaks.adapters.riot.redaction import redact_player
-from peaks.domain.regions import normalize_valorant_region
+from peaks.adapters.riot.tft_composition import composition_view
+from peaks.adapters.riot.tft_damage import damage_available, damage_to_players
+from peaks.domain.regions import normalize_league_region, normalize_valorant_region
 
 if TYPE_CHECKING:
     from peaks.adapters.riot.valorant import (
@@ -51,6 +54,53 @@ _REGIONS: dict[str, tuple[str, str]] = {
     "TW": ("sea", "tw2"),
     "VN": ("sea", "vn2"),
 }
+
+
+def league_platform_id(region: object) -> str | None:
+    """Resolve a known League/TFT region to its canonical match-ID prefix."""
+    known = normalize_league_region(region)
+    route = _REGIONS.get(known or "")
+    return route[1].upper() if route else None
+
+
+def _match_duration(info: Mapping[str, Any]) -> int | None:
+    value = info.get("game_length", info.get("gameDuration"))
+    if not isinstance(value, (int, float)) or isinstance(value, bool) or not isfinite(value):
+        return None
+    # Legacy League payloads before 11.20 reported milliseconds.
+    if value > 86400 and isinstance(info.get("gameVersion"), str):
+        version = re.match(r"(\d+)\.(\d+)", info["gameVersion"])
+        if version and tuple(map(int, version.groups())) < (11, 20):
+            value /= 1000
+    return int(value) if 0 < value <= 86400 else None
+
+
+def _tft_personal_duration(player: Mapping[str, Any], info: Mapping[str, Any]) -> int | None:
+    value = player.get('time_eliminated', player.get('timeEliminated'))
+    total = _match_duration(info)
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and isfinite(value) and 0 < value <= (total or 86400):
+        return int(value)
+    return total
+
+
+def _tft_positive_placement(participants: object, *, duos: bool) -> int | None:
+    if not duos:
+        return 4
+    if not isinstance(participants, list):
+        return None
+    placements = [
+        participant["placement"] for participant in participants[:20]
+        if isinstance(participant, Mapping)
+        and type(participant.get("placement")) is int
+        and 1 <= participant["placement"] <= 8
+    ]
+    # Double Up can report eight individual places or duplicated team places.
+    # Partial rosters must not imply a scale unless a place above four proves it.
+    if any(placement > 4 for placement in placements):
+        return 4
+    if len(placements) == 8 and all(placements.count(place) == 2 for place in (1, 2, 3, 4)):
+        return 2
+    return None
 
 
 def _split_riot_id(value: str) -> tuple[str, str]:
@@ -153,12 +203,19 @@ class RiotSearchService:
             result["matches"] = [*snapshot.get("matches", []), *[
                 match for match in result.get("matches", [])
                 if str(match.get("game", "")).lower() != "valorant"
-            ]][:20]
+            ]]
             result["currentRank"] = snapshot.get("currentRank", "Rank unavailable")
             result["peakRank"] = snapshot.get("peakRank", "Rank unavailable")
-            for key in ("level", "region", "peakRankSeason"):
+            for key in ("peakRankSeason", "valorantAct"):
                 if key in snapshot:
                     result[key] = snapshot[key]
+            if "level" in snapshot:
+                result["valorantLevel"] = snapshot["level"]
+                result.setdefault("level", snapshot["level"])
+            if "region" in snapshot:
+                result["valorantRegion"] = snapshot["region"]
+                if result.get("region") in {None, "", "GLOBAL"}:
+                    result["region"] = snapshot["region"]
             result.pop("valorantStatus", None)
             result["lastUpdated"] = "Just now"
             LOGGER.info(
@@ -186,6 +243,7 @@ class RiotSearchService:
         ranks: list[dict[str, Any]] = []
         entries: tuple[Any, ...] = ()
         warnings: list[str] = []
+        histories: list[dict[str, Any]] = []
         try:
             local_client = factory()
             lookup = getattr(local_client, "lookup_summoner", None)
@@ -202,6 +260,20 @@ class RiotSearchService:
                         warnings.append("Rank data is unavailable from the signed-in client.")
                 except Exception:
                     warnings.append("Rank data is temporarily unavailable from the signed-in client.")
+                history_reader = getattr(local_client, "public_match_history", None)
+                if callable(history_reader):
+                    from peaks.adapters.riot.owned_history import history_details
+
+                    for history_game in ("League", "TFT"):
+                        try:
+                            page = history_reader(profile, game=history_game, limit=20)
+                            for match_id, info, played in history_details(page, puuid=profile.puuid, game=history_game):
+                                for participant in info['participants']:
+                                    if participant.get('puuid') == profile.puuid:
+                                        participant['riotIdGameName'], participant['riotIdTagline'] = game_name, tag_line
+                                histories.append(self._match_view(history_game, match_id, info=info, puuid=profile.puuid, played_at=played))
+                        except Exception:
+                            warnings.append(f"{history_game} history is unavailable from the signed-in client.")
         except Exception:
             # Do not surface transport details or local paths across IPC. The
             # stable marker lets the renderer choose allowlisted copy.
@@ -220,6 +292,8 @@ class RiotSearchService:
         # when its own standard queue was actually returned, never from a
         # selected game or a Double Up / Hyper Roll rank.
         games = ["League"]
+        if any(match.get('game') == 'tft' for match in histories):
+            games.append('TFT')
         for entry in entries:
             game = "TFT" if entry.queue_type == "RANKED_TFT" else "League"
             ranks.append(self._rank_view(entry, game))
@@ -247,13 +321,15 @@ class RiotSearchService:
             "initials": resolved_name[:2].upper(),
             "puuid": str(getattr(profile, "puuid", "")),
             "ranks": ranks,
-            "matches": [],
+            "matches": histories,
             "valorantStatus": "Requires Riot-approved player opt-in",
             "warnings": warnings,
         }
         level = getattr(profile, "level", None)
         if isinstance(level, int) and not isinstance(level, bool):
             result["level"] = level
+            result["leagueLevel"] = level
+        result["leagueRegion"] = result["region"]
         return [result]
 
     def _riot_client_search_player(self, query: str) -> list[dict[str, Any]]:
@@ -408,14 +484,8 @@ class RiotSearchService:
                 kills = participant.get("kills")
                 deaths = participant.get("deaths")
                 assists = participant.get("assists")
-                minions = sum(
-                    value
-                    for value in (
-                        participant.get("totalMinionsKilled"),
-                        participant.get("neutralMinionsKilled"),
-                    )
-                    if isinstance(value, int) and not isinstance(value, bool)
-                )
+                minion_counts = (participant.get("totalMinionsKilled"), participant.get("neutralMinionsKilled"))
+                minions = sum(cast(tuple[int, int], minion_counts)) if all(type(value) is int and value >= 0 for value in minion_counts) else None
                 stats = {
                     "kills": kills,
                     "deaths": deaths,
@@ -437,8 +507,8 @@ class RiotSearchService:
                 stats = {
                     "placement": placement,
                     "level": participant.get("level"),
-                    "damage": participant.get("totalDamageToPlayers"),
-                    "playersEliminated": participant.get("playersEliminated"),
+                    "damage": damage_to_players(participant) if damage_available(bounded) else None,
+                    "playersEliminated": participant.get("players_eliminated", participant.get("playersEliminated")),
                 }
                 character = "TFT tactician"
                 score = f"#{placement}" if isinstance(placement, int) else None
@@ -454,7 +524,9 @@ class RiotSearchService:
                         if isinstance(value, (int, float)) and not isinstance(value, bool)
                     },
                     "self": is_self,
-                    "hidden": riot_id is None,
+                    "hidden": riot_id is None and not is_self,
+                    **({"role": participant["teamPosition"]} if game == "League" and participant.get("teamPosition") in {"TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"} else {}),
+                    **({"composition": composition_view(participant)} if game == "TFT" else {}),
                 }
             )
         views: list[dict[str, Any]] = []
@@ -532,14 +604,16 @@ class RiotSearchService:
             deaths = player.get("deaths") if isinstance(player, dict) else None
             assists = player.get("assists") if isinstance(player, dict) else None
             queue = detail.get("queueId") or detail.get("gameMode") or "Unknown queue"
-            map_name = detail.get("mapId") or "Unknown map"
+            map_id = str(detail.get("mapId") or "")
+            map_name = {"11": "Summoner's Rift", "12": "Howling Abyss"}.get(map_id, map_id or "Unknown map")
         else:
             placement = player.get("placement") if isinstance(player, dict) else None
-            if isinstance(placement, int):
-                result = "top_4" if placement <= 4 else "placement"
-            queue = "Double Up" if duos else detail.get("tft_game_type") or detail.get("tftGameType") or detail.get("gameType") or "Unknown queue"
-            map_name = detail.get("gameVariation") or "Unknown map"
-        played = float(played_at) if isinstance(played_at, (int, float)) else None
+            positive_placement = _tft_positive_placement(participants, duos=duos)
+            if type(placement) is int and 1 <= placement <= 8 and positive_placement is not None:
+                result = f"top_{positive_placement}" if placement <= positive_placement else "placement"
+            queue = "Double Up" if duos else detail.get("queue_id") or detail.get("queueId") or detail.get("tft_game_type") or detail.get("tftGameType") or detail.get("gameType") or "Unknown queue"
+            map_name = detail.get("gameVariation") or "Teamfight Tactics"
+        played = float(played_at) if isinstance(played_at, (int, float)) and not isinstance(played_at, bool) and isfinite(played_at) and played_at > 0 else None
         played_label = (
             _relative_timestamp(played * 1_000) if played is not None else "No recent game"
         )
@@ -567,8 +641,9 @@ class RiotSearchService:
             "kills": kills,
             "deaths": deaths,
             "assists": assists,
+            "duration_seconds": _tft_personal_duration(player, detail) if game == "TFT" else _match_duration(detail),
             "rank_delta": None,
-            "metadata": {"teams": teams, **({"teamMode": "duos"} if duos else {})},
+            "metadata": {"teams": teams, **({"teamMode": "duos"} if duos else {"freeForAll": True} if game == "TFT" else {})},
         }
 
     def _match_rows(
@@ -610,9 +685,20 @@ class RiotSearchService:
             info = getattr(detail, "info", {})
             if not isinstance(info, dict):
                 info = {}
-            timestamp = info.get("gameEndTimestamp") or info.get("gameStartTimestamp")
-            if isinstance(timestamp, (int, float)) and timestamp > 10_000_000_000:
-                timestamp = timestamp / 1_000
+            timestamp = None
+            for key in ("gameStartTimestamp", "gameCreation", "game_datetime", "gameEndTimestamp"):
+                candidate = info.get(key)
+                if isinstance(candidate, str) and candidate.isascii() and candidate.isdigit() and len(candidate) <= 13:
+                    candidate = int(candidate)
+                if isinstance(candidate, (int, float)) and not isinstance(candidate, bool) and isfinite(candidate) and candidate > 0:
+                    timestamp = float(candidate) / (1_000 if candidate > 10_000_000_000 else 1)
+                    # Calendar rows use the start. Only an explicit end can be
+                    # moved back by the normalized full-match duration.
+                    if key == "gameEndTimestamp":
+                        duration = _match_duration(info)
+                        if duration is not None:
+                            timestamp -= duration
+                    break
             rows.append(
                 self._match_view(game, reference, info=info, puuid=puuid, played_at=timestamp)
             )
@@ -673,13 +759,11 @@ class RiotSearchService:
             matches.extend(self._match_rows("League", puuid, routing=account_route, count=20))
         except RuntimeError as error:
             warnings.append(str(error))
-        if tft_rank is not None:
-            try:
-                matches.extend(self._match_rows("TFT", puuid, routing=account_route, count=20))
-            except RuntimeError as error:
-                warnings.append(str(error))
-        # Keep account rows bounded even when both game histories are present.
-        matches = matches[:20]
+        # Unranked TFT accounts can still have normal / Hyper Roll history.
+        try:
+            matches.extend(self._match_rows("TFT", puuid, routing=account_route, count=20))
+        except RuntimeError as error:
+            warnings.append(str(error))
         result = {
             "id": puuid,
             "riotId": f"{account.game_name}#{account.tag_line}",
@@ -791,7 +875,7 @@ class RiotSearchService:
                 games.append("TFT")
                 try:
                     matches.extend(
-                        self._match_rows("TFT", account.puuid, routing=account_route, count=10)
+                        self._match_rows("TFT", account.puuid, routing=account_route, count=20)
                     )
                 except RuntimeError as error:
                     warnings.append(str(error))
@@ -800,9 +884,8 @@ class RiotSearchService:
             games.append("VALORANT")
 
         # League and TFT pages are fetched independently.  Merge them into a
-        # single newest-first history before limiting the response so the
-        # shared detail view does not privilege whichever game was requested
-        # first.
+        # single newest-first history. Each page is already bounded; a shared
+        # limit would let newer League games displace TFT's twenty results.
         matches.sort(
             key=lambda match: (
                 float(match.get("played_at", 0) or 0) if isinstance(match, dict) else 0
@@ -869,7 +952,7 @@ class RiotSearchService:
             "initials": account.game_name[:2].upper(),
             "puuid": account.puuid,
             "ranks": rank_views,
-            "matches": matches[:20],
+            "matches": matches,
             "valorantStatus": "Requires approved VALORANT RSO",
         }
         if warnings:
@@ -948,6 +1031,27 @@ class CurrentGameService:
         """Return a safe diagnostic code for the most recent owned read."""
 
         return self._last_valorant_snapshot_failure
+
+    def active_riot_subject(self) -> str | None:
+        """Read the verified local session, even when no game is running."""
+        if platform.system() != "Windows":
+            return None
+        from peaks.adapters.riot.client import RiotClientHTTP
+        from peaks.adapters.riot.discovery import discover_riot_client
+
+        discovery = discover_riot_client()
+        if discovery.lockfile is None:
+            return None
+        local = RiotClientHTTP(discovery.lockfile)
+        try:
+            payload = local.get_json("/entitlements/v1/token")
+            subject = payload.get("subject") if isinstance(payload, Mapping) else None
+            return str(subject) if self._valid_owned_puuid(subject) else None
+        except Exception as exc:
+            LOGGER.info("current_game.identity.unavailable error_type=%s", type(exc).__name__)
+            return None
+        finally:
+            local.close()
 
     def detect(self) -> dict[str, Any] | None:
         self.detection_available = False
@@ -1246,12 +1350,22 @@ class CurrentGameService:
             if priority_match_id:
                 client.priority_match_id = priority_match_id
             matches = client.match_history(limit=20)
+            delta_reader = getattr(client, 'competitive_deltas_optional', None)
+            deltas = delta_reader() if callable(delta_reader) else {}
+            from peaks.adapters.riot.valorant_enrichment import RequestBudget
+
+            enrichment = getattr(client, "enrichment", None)
+            catalog = enrichment.catalog(client, RequestBudget(remaining=0)) if enrichment else None
         if level is None and rank is None and not matches:
             self._last_valorant_snapshot_failure = "no_data"
             LOGGER.info("current_game.owned_snapshot.unavailable reason=no_data")
             return None
 
-        snapshot = self._valorant_snapshot_view(level, rank, matches)
+        snapshot = self._valorant_snapshot_view(level, rank, matches, season_labels=catalog.labels if catalog else None, rank_deltas=deltas)
+        if catalog and catalog.active_id in catalog.labels:
+            snapshot["valorantAct"] = catalog.labels[catalog.active_id]
+        if level is not None:
+            snapshot["valorantLevel"] = snapshot.pop("level", level)
         routing = getattr(self, "_valorant_enrichment_key", None)
         if routing and routing[0] == puuid:
             route = re.fullmatch(r"https://pd\.([a-z0-9-]+)\.a\.pvp\.net/?", routing[1])
@@ -1279,7 +1393,7 @@ class CurrentGameService:
             if authenticated is None:
                 return None
             client, _ = authenticated
-            profile = client.player_profile(puuid, limit=10)
+            profile = client.player_profile(puuid, limit=20)
         if profile is None:
             return None
         snapshot = self._valorant_snapshot_view(profile.level, profile.rank, profile.matches)
@@ -1299,6 +1413,7 @@ class CurrentGameService:
     def _valorant_snapshot_view(
         self, level: int | None, rank: ValorantRank | None,
         matches: tuple[ValorantMatchSummary, ...],
+        *, season_labels: Mapping[str, str] | None = None, rank_deltas: Mapping[str, int] | None = None,
     ) -> dict[str, Any]:
         """Shared sanitized presentation for owned and explicitly searched profiles."""
         ranks: list[dict[str, Any]] = []
@@ -1308,7 +1423,8 @@ class CurrentGameService:
                     "game": "valorant",
                     "tier": rank.name,
                     "rating": rank.rr,
-                    "peak_tier": rank.peak_name,
+                    "peak_tier": rank.peak_name if rank.peak_tier >= 3 else None,
+                    **({"peak_season": rank.peak_season} if rank.peak_season else {}),
                 }
             )
         from peaks.adapters.riot.valorant import rank_name
@@ -1360,6 +1476,15 @@ class CurrentGameService:
                             {"weapon": weapon, "kills": kills}
                             for weapon, kills in player.weapon_usage
                         ]
+                    if player.impact:
+                        for source, target in (
+                            ("impact_rounds", "impactRounds"), ("kast_rounds", "kastRounds"),
+                            ("damage_received", "damageReceived"), ("first_kills", "firstKills"),
+                            ("first_deaths", "firstDeaths"), ("flawless_rounds", "flawlessRounds"),
+                            ("aces", "aces"),
+                        ):
+                            if source in player.impact:
+                                statistics[target] = player.impact[source]
                     if player.round_kills is not None:
                         statistics["roundKills"] = list(player.round_kills)
                     if player.self:
@@ -1409,10 +1534,12 @@ class CurrentGameService:
                     "queue": match.queue_id,
                     "map_name": self._valorant_map_name(match.map_id),
                     "duration_seconds": match.duration_seconds,
+                    **({"rank_delta": rank_deltas[match.match_id]} if rank_deltas and match.match_id in rank_deltas else {}),
                     "kills": own_statistics.get("kills"),
                     "deaths": own_statistics.get("deaths"),
                     "assists": own_statistics.get("assists"),
                     "metadata": {
+                        **({"season": season_labels[match.season_id]} if season_labels and isinstance(match.season_id, str) and match.season_id in season_labels else {}),
                         "score": (
                             f"{match.own_score}-{match.opponent_score}"
                             if not match.free_for_all
@@ -1433,23 +1560,86 @@ class CurrentGameService:
 
     refresh_owned_valorant_account = owned_valorant_snapshot
 
+    def owned_tft_local_snapshot(self, puuid: str, *, platform: str) -> dict[str, Any] | None:
+        """Recover owner-bound final TFT reports without contacting Riot."""
+        if not self._valid_owned_puuid(puuid) or not (shard := league_platform_id(platform)):
+            return None
+        from peaks.adapters.riot.tft_local_history import read_tft_local_history
+
+        matches = read_tft_local_history(puuid, shard, limit=20)
+        return {"matches": matches} if matches else None
+
     def owned_league_snapshot(self, puuid: str) -> dict[str, Any] | None:
         """Read League/TFT queues only for the exact signed-in owned identity."""
         if platform.system() != "Windows" or not self._valid_owned_puuid(puuid):
             return None
-        from peaks.adapters.riot.league import LeagueClient
+        from peaks.adapters.riot.league import REGION_LOCALE_PATH, LeagueClient
 
         client = LeagueClient.from_discovery()
         try:
             profile = client.current_profile(puuid)
-            if profile is None:
+            if profile is None or profile.puuid != puuid:
                 return None
-            queues = client.ranked_stats(puuid, owned=True)
+            try:
+                queues = client.ranked_stats(puuid, owned=True)
+            except Exception as exc:
+                queues = ()
+                LOGGER.info("current_game.owned_league.unavailable error_type=%s", type(exc).__name__)
             snapshot: dict[str, Any] = {
                 "ranks": [RiotSearchService._rank_view(entry, "TFT" if entry.queue_type == "RANKED_TFT" else "League") for entry in queues or ()],
             }
             if profile.level is not None:
                 snapshot["level"] = profile.level
+                snapshot["leagueLevel"] = profile.level
+            matches: list[dict[str, Any]] = []
+            history_reader = getattr(client, "owned_match_history", None)
+            if callable(history_reader):
+                from peaks.adapters.riot.owned_history import history_details
+
+                for game in ("League", "TFT"):
+                    try:
+                        page = history_reader(puuid, game=game, limit=20)
+                        for match_id, info, timestamp in history_details(page, puuid=puuid, game=game):
+                            for player in info["participants"]:
+                                if player.get("puuid") == puuid:
+                                    player.update(riotIdGameName=profile.game_name, riotIdTagline=profile.tag_line)
+                            matches.append(RiotSearchService._match_view(game, match_id, info=info, puuid=puuid, played_at=timestamp))
+                    except Exception as exc:
+                        LOGGER.info("current_game.owned_league.unavailable error_type=%s", type(exc).__name__)
+            # A successful LCU response may remain behind the completed game.
+            # Accepted final EOG posts are an independent, owner-bound source.
+            # Full Riot history always takes precedence over its local fallback.
+            try:
+                shard = league_platform_id(getattr(profile, "region", None))
+                if shard is None:
+                    http = getattr(client, "lcu_http", None)
+                    region_reader = getattr(http, "get_json", None)
+                    if callable(region_reader):
+                        region_payload = region_reader(REGION_LOCALE_PATH)
+                        if isinstance(region_payload, Mapping):
+                            shard = league_platform_id(region_payload.get("region"))
+                if shard:
+                    local = self.owned_tft_local_snapshot(puuid, platform=shard)
+                    existing = {
+                        str(match.get("id", "")) for match in matches
+                        if match.get("played_at") is not None and any(
+                            player.get("self") is True and type(player.get("stats", {}).get("placement")) is int
+                            and 1 <= player["stats"]["placement"] <= 8
+                            for team in match.get("metadata", {}).get("teams", ()) for player in team.get("players", ())
+                        )
+                    }
+                    for match in (local or {}).get("matches", ()):
+                        if str(match.get("id", "")) in existing:
+                            continue
+                        for team in match.get("metadata", {}).get("teams", ()):
+                            for player in team.get("players", ()):
+                                if player.get("self") is True:
+                                    player.update(name=profile.riot_id, riotId=profile.riot_id)
+                        matches = [value for value in matches if value.get("id") != match.get("id")]
+                        matches.append(match)
+            except Exception as exc:
+                LOGGER.info("current_game.owned_tft_local.unavailable error_type=%s", type(exc).__name__)
+            snapshot["matches"] = matches
             return snapshot or None
         except Exception as exc:
             LOGGER.info("current_game.owned_league.unavailable error_type=%s", type(exc).__name__)
@@ -1759,12 +1949,13 @@ class CurrentGameService:
         try:
             self._last_valorant_snapshot_failure = None
             LOGGER.debug("current_game.valorant_auth.ready")
+            from peaks.adapters.riot.season_metadata import public_season_catalog
             from peaks.adapters.riot.valorant_enrichment import ValorantEnrichmentCache
 
             cache_key = (subject_text, pd_url)
             if self._valorant_enrichment_key != cache_key:
                 self._valorant_enrichment_key = cache_key
-                self._valorant_enrichment = ValorantEnrichmentCache()
+                self._valorant_enrichment = ValorantEnrichmentCache(catalog_fallback=public_season_catalog)
             client = ValorantClient(remote, subject_text)
             client.enrichment = self._valorant_enrichment
             yield client, subject_text

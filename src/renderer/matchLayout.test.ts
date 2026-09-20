@@ -32,6 +32,13 @@ describe('adaptive match layouts', () => {
     expect(layout.canAlignRoles).toBe(false)
   })
 
+  it.each([undefined, false, true])('treats legacy solo TFT reports as individuals with flag %s', freeForAll => {
+    const layout = resolveMatchLayout({game: 'Teamfight Tactics', mode: '1100', freeForAll, teams: [roster(8, 'Lobby')]})
+    expect(layout.kind).toBe('free-for-all')
+    expect(layout.groups[0].name).toBe('Players')
+    expect(layout.groups[0].players).toHaveLength(8)
+  })
+
   it.each(['1150', '1160'])('preserves verified Double Up pairs for queue %s despite a legacy FFA flag', queueId => {
     const teams = Array.from({length: 4}, (_, index) => ({...roster(2, `Duo ${index + 1}`), grouping: 'duo' as const}))
     const layout = resolveMatchLayout({game: 'Teamfight Tactics', queueId, freeForAll: true, teams})

@@ -21,6 +21,9 @@ import {Telemetry} from './telemetry'
 import {CancellationToken, NsisUpdater} from 'electron-updater'
 import {PEAKS_RELEASE_PROVIDER, PeaksUpdater} from './appUpdater'
 import {ReleaseHistory} from './releaseHistory'
+import {protectStdio} from './stdio'
+
+protectStdio()
 
 let window: BrowserWindow | null = null
 let backend: ChildProcessWithoutNullStreams | null = null

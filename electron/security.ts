@@ -1,6 +1,8 @@
 import {Buffer} from 'node:buffer'
 
 export const BACKEND_COMMANDS = new Set([
+  'account_activity',
+  'account_match',
   'activity',
   'add_account',
   'api_key',
@@ -12,6 +14,7 @@ export const BACKEND_COMMANDS = new Set([
   'copy_totp',
   'enable_riot_mfa',
   'import_session',
+  'launch_favorite_game',
   'lock',
   'pin',
   'prepare_totp_setup',

@@ -6,6 +6,10 @@ export interface Rank {
   division?: string
   rating?: number
   icon?: string
+  peakTier?: string
+  peakDivision?: string
+  peakRating?: number
+  peakSeason?: string
 }
 
 export interface PlayerStats {
@@ -45,9 +49,23 @@ export interface PlayerStats {
   roundKills?: number[]
   /** Complete event rounds, excluding explicit event-empty surrender awards. */
   roundsAnalyzed?: number
+  impactRounds?: number
+  kastRounds?: number
+  damageReceived?: number
+  firstKills?: number
+  firstDeaths?: number
+  flawlessRounds?: number
+  aces?: number
+}
+
+export interface TftComposition {
+  units?: Array<{id: string; stars: number; items?: string[]}>
+  traits?: Array<{id: string; count: number; tier: number}>
+  augments?: string[]
 }
 
 export interface MatchPlayer {
+  composition?: TftComposition
   name: string
   riotId?: string
   region?: string
@@ -97,6 +115,8 @@ export interface Match {
   /** Actual match start time (Unix milliseconds), used for cross-game ordering. */
   playedAtTimestamp?: number
   duration?: string
+  durationSeconds?: number
+  season?: string
   delta?: string
   performance?: string
   positive?: boolean
@@ -130,10 +150,17 @@ export interface Player {
   lastUpdated?: string
   initials?: string
   level?: number
+  leagueLevel?: number
+  valorantLevel?: number
+  leagueRegion?: string | null
+  valorantRegion?: string | null
+  valorantAct?: string
   ranks?: Rank[]
   peakRanks?: Rank[]
   matches?: Match[]
   context?: PlayerContext
+  activity?: ProfileActivity
+  cachedAt?: number
 }
 
 export interface AccountIconSelection {
@@ -149,6 +176,9 @@ export interface Account {
   leagueRegion?: string | null
   valorantRegion?: string | null
   level?: number
+  valorantLevel?: number
+  leagueLevel?: number
+  valorantAct?: string
   avatar?: string
   accountIcon?: AccountIconSelection
   nickname?: string
@@ -163,6 +193,15 @@ export interface Account {
   owned?: boolean
   initials?: string
   lastUpdated?: string
+}
+
+export interface ProfileActivity {
+  matches: Match[]
+  totalStoredMatches?: number
+  historyLimit?: number
+  connectionDays: string[]
+  identities: Array<{riotId: string; observedAt: number}>
+  ranks: Array<Rank & {observedAt: number}>
 }
 
 export type SessionPhase = 'lobby' | 'matchmaking' | 'readycheck' | 'pregame' | 'live'
@@ -192,6 +231,8 @@ export interface CurrentMatch {
 
 export interface Settings {
   autoLockMinutes: number
+  favoriteGame?: Game
+  autoLaunchFavoriteGame?: boolean
   streamerMode?: boolean
   lockOnBlur: boolean
   reduceMotion: boolean
@@ -212,6 +253,11 @@ export interface AppState {
   settings: Settings
   riotClient: {detected: boolean; label: string; game?: string}
   operationNotice?: string
+  operationWarning?: string
+  /** Opaque local handle bound to the verified Riot Client identity. */
+  activeAccountId?: string | null
+  /** One-shot navigation result from a successful sign-in or QR approval. */
+  openedAccountId?: string
 }
 
 export interface TotpSetupProposal {

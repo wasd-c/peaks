@@ -175,6 +175,80 @@ def test_search_result_contains_official_league_history_for_shared_detail_view()
     assert result["lastGame"] == result["matches"][0]["playedAt"]
 
 
+@pytest.mark.parametrize("game", ["League", "TFT"])
+@pytest.mark.parametrize("start_key", ["gameStartTimestamp", "gameCreation"])
+def test_official_match_history_prefers_explicit_start(game: str, start_key: str) -> None:
+    started_at = 1_789_880_000_000
+    detail = {
+        start_key: started_at,
+        "game_datetime": started_at + 1_800_000,
+        "gameEndTimestamp": started_at + 1_800_000,
+        "gameDuration": 1_800,
+    }
+    client = FakeClient(
+        league_history=SimpleNamespace(match_ids=("match",)),
+        tft_history=SimpleNamespace(match_ids=("match",)),
+        league_details={"match": detail},
+        tft_details={"match": detail},
+    )
+
+    rows = _service(client)._match_rows(game, "puuid-1", routing="europe")
+
+    assert rows[0]["played_at"] == started_at / 1_000
+
+
+@pytest.mark.parametrize(("game", "duration"), [
+    ("League", {"gameDuration": 1_800}),
+    ("League", {"gameDuration": 1_800_000, "gameVersion": "11.19.1"}),
+    ("TFT", {"game_length": 1_800.5}),
+])
+def test_official_match_end_fallback_subtracts_normalized_duration(
+    game: str, duration: dict[str, object],
+) -> None:
+    ended_at = 1_789_881_800_000
+    detail = {"gameEndTimestamp": ended_at, **duration}
+    client = FakeClient(
+        league_history=SimpleNamespace(match_ids=("match",)),
+        tft_history=SimpleNamespace(match_ids=("match",)),
+        league_details={"match": detail},
+        tft_details={"match": detail},
+    )
+
+    rows = _service(client)._match_rows(game, "puuid-1", routing="europe")
+
+    assert rows[0]["played_at"] == ended_at / 1_000 - 1_800
+
+
+def test_official_tft_datetime_fallback_preserves_provider_timestamp() -> None:
+    timestamp = 1_789_880_000_000
+    client = FakeClient(
+        tft_history=SimpleNamespace(match_ids=("match",)),
+        tft_details={"match": {"game_datetime": timestamp, "game_length": 1_800}},
+    )
+
+    rows = _service(client)._match_rows("TFT", "puuid-1", routing="europe")
+
+    assert rows[0]["played_at"] == timestamp / 1_000
+
+
+def test_public_search_keeps_twenty_tft_games_alongside_newer_league_games() -> None:
+    league_ids = tuple(f"LEAGUE_{index}" for index in range(25))
+    tft_ids = tuple(f"TFT_{index}" for index in range(25))
+    client = FakeClient(
+        league_ranks=(LeagueRank("RANKED_SOLO_5x5", "DIAMOND", "III", 70, 30, 20),),
+        tft_ranks=(TftRank("RANKED_TFT", "MASTER", "I", 200, 20, 10),),
+        league_history=SimpleNamespace(match_ids=league_ids),
+        tft_history=SimpleNamespace(match_ids=tft_ids),
+        league_details={match_id: {"gameEndTimestamp": 1_800_000_000_000} for match_id in league_ids},
+        tft_details={match_id: {"game_datetime": 1_700_000_000_000} for match_id in tft_ids},
+    )
+    result = _service(client).search_player("Peak#EUW", region="EUW", game="all")[0]
+    assert sum(row["game"] == "tft" for row in result["matches"]) == 20
+    assert sum(row["game"] == "league_of_legends" for row in result["matches"]) == 10
+    assert ("tft-history", "europe", 20) in client.calls
+    assert sum(call[0] == "tft-match" for call in client.calls) == 20
+
+
 def test_account_overview_has_required_ranks_and_bounded_official_match_rows() -> None:
     league_rank = LeagueRank("RANKED_SOLO_5x5", "DIAMOND", "III", 70, 30, 20)
     tft_rank = TftRank("RANKED_TFT", "MASTER", "I", 200, 20, 10)
@@ -194,8 +268,9 @@ def test_account_overview_has_required_ranks_and_bounded_official_match_rows() -
     assert overview["riotId"] == "Peak#EUW"
     assert [rank["game"] for rank in overview["ranks"]] == ["League", "TFT", "VALORANT"]
     assert overview["valorantStatus"] == "Requires approved VALORANT RSO"
-    assert len(overview["matches"]) == 20
-    assert all(row["game"] == "league_of_legends" for row in overview["matches"])
+    assert len(overview["matches"]) == 24
+    assert sum(row["game"] == "league_of_legends" for row in overview["matches"]) == 20
+    assert sum(row["game"] == "tft" for row in overview["matches"]) == 4
     history_calls = [call for call in client.calls if call[0].endswith("history")]
     assert history_calls == [
         ("league-history", "europe", 20),
@@ -203,7 +278,7 @@ def test_account_overview_has_required_ranks_and_bounded_official_match_rows() -
     ]
 
 
-def test_account_overview_omits_tft_and_tft_history_when_unplayed() -> None:
+def test_account_overview_checks_unranked_tft_history_without_inventing_a_rank() -> None:
     client = FakeClient(
         league_history=SimpleNamespace(match_ids=()),
         tft_ranks=RiotApiError("not found", status_code=404),
@@ -212,7 +287,7 @@ def test_account_overview_omits_tft_and_tft_history_when_unplayed() -> None:
     overview = _service(client).account_overview("Peak#EUW", "EUW")
 
     assert [rank["game"] for rank in overview["ranks"]] == ["League", "VALORANT"]
-    assert not any(call[0] == "tft-history" for call in client.calls)
+    assert any(call[0] == "tft-history" for call in client.calls)
 
 
 def test_account_overview_rejects_unknown_platform_instead_of_guessing_euw() -> None:

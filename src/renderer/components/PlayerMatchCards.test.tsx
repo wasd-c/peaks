@@ -147,6 +147,19 @@ describe('player match cards', () => {
     expect(html.match(/position [12] of 2/g)).toHaveLength(8)
   })
 
+  it('shows a completed solo TFT lobby in placement order without labeling opponents as allies', () => {
+    const html = render([{name: 'Lobby', players: [
+      {name: 'Last#EUW', stats: {placement: 8}},
+      {name: 'Self#EUW', self: true, stats: {placement: 4}},
+      {name: 'First#EUW', stats: {placement: 1}},
+    ]}], true, {game: 'Teamfight Tactics', mode: '1100', freeForAll: false})
+    expect(html).toContain('data-layout="free-for-all"')
+    expect(cardNames(html)).toEqual(['First#EUW', 'Self#EUW', 'Last#EUW'])
+    expect(html.match(/pmc-card--ffa/g)).toHaveLength(2)
+    expect(html).not.toContain('pmc-card--ally')
+    expect(html).not.toContain('Your team')
+  })
+
   it('shows unassigned Double Up players neutrally instead of inventing allies or pairs', () => {
     const html = render([{name: 'Party', players: Array.from({length: 8}, (_, index) => ({...player(index), self: index === 0}))}], false, {game: 'Teamfight Tactics', phase: 'lobby', teamMode: 'duos'})
     expect(html).toContain('Pairings unavailable')

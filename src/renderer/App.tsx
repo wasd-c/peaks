@@ -1,6 +1,6 @@
 import {accountRegionForGame} from './accountRegions'
 import {t, useLocale, displayText} from './i18n'
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useReducer, useRef, useState} from 'react'
 import {AppShell} from '@astryxdesign/core/AppShell'
 import {Button} from '@astryxdesign/core/Button'
 import {Center} from '@astryxdesign/core/Center'
@@ -61,6 +61,11 @@ import type {Account, AppState, Player, TotpSetupResult} from './types'
 import {EditAccountDialog} from './components/EditAccountDialog'
 import {accountConnectionError} from './accountConnection'
 import {useAccountConnection} from './useAccountConnection'
+import {approvedProfileAccount, profileAccount} from './accountProfile'
+import {AccountScreen} from './screens/AccountScreen'
+import {AccountArrival} from './components/AccountArrival'
+import {WorkspaceHistory} from './components/WorkspaceHistory'
+import {initialWorkspaceNavigation, workspaceNavigation} from './workspaceNavigation'
 import {MFA_VERIFICATION_WARNING, riotMfaError} from './mfa'
 
 export function App() {
@@ -160,10 +165,45 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
   const release = useReleaseNotes()
   useLocale()
   const [page, setPage] = useState<Page>('overview')
+  const [profileAccountId, setProfileAccountId] = useState<string | null>(null)
+  const [accountArrival, setAccountArrival] = useState(0)
+  const seenActiveAccount = useRef<string | null>(null)
+  const awaitingActiveAccount = useRef<{id: string; until: number} | null>(null)
   const [view, setView] = useState<AuthenticatedView>('grid')
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
-  const [selectedMatch, setSelectedMatch] = useState<MatchSelection | null>(null)
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
+  const [navigation, navigate] = useReducer(workspaceNavigation, initialWorkspaceNavigation)
+  const activeRoute = navigation.routes.at(-1)
+  const selectedMatch = activeRoute?.kind === 'match' ? activeRoute.selection : null
+  const selectedPlayer = activeRoute?.kind === 'player' ? activeRoute.player : null
+  const setSelectedMatch = useCallback((selection: MatchSelection | null) => navigate(selection ? {type: 'match', selection} : {type: 'back'}), [])
+  const setSelectedPlayer = useCallback((player: Player | null) => navigate(player ? {type: 'player', player} : {type: 'back'}), [])
+  const openAccountProfile = useCallback((account: Account, fromClient = false) => {
+    if (!fromClient) awaitingActiveAccount.current = {id: account.id, until: Date.now() + 60_000}
+    setProfileAccountId(account.id)
+    setSelectedAccountId(null)
+    navigate({type: 'reset'})
+    setPage('account')
+    setAccountArrival(previous => previous + 1)
+  }, [])
+  useEffect(() => {
+    const active = profileAccount(state, state.activeAccountId)
+    const awaiting = awaitingActiveAccount.current
+    if (active && awaiting) {
+      if (active.id === awaiting.id || Date.now() < awaiting.until) {
+        seenActiveAccount.current = active.id
+        if (active.id === awaiting.id) awaitingActiveAccount.current = null
+        return
+      }
+      awaitingActiveAccount.current = null
+    }
+    // An unavailable poll is not proof of a different identity. Never steal
+    // navigation again when the same lockfile account becomes readable.
+    if (active && active.id !== seenActiveAccount.current) {
+      seenActiveAccount.current = active.id
+      openAccountProfile(active, true)
+    }
+  }, [state, openAccountProfile])
+  const currentProfile = profileAccount(state, profileAccountId)
   const [isAddOpen, setAddOpen] = useState(false)
   const [connectAccountId, setConnectAccountId] = useState<string | null>(null)
   const [postMatchReviews, setPostMatchReviews] = useState<PostMatchReview[]>([])
@@ -288,8 +328,7 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
 
   const changePage = (next: Page) => {
     setSelectedAccountId(null)
-    setSelectedMatch(null)
-    setSelectedPlayer(null)
+    navigate({type: 'reset'})
     setPage(next)
   }
 
@@ -300,14 +339,14 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
       height="fill"
       variant="surface"
       mobileNav={{breakpoint: 'none', hasToggle: false}}
-      topNav={<WorkspaceBar state={state} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
+      topNav={<WorkspaceBar state={state} onStateChange={setState} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
         setPage('overview')
-        setSelectedPlayer(null)
-        setSelectedMatch(null)
+        navigate({type: 'reset'})
         setSelectedAccountId(account.id)
       }} />}
       sideNav={
         <AppNavigation
+          hasAccount={Boolean(currentProfile)}
           page={page}
           state={state}
           onLock={() => void requestLock('manual').catch(() => undefined)}
@@ -315,19 +354,21 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
         />
       }>
       <Workspace
+        profileAccount={currentProfile}
+        accountArrival={accountArrival}
+        detailPath={navigation.routes.map(route => route.key)}
+        onOpenAccountProfile={openAccountProfile}
         connectAccount={connectAccount}
         isAddOpen={isAddOpen}
         onAddOpen={setAddOpen}
         onClearAccount={() => {
-          setSelectedPlayer(null)
-          setSelectedMatch(null)
+          navigate({type: 'reset'})
           setSelectedAccountId(null)
         }}
         onConnectAccount={setConnectAccountId}
         onRequestLock={() => requestLock('manual')}
         onSelectAccount={account => {
-          setSelectedPlayer(null)
-          setSelectedMatch(null)
+          navigate({type: 'reset'})
           setSelectedAccountId(account.id)
         }}
         onSelectMatch={setSelectedMatch}
@@ -350,7 +391,7 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
             isOpen={canShowPostMatch && !isShareMatchOpen}
             onDismiss={dismissPostMatch}
             onOpenReport={() => {
-              setSelectedPlayer(null)
+              navigate({type: 'reset'})
               setSelectedAccountId(null)
               setSelectedMatch({match: postMatchReview.match, region: accountRegionForGame(postMatchReview.account, postMatchReview.match.game), accountId: postMatchReview.account.id})
               dismissPostMatch()
@@ -371,6 +412,10 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
 }
 
 interface WorkspaceProps {
+  profileAccount?: Account
+  accountArrival: number
+  detailPath: string[]
+  onOpenAccountProfile: (account: Account) => void
   connectAccount: Account | null
   isAddOpen: boolean
   onAddOpen: (isOpen: boolean) => void
@@ -392,6 +437,10 @@ interface WorkspaceProps {
 }
 
 function Workspace({
+  profileAccount: currentProfile,
+  accountArrival,
+  detailPath,
+  onOpenAccountProfile,
   connectAccount,
   isAddOpen,
   onAddOpen,
@@ -420,6 +469,7 @@ function Workspace({
   const [enablingMfaAccounts, setEnablingMfaAccounts] = useState<ReadonlySet<string>>(new Set())
   const [stoppedReport, setStoppedReport] = useState<string | null>(null)
   const [profileLookup, setProfileLookup] = useState<{riotId: string; players: Player[]; loading: boolean} | null>(null)
+  const [profileRevision, setProfileRevision] = useState(0)
   const profileRiotId = selectedPlayer?.riotId
   useEffect(() => {
     if (!profileRiotId) return
@@ -434,7 +484,7 @@ function Workspace({
       if (!cancelled) setProfileLookup({riotId: profileRiotId, players: [], loading: false})
     })
     return () => { cancelled = true }
-  }, [profileRiotId])
+  }, [profileRiotId, profileRevision])
   const lookup = profileLookup?.riotId === profileRiotId ? profileLookup : null
   const riotProfile = selectedPlayer ? mergeRiotProfile(selectedPlayer, state.accounts, state.followed, lookup?.players) : null
 
@@ -453,6 +503,8 @@ function Workspace({
 
         const next = await invoke<AppState>(command, payload)
         setState(next)
+        const approved = approvedProfileAccount(command, next)
+        if (approved) onOpenAccountProfile(approved)
         const successMessages: Record<string, string> = {
           add_account: 'Account added',
           api_key: 'API key saved',
@@ -463,7 +515,9 @@ function Workspace({
           refresh: 'Local intelligence refreshed',
         }
         const successMessage = next.operationNotice ?? successMessages[command]
-        if (successMessage && !quiet) {
+        if (next.operationWarning) {
+          showToast({body: redact(displayText(next.operationWarning)), type: 'info', uniqueID: 'game-launch-warning'})
+        } else if (successMessage && !quiet) {
           showToast({
             body: redact(displayText(successMessage)),
             type: next.operationNotice ? 'info' : undefined,
@@ -488,12 +542,36 @@ function Workspace({
       return
     }
     await execute()
-  }, [onRequestLock, redact, runWithAutoLockPaused, setState, showToast])
+  }, [onRequestLock, onOpenAccountProfile, redact, runWithAutoLockPaused, setState, showToast])
 
   const {connection, connect} = useAccountConnection({
     approve: accountId => action('connect_riot_client', {accountId}, true, true),
     onError: error => showToast({body: t(accountConnectionError(error)), type: 'error', uniqueID: 'account-connection', isAutoHide: true}),
   })
+
+  const profileId = currentProfile?.id
+  const [profileLoading, setProfileLoading] = useState(false)
+  const loadedProfileMatches = currentProfile?.matches ?? []
+  const profilePending = !loadedProfileMatches.length || loadedProfileMatches.some(match => match.enrichmentPending)
+  const profileRefresh = useRef({action, pending: profilePending})
+  useEffect(() => { profileRefresh.current = {action, pending: profilePending} }, [action, profilePending])
+  useEffect(() => {
+    if (page !== 'account' || !profileId) return
+    // The backend bounds detail requests and caches completed rows. Continue
+    // loading a partial page without blocking the initial account arrival.
+    let cancelled = false
+    let timer: number | undefined
+    let attempts = 0
+    const refresh = async () => {
+      setProfileLoading(true)
+      await profileRefresh.current.action('refresh', {accountId: profileId, background: true}, false, true)
+      if (!cancelled && ++attempts < 3 && profileRefresh.current.pending) {
+        timer = window.setTimeout(() => { void refresh() }, 15_000)
+      } else if (!cancelled) setProfileLoading(false)
+    }
+    void refresh()
+    return () => { cancelled = true; window.clearTimeout(timer) }
+  }, [page, profileId])
 
   const enableRiotMfa = (account: Account): Promise<TotpSetupResult> => {
     const pending = pendingMfa.current.get(account.id)
@@ -558,9 +636,9 @@ function Workspace({
       watched={playerIsWatched(riotProfile, state.followed)}
       isLoading={Boolean(profileRiotId) && (lookup?.loading ?? true)}
       onBack={() => onSelectPlayer(null)}
+      onRefresh={async () => { setProfileRevision(value => value + 1) }}
       onSelectMatch={match => {
-        onSelectPlayer(null)
-        onSelectMatch({match, region: riotProfile.region, source: 'player-profile'})
+        onSelectMatch({match, region: accountRegionForGame({...riotProfile, ranks: riotProfile.ranks ?? []}, match.game), source: 'player-profile'})
       }}
       onToggleWatchlist={() => action('toggle_watchlist', {player: riotProfile})}
       player={riotProfile}
@@ -590,8 +668,17 @@ function Workspace({
         {accountId: selectedAccount.id, ...payload},
         true,
       )}
-      onSelectMatch={match => onSelectMatch({match, region: selectedAccount.region, accountId: selectedAccount.id})}
+      onSelectMatch={match => onSelectMatch({match, region: accountRegionForGame(selectedAccount, match.game), accountId: selectedAccount.id})}
+      onOpenProfile={() => onOpenAccountProfile(selectedAccount)}
     />
+  ) : page === 'account' ? (
+    <AccountScreen key={currentProfile?.id ?? 'empty'} account={currentProfile}
+      isSynchronizing={profileLoading}
+      isActive={Boolean(currentProfile && state.activeAccountId === currentProfile.id)}
+      onRefresh={() => action('refresh', {accountId: currentProfile?.id}, true)}
+      onSelectMatch={match => onSelectMatch({match, region: currentProfile ? accountRegionForGame(currentProfile, match.game) : '', accountId: currentProfile?.id})}
+      onManage={() => { if (currentProfile) onSelectAccount(currentProfile) }}
+      onAdd={() => onAddOpen(true)} />
   ) : page === 'overview' ? (
     <OverviewScreen
       onAdd={() => onAddOpen(true)}
@@ -615,12 +702,10 @@ function Workspace({
 
   return (
     <>
-      <VStack
-        className="screen-transition"
-        height="100%"
-        key={selectedPlayer?.id ?? selectedMatch?.match.id ?? selectedAccount?.id ?? page}>
-        {screen}
-      </VStack>
+      <AccountArrival arrival={accountArrival}><WorkspaceHistory path={[
+        selectedAccount ? `account-detail:${selectedAccount.id}` : page === 'account' ? `account:${currentProfile?.id ?? 'empty'}` : page,
+        ...detailPath,
+      ]}>{screen}</WorkspaceHistory></AccountArrival>
 
       <AddAccountDialog
         isOpen={isAddOpen}

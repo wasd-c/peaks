@@ -12,6 +12,7 @@ import {EyeOff, Search} from 'lucide-react'
 import type {Account, AppState} from '../types'
 import type {Page} from './AppNavigation'
 import {usePlayerPrivacy} from './PlayerPrivacy'
+import {FavoriteGameButton} from './FavoriteGameButton'
 
 const destinations: Array<{id: Page; label: string}> = [
   {id: 'overview', label: 'Accounts'}, {id: 'search', label: 'Player search'},
@@ -19,8 +20,9 @@ const destinations: Array<{id: Page; label: string}> = [
   {id: 'settings', label: 'Settings'},
 ]
 
-export function WorkspaceBar({state, onPage, onSelect, onAdd, onLock}: {
+export function WorkspaceBar({state, onStateChange, onPage, onSelect, onAdd, onLock}: {
   state: AppState
+  onStateChange: (state: AppState) => void
   onPage: (page: Page) => void
   onSelect: (account: Account) => void
   onAdd: () => void
@@ -63,6 +65,7 @@ export function WorkspaceBar({state, onPage, onSelect, onAdd, onLock}: {
       heading={<Text className="pd-wordmark" weight="bold">PEAKS</Text>}
       endContent={<HStack gap={5} align="center">
         <HStack className="pd-client-indicator" gap={2} align="center"><StatusDot label={state.riotClient.detected ? t("Riot Client detected") : t("Riot Client offline")} variant={state.riotClient.detected ? 'accent' : 'neutral'} /><Text type="supporting">{state.riotClient.detected ? t("Client connected") : t("Client offline")}</Text></HStack>
+        <FavoriteGameButton state={state} onStateChange={onStateChange} />
         <Button className="pd-command-trigger" label={t("Search accounts and commands")} tooltip={t("Quick switch · Ctrl K")} variant="secondary" onClick={() => setOpen(true)}>
           <HStack gap={3} align="center"><Icon icon={Search} size="sm" /><Text color="secondary">{t("Search…")}</Text><Text className="pd-key-hint" type="supporting">{t("Ctrl K")}</Text></HStack>
         </Button>

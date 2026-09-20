@@ -401,7 +401,39 @@ def test_unknown_double_up_report_pairs_keep_mode_without_inventing_teams() -> N
     assert report["teams"][0]["grouping"] == "unassigned"
 
 
-def test_standard_tft_report_ignores_partner_ids_and_keeps_existing_layout() -> None:
+@pytest.mark.parametrize(("placements", "expected"), [
+    ([3, 1, 2, 4, 5, 6, 7, 8], "top_4"),
+    ([4, 1, 2, 3, 5, 6, 7, 8], "top_4"),
+    ([7, 1, 2, 3, 4, 5, 6, 8], "placement"),
+    ([2, 1, 1, 2, 3, 3, 4, 4], "top_2"),
+    ([3, 1, 1, 2, 2, 3, 4, 4], "placement"),
+    ([3, 6], "top_4"),
+    ([3], "unknown"),
+    ([1, 2], "unknown"),
+    ([3, True, "8", 9, float("nan")], "unknown"),
+])
+def test_double_up_result_uses_proven_placement_scale(
+    placements: list[Any], expected: str,
+) -> None:
+    participants = [
+        report_participant(index, placement=placement)
+        for index, placement in enumerate(placements)
+    ]
+
+    row = RiotSearchService._match_view(
+        "TFT", "EUW1_123", puuid=OWNER,
+        info={"queue_id": 1160, "participants": participants},
+    )
+
+    assert row["result"] == expected
+    own = next(
+        player for team in row["metadata"]["teams"] for player in team["players"]
+        if player["self"]
+    )
+    assert own["stats"]["placement"] == placements[0]
+
+
+def test_standard_tft_report_ignores_partner_ids_and_marks_individual_players() -> None:
     participants = [report_participant(index, partner_group_id=index // 2 + 1) for index in range(8)]
     row = RiotSearchService._match_view(
         "TFT", "EUW1_123", puuid=OWNER,
@@ -411,8 +443,24 @@ def test_standard_tft_report_ignores_partner_ids_and_keeps_existing_layout() -> 
 
     assert "teamMode" not in row["metadata"]
     assert "teamMode" not in report
-    assert report["mode"] == "standard"
+    assert row["metadata"]["freeForAll"] is True
+    assert report["freeForAll"] is True
+    assert report["mode"] == "1100"
     assert len(report["teams"]) == 1
     assert report["teams"][0]["name"] == "Lobby"
     assert "grouping" not in report["teams"][0]
     assert len(report["teams"][0]["players"]) == 8
+
+
+@pytest.mark.parametrize("mode", ["1100", "1090", "1130", "Ranked", "standard"])
+def test_legacy_tft_reports_are_free_for_all_without_an_explicit_flag(mode: str) -> None:
+    report = _match({"game": "tft", "mode": mode, "freeForAll": False})
+    assert report["freeForAll"] is True
+    assert "teamMode" not in report
+
+
+@pytest.mark.parametrize("mode", ["1150", "1160", "Double Up", "TFT_PAIRS"])
+def test_legacy_double_up_reports_are_not_free_for_all(mode: str) -> None:
+    report = _match({"game": "tft", "mode": mode, "freeForAll": True})
+    assert report["freeForAll"] is False
+    assert report["teamMode"] == "duos"

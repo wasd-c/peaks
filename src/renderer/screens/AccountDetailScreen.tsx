@@ -40,6 +40,7 @@ export interface AccountDetailScreenProps {
   onPasteQr: (payload: QrImageRequest) => Promise<void>
   onRefresh: () => void | Promise<void>
   onSelectMatch: (match: Match) => void
+  onOpenProfile?: () => void
 }
 
 export function AccountDetailScreen({
@@ -53,6 +54,7 @@ export function AccountDetailScreen({
   onPasteQr,
   onRefresh,
   onSelectMatch,
+  onOpenProfile,
 }: AccountDetailScreenProps) {
   useLocale()
   const {displayName} = usePlayerPrivacy()
@@ -80,6 +82,7 @@ export function AccountDetailScreen({
       <AuthenticatedScreen
         actions={
           <>
+            {onOpenProfile ? <Button icon={<Icon icon={BarChart3} />} label={t('VALORANT profile')} onClick={onOpenProfile} variant="secondary" /> : null}
             <Button
               clickAction={async () => { await onRefresh() }}
               icon={<Icon icon={RefreshCw} />}
@@ -227,7 +230,7 @@ export function AccountDetailScreen({
                 <Button icon={<Icon icon={ArrowUpRight} />} label={t("Open report")} onClick={() => onSelectMatch(latestMatch)} size="sm" variant="secondary" />
               </HStack>
             </Section> : null}
-            <MatchList heading={t("Recent activity")} matches={account.matches ?? []} onSelect={onSelectMatch} />
+            <MatchList riotId={account.riotId} heading={t("Recent activity")} matches={account.matches ?? []} onSelect={onSelectMatch} />
           </VStack>
         ) : null}
 
@@ -237,7 +240,7 @@ export function AccountDetailScreen({
             gap={4}
             id="account-detail-matches-panel"
             role="tabpanel">
-            <MatchList heading={t("Match history")} matches={account.matches ?? []} onSelect={onSelectMatch} />
+            <MatchList riotId={account.riotId} heading={t("Match history")} matches={account.matches ?? []} onSelect={onSelectMatch} />
           </VStack>
         ) : null}
 

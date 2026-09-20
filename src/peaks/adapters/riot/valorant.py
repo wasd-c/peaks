@@ -151,6 +151,7 @@ class ValorantMatchPlayer:
     current_rank: ValorantRank | None = None
     overall_stats: Mapping[str, Any] | None = None
     stats_loading: bool = False
+    impact: Mapping[str, int] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -181,6 +182,7 @@ class ValorantMatchSummary:
     teams: tuple[ValorantMatchTeam, ...] = ()
     free_for_all: bool = False
     enrichment_pending: bool = False
+    season_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -783,6 +785,7 @@ def _match_players(
                 hidden=False,
                 weapon_usage=weapon_usage,
                 round_kills=round_kills,
+                impact=analytics.impact if analytics is not None else None,
                 rounds_analyzed=analytics.rounds_analyzed if analytics is not None and analytics.surrendered_rounds else None,
                 account_level=_bounded_level(player.get("accountLevel", player.get("AccountLevel"))),
                 party_id=_party_group(player.get("partyId", player.get("PartyID")), parties),
@@ -938,6 +941,7 @@ def parse_match_details(
         duration_seconds=duration_seconds,
         teams=tuple(team_views),
         free_for_all=free_for_all,
+        season_id=_bounded_season_id(_mapping_text(info, "seasonId", "SeasonID")),
     )
 
 
@@ -1245,9 +1249,9 @@ class ValorantClient:
             return None
         from .valorant_enrichment import RequestBudget, ValorantEnrichmentCache
 
-        bounded_limit = max(1, min(int(limit), 10))
+        bounded_limit = max(1, min(int(limit), 20))
         cache = self.enrichment or ValorantEnrichmentCache()
-        budget = RequestBudget(remaining=24, clock=cache.clock, seconds=12)
+        budget = RequestBudget(remaining=36, clock=cache.clock, seconds=18)
         rank: ValorantRank | None = None
         try:
             catalog = cache.catalog(self, budget)
@@ -1403,6 +1407,24 @@ class ValorantClient:
             return None
         LOGGER.debug("valorant.rank.complete source=competitive_updates")
         return fallback_rank
+
+    def competitive_deltas_optional(self) -> dict[str, int]:
+        """Actual per-match RR adjustments for the authenticated owner only."""
+        try:
+            payload = self._get_json("pd", f"/mmr/v1/players/{quote(self.puuid, safe='')}/competitiveupdates?startIndex=0&endIndex=20&queue=competitive")
+        except RiotClientError:
+            return {}
+        rows = payload.get('Matches') if isinstance(payload, Mapping) else None
+        if not isinstance(rows, list):
+            return {}
+        result = {}
+        for row in rows[:20]:
+            if not isinstance(row, Mapping):
+                continue
+            match_id, delta = row.get('MatchID'), row.get('RankedRatingEarned')
+            if isinstance(match_id, str) and _SUBJECT_PATTERN.fullmatch(match_id) and type(delta) is int and -1000 <= delta <= 1000:
+                result[match_id] = delta
+        return result
 
     def match_history(self, *, limit: int = 20) -> tuple[ValorantMatchSummary, ...]:
         """Return recent own history plus an authorized older selected report."""

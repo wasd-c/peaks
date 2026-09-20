@@ -44,6 +44,7 @@ class RoundAnalytics:
     weapon_usage: tuple[tuple[str, int], ...] | None = None
     rounds_analyzed: int = 0
     surrendered_rounds: int = 0
+    impact: Mapping[str, int] | None = None
 
 
 def _get(value: Mapping[str, Any], name: str) -> Any:
@@ -154,6 +155,9 @@ def parse_round_analytics(payload: Mapping[str, Any]) -> dict[str, RoundAnalytic
                 continue
             by_subject.setdefault(subject, []).append(stat)
 
+    from .round_impact import round_impact
+
+    impact = round_impact(payload, played_rounds)
     result: dict[str, RoundAnalytics] = {}
     for subject, records in by_subject.items():
         if len(records) != len(played_rounds):
@@ -231,5 +235,6 @@ def parse_round_analytics(payload: Mapping[str, Any]) -> dict[str, RoundAnalytic
             weapon_usage=tuple(weapons.most_common(32)) if complete_kills and complete_weapons else None,
             rounds_analyzed=len(played_rounds),
             surrendered_rounds=surrendered_rounds,
+            impact=impact.get(subject),
         )
     return result

@@ -1,0 +1,991 @@
+{
+  "source": "https://raw.communitydragon.org/latest/cdragon/tft/en_us.json",
+  "catalogSha256": "8d936558344a5164ee8efc4a693b803cefa1dc08c59815426b153f8a16d5ddb5",
+  "files": [
+    {
+      "path": "tft-units/DA_18_Ahri.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_ahri/skins/base/images/tft18_ahri_splash_tile_27.png",
+      "sha256": "7bf17b1d4ec4cb53e1cbc47785d3b5a39e85ad67e77579e1d1f9bf8f0d2af99e"
+    },
+    {
+      "path": "tft-units/DA_18_Akali_AD.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_akali/skins/base/images/tft18_akali_splash_tile_2.png",
+      "sha256": "4d0244b1ca01638c3275ad3ef58327e067ccffc624e63d3446e8dee859c3ae7d"
+    },
+    {
+      "path": "tft-units/DA_18_Alistar.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_alistar/skins/base/images/tft18_alistar_splash_tile_40.png",
+      "sha256": "e08045c38636f418d56afc260c468503da20299c55195b8ea0c118cb08b7d107"
+    },
+    {
+      "path": "tft-units/DA_18_Alune.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_alune/skins/base/images/tft18_alune_splash_tile_15.png",
+      "sha256": "4150b80fae49ece4b5f2cb6f9ac14bb16d4a6ffd0fa8e7c025010b1cebe2a671"
+    },
+    {
+      "path": "tft-units/DA_18_Aphelios.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_aphelios/skins/base/images/tft18_aphelios_splash_tile_0.png",
+      "sha256": "9ef21d965f081785024df4ae1a33a6020954bfc97ba2b7bdc423c353c7697378"
+    },
+    {
+      "path": "tft-units/DA_18_Ashe.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_ashe/skins/base/images/tft18_ashe_splash_tile_76.png",
+      "sha256": "b5aba13d8946c30918bb53b573963da841d48eab73c44d6acb15bd91e6d76fd4"
+    },
+    {
+      "path": "tft-units/DA_18_Azir.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_azir/skins/base/images/tft18_azir_splash_tile_5.png",
+      "sha256": "b5067e86693dc37741fb973938aa994923687aec96470b76949884cf8b1bb811"
+    },
+    {
+      "path": "tft-units/DA_18_Caitlyn.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_caitlyn/skins/base/images/tft18_caitlyn_splash_tile_30.png",
+      "sha256": "725d87747bb03b2e22b4deaf90db557a6feb6bb10b3e31e7ca8de39bf793d604"
+    },
+    {
+      "path": "tft-units/DA_18_Camille.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_camille/skins/base/images/tft18_camille_splash_tile_2.png",
+      "sha256": "6973b6ade326969f92e58d4315de4db5178d50957b587b54c7a5efb6b6240772"
+    },
+    {
+      "path": "tft-units/DA_18_Cassiopeia.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_cassiopeia/skins/base/images/tft18_cassiopeia_splash_tile_18.png",
+      "sha256": "b63a3d9f33ddd286d6612660a81f02c1da6ed8034d03971a8d2d54c2af7728f9"
+    },
+    {
+      "path": "tft-units/DA_18_Diana.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_diana/skins/base/images/tft18_diana_splash_tile_0.png",
+      "sha256": "91f85c21eac25bb117fe3245f889dcfd6149c19f7f3b417339221adf35cb9c72"
+    },
+    {
+      "path": "tft-units/DA_18_ElderDragon.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_elderdragon/skins/base/images/t_18_elderdragon_teamplannersplash.png",
+      "sha256": "844ae475886a2311d22f4a573a8f48adc3c1c1af57fa7497b401e8f92e2c32f2"
+    },
+    {
+      "path": "tft-units/DA_18_Elise.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_elise/skins/base/images/tft18_elise_splash_tile_24.png",
+      "sha256": "303be0904533bb90082dfb7991e7af8bb07d97de21e553332f0ea070fd1820aa"
+    },
+    {
+      "path": "tft-units/DA_18_Ezreal.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_ezreal/skins/base/images/tft18_ezreal_splash_tile_1.png",
+      "sha256": "87415194c725ad88b0719a26e76d23ef9f2e5c25e0ffe7918495e4af08c6434d"
+    },
+    {
+      "path": "tft-units/DA_18_GnarSmall.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_gnar/skins/base/images/tft18_gnar_splash_tile_0.png",
+      "sha256": "2faca1c96aeea94f4df7402bb48f71f2ea01cc618eaeb9dcf8004a6e329be994"
+    },
+    {
+      "path": "tft-units/DA_18_Hecarim.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_hecarim/skins/base/images/tft18_hecarim_splash_tile_5.png",
+      "sha256": "dfa96d4bf61ec9d7ec7cb157fda0de70f40edd4106c08ff818a79ce6432b7188"
+    },
+    {
+      "path": "tft-units/DA_18_Ivern.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_ivern/skins/base/images/tft18_ivern_splash_tile_0.png",
+      "sha256": "4b939afab9400159e169de33e688985da27bf9a755b324066af424f0de1bb903"
+    },
+    {
+      "path": "tft-units/DA_18_Kayle.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kayle/skins/base/images/tft18_kayle_splash_tile_42.png",
+      "sha256": "8964c706b3e8ed02aa11f495e151af30b295cb7cf9000c82230dfd25b3871a63"
+    },
+    {
+      "path": "tft-units/DA_18_Kennen.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kennen/skins/base/images/tft18_kennen_splash_tile_8.png",
+      "sha256": "97d4967c1aaf0e17f6ea61a7c485da8178dff04f5e0fa8b5cfb705ff4f10a490"
+    },
+    {
+      "path": "tft-units/DA_18_KhaZix.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_khazix/skins/base/images/tft18_khazix_splash_tile_0.png",
+      "sha256": "eb8c6cfd9ea6e4bbd4203837e1867d8579d9a739af5ae752f3a0aa80826ff61d"
+    },
+    {
+      "path": "tft-units/DA_18_Kobuko.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kobuko/skins/base/images/tft18_kobuko_splash_tile_2.png",
+      "sha256": "ad9e17d216a67f53b7bd107aad86d265d1d1a612a525f02f18ebddbc6d854cbd"
+    },
+    {
+      "path": "tft-units/DA_18_LeBlanc.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_leblanc/skins/base/images/tft18_leblanc_splash_tile_5.png",
+      "sha256": "66d70a73aec55eab2562eb2b95ae31d82f659f8475b18bfc919e62a4cdd08410"
+    },
+    {
+      "path": "tft-units/DA_18_Leona.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_leona/skins/base/images/tft18_leona_splash_tile_10.png",
+      "sha256": "1ffcf6eaeac6bad7404006a3323f116d9095e066df55a8fd6d4bc8ebcc2c6ae9"
+    },
+    {
+      "path": "tft-units/DA_18_Lillia.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lillia/skins/base/images/tft18_lillia_splash_tile_28.png",
+      "sha256": "cad67cbcc231bebfc36fe4b7a6cd95364e49c7e7b0aabb6fb75d23f093cbac64"
+    },
+    {
+      "path": "tft-units/DA_18_Lux_Coven.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_coven_teamplanner.png",
+      "sha256": "caaf65e583d82c65242d58ff3b0b9c004a3b40b00426445dee3ef4d5bd6edfff"
+    },
+    {
+      "path": "tft-units/DA_18_Lux_Elderwood.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_elderwood_teamplanner.png",
+      "sha256": "0b1aac44b0e928402a97a5d038773453762e91cdeddb5c2b3047f9990265e73c"
+    },
+    {
+      "path": "tft-units/DA_18_Lux_Fae.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_fae_teamplanner.png",
+      "sha256": "947175e4b5e20ac963a6d08d1779e72f47c0e79f6d2688a6d4f8f086d34b2a7f"
+    },
+    {
+      "path": "tft-units/DA_18_Lux_Inferno.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_inferno_teamplanner.png",
+      "sha256": "3b525fd28c582b87ed1168d312af55e036fd8c7ecc80c4ee70a23ee920c413c6"
+    },
+    {
+      "path": "tft-units/DA_18_Lux_Moonbeam.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_moonbeam_teamplanner.png",
+      "sha256": "6208e38e8085764e597971124b2e6a280083d700d70b28dd84800d4584a4e236"
+    },
+    {
+      "path": "tft-units/DA_18_Lux_Primal.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_primal_teamplanner.png",
+      "sha256": "ba06715b541e29c71e3104a73a38dbc1e86e83518780e4d762c157fad9b6f726"
+    },
+    {
+      "path": "tft-units/DA_18_Lux_Sunbeam.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_sunbeam_teamplanner.png",
+      "sha256": "fd169047457e7f0c9045f0ed3e8bb4a1010b855652b7bbb68e4f68afdcf3a72f"
+    },
+    {
+      "path": "tft-units/DA_18_Malphite.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_malphite/skins/base/images/tft18_malphite_splash_tile_27.png",
+      "sha256": "d0ec706aed08f0a1cd8ac6aa404f9bad6c882e41bfc57c23f91cee94d6dca801"
+    },
+    {
+      "path": "tft-units/DA_18_Maokai.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_maokai/skins/base/images/tft18_maokai_splash_tile_0.png",
+      "sha256": "fd88efe913593b909dd4f681eb8620ee8e84c08442d61585902c0d68fc5d9365"
+    },
+    {
+      "path": "tft-units/DA_18_MasterYi_AD.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_masteryi/skins/base/images/tft18_masteryi_splash_tile_52.png",
+      "sha256": "6473f61496df27bf7fbe67a4517171ea6edc922764fcac32a5b594c826ea4cfd"
+    },
+    {
+      "path": "tft-units/DA_18_Morgana.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_morgana/skins/base/images/tft18_morgana_splash_tile_26.png",
+      "sha256": "15dded48013f4769d0f01f8fefb9d2f55f8336e3b62141afdf17daf9d1b0bd53"
+    },
+    {
+      "path": "tft-units/DA_18_Ornn.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_ornn/skins/base/images/tft18_ornn_splash_tile_2.png",
+      "sha256": "db5fb530a08ab77a91744fa5b071d15fbfe669471e993a3bcffd88c4826af93f"
+    },
+    {
+      "path": "tft-units/DA_18_Rakan.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_rakan/skins/base/images/tft18_rakan_splash_tile_9.png",
+      "sha256": "ddb9e71a7e5b87d27f32886f59b84beeca6cfc4a571cf389e0a7bf367c84f5a1"
+    },
+    {
+      "path": "tft-units/DA_18_Rammus.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_rammus/skins/base/images/tft18_rammus_splash_tile_26.png",
+      "sha256": "2cfd431de3c8cc71db0cc4ba15cfb9d1aa39100c8cb41e919c520e3bc437fa61"
+    },
+    {
+      "path": "tft-units/DA_18_RekSai.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_reksai/skins/base/images/tft18_reksai_splash_tile_17.png",
+      "sha256": "a2ae7723ad44dd7544ebfd8190f280ab2b831742d8839504520328d56341bd0e"
+    },
+    {
+      "path": "tft-units/DA_18_Rengar.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_rengar/skins/base/images/tft18_rengar_splash_tile_0.png",
+      "sha256": "ab373dd4b432d24cc63fb642826d120e831c937c505e2df222a08af3edc0c452"
+    },
+    {
+      "path": "tft-units/DA_18_Sejuani.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sejuani/skins/base/images/tft18_sejuani_splash_tile_26.png",
+      "sha256": "57796101784cbfaef81ed88b41c9e0725c464910670125762e4d3bc9d4399b2c"
+    },
+    {
+      "path": "tft-units/DA_18_Sentry.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sentry/skins/base/images/t_18_sentry_teamplannersplash.png",
+      "sha256": "da50a7bd13915e57c33c952143a732f8131e8b3d5346f7c65dabb3c6109156af"
+    },
+    {
+      "path": "tft-units/DA_18_Sett.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sett/skins/base/images/tft18_sett_splash_tile_38.png",
+      "sha256": "a96c4df1bad3d40fbaba12363f6daeac50d033902d75089025013f7c2c527d8f"
+    },
+    {
+      "path": "tft-units/DA_18_Shen.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_shen/skins/base/images/tft18_shen_splash_tile_16.png",
+      "sha256": "742350b38f91b95e698ffb60903b36bd4024e7ce8bca766ede525ad339cbd96f"
+    },
+    {
+      "path": "tft-units/DA_18_Sivir.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sivir/skins/base/images/tft18_sivir_splash_tile_61.png",
+      "sha256": "728cb29eac3957b31723aae3438f0218a26208c3c3aa8cd0f5c03380da61caa9"
+    },
+    {
+      "path": "tft-units/DA_18_Soraka.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_soraka/skins/base/images/tft18_soraka_splash_tile_53.png",
+      "sha256": "9faafec8c1f48314f9641a8d56a9776d8f9758ae9676418d50cf512f6389eb3c"
+    },
+    {
+      "path": "tft-units/DA_18_Teemo.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_teemo/skins/base/images/tft18_teemo_splash_tile_0.png",
+      "sha256": "e202ad757f8b799a43ccbf98e35b2fee5c8049d3141780afc90a59213f7865ae"
+    },
+    {
+      "path": "tft-units/DA_18_Tristana.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_tristana/skins/base/images/tft18_tristana_splash_tile_61.png",
+      "sha256": "0dc62bd71adeb613deb3b7feafe491b4c06ee29b6338ff7b614b7403e0f99b37"
+    },
+    {
+      "path": "tft-units/DA_18_Varus.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_varus/skins/base/images/tft18_varus_splash_tile_9.png",
+      "sha256": "2d731f6c117eb7302e570270976177f83ef4e62021b38d63e3ac4c6f28b71a66"
+    },
+    {
+      "path": "tft-units/DA_18_Veigar.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_veigar/skins/base/images/tft18_veigar_splash_tile_13.png",
+      "sha256": "1faa221a32f8decd85ad0d10c19e2cb063e041cd955fa92a049ad31f11fbbe0f"
+    },
+    {
+      "path": "tft-units/DA_18_Warwick.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_warwick/skins/base/images/tft18_warwick_splash_tile_35.png",
+      "sha256": "ef1e9628de9d3d7ed61254e6c7f30a5e577d3b091ccfe0c1d4af2158bb73077a"
+    },
+    {
+      "path": "tft-units/DA_18_Xayah.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_xayah/skins/base/images/tft18_xayah_splash_tile_8.png",
+      "sha256": "314675c6c5180103acb0e157ccc4986ae3037d431ce365bf562d8329e74d821a"
+    },
+    {
+      "path": "tft-units/DA_18_Yorick.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_yorick/skins/base/images/tft18_yorick_splash_tile_30.png",
+      "sha256": "7c4c218fe0cc0e1866d9c7f012a0ac90f26dd23d24b218613fe67cac890fe121"
+    },
+    {
+      "path": "tft-units/DA_18_Yunara.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_yunara/skins/base/images/tft18_yunara_splash_tile_0.png",
+      "sha256": "241e83bc604a3778e2556ee69b24d1a5521053703b4bb8a415b03437a247a84b"
+    },
+    {
+      "path": "tft-units/DA_18_Zyra.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_zyra/skins/base/images/tft18_zyra_splash_tile_0.png",
+      "sha256": "f94e9023dc20119fe218511afa2e774803a394ae63e418e3d94e1a23f353f801"
+    },
+    {
+      "path": "tft-units/DA_Amumu18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_amumu/skins/base/images/tft18_amumu_splash_tile_17.png",
+      "sha256": "73ed79383a6b4933619314271496397583fe0332110c4f88dcdae0128fda6b09"
+    },
+    {
+      "path": "tft-units/DA_Brambleback18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_brambleback/skins/base/images/t_18_brambleback_teamplannersplash.png",
+      "sha256": "b87ffb5ae7d0bcfb11b9a20003fa03c98502c271b84920e524fae16cd1d7dca2"
+    },
+    {
+      "path": "tft-units/DA_Cinderling18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_cinderling/skins/base/images/t_18_cinderling_teamplannersplash.png",
+      "sha256": "d155198b82c177f2787a195992b18d4b932d76b7ddf2107ad92e29c2cecd5aee"
+    },
+    {
+      "path": "tft-units/DA_CrimsonRaptor18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_raptor/skins/base/images/t_18_crimsonraptor_teamplannersplash.png",
+      "sha256": "60e284c39f84ccb4a9340ce95de5f8a69d6318d494b840a6f2b1761caa47b69c"
+    },
+    {
+      "path": "tft-units/DA_Draven18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_draven/skins/base/images/tft18_draven_splash_tile_5.png",
+      "sha256": "6e31fd2e5c95015e8556dfadc577e37aef426464ae79b9ec01c0ff800f371177"
+    },
+    {
+      "path": "tft-units/DA_Fiddlesticks18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_fiddlesticks/skins/base/images/tft18_fiddlesticks_splash_tile_46.png",
+      "sha256": "f1ad4278a505aa9b98f99435e3fe07da9d43cadce993115d4f1b85772290b5bb"
+    },
+    {
+      "path": "tft-units/DA_Gromp18_AP.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_gromp/skins/base/images/t_18_gromp_teamplannersplash.png",
+      "sha256": "e5c2bafa9409f4cc96b3860db98abb3e45e39176bcf1abcc1ccec282298fdaef"
+    },
+    {
+      "path": "tft-units/DA_Karma18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_karma/skins/base/images/tft18_karma_splash_tile_70.png",
+      "sha256": "6ca871f3fed50b1254a1534e272e723529db9bf2c74e95dd9296b4d649cb53bf"
+    },
+    {
+      "path": "tft-units/DA_KogMaw18_AD.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kogmaw/skins/base/images/tft18_kogmaw_splash_tile_3.png",
+      "sha256": "0240447f04556ea932c0ee9ac2a463f51bcd600934a6c463714e34829ab37afa"
+    },
+    {
+      "path": "tft-units/DA_Krug18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_krug/skins/base/images/t_18_krug_teamplannersplash.png",
+      "sha256": "4e920365d4c3b520db9dc87bf369317f3f33dc4ff66f1d848a8a9d21bb46b7bc"
+    },
+    {
+      "path": "tft-units/DA_Lux18_Base.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/skins/base/images/tft18_lux_splash_tile_7.png",
+      "sha256": "12737d5fa07fc4934937a9a54abacb7f4865fccc89cad3742aeaf04dbd2e2700"
+    },
+    {
+      "path": "tft-units/DA_Lux18_Blackthorn.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_blackthorn_teamplanner.png",
+      "sha256": "f05f7b05bd5ba5f5484bd1022edb7e75c86348e4b1b55acd4ddcec1e3f42a618"
+    },
+    {
+      "path": "tft-units/DA_Lux18_Blossom.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_blossom_teamplanner.png",
+      "sha256": "c2b2148b59d7c777ff14ccef0b7b45728987bdea84ca8aebdd16b25b256b7e29"
+    },
+    {
+      "path": "tft-units/DA_Murkwolf18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_murkwolf/skins/base/images/t_18_murkwolf_teamplannersplash.png",
+      "sha256": "f3b8a36b2177081b2f69e76a88e01a6eafaebc67aad2c6c4fea7b57b4cf06340"
+    },
+    {
+      "path": "tft-units/DA_Nidalee18_AP.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_nidalee/skins/base/images/tft18_nidalee_splash_tile_0.png",
+      "sha256": "ea129a8e39a2f7c201abf40a1ed7cb7a83b85d7686ef45f8587b9bd44482692e"
+    },
+    {
+      "path": "tft-units/DA_Scuttlecrab18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_scuttlecrab/skins/base/images/t_18_scuttlecrab_teamplannersplash.png",
+      "sha256": "660adedd01a88317d63def6d5fd4ccd04f14834a5443bba248e7c7ff102453ad"
+    },
+    {
+      "path": "tft-units/DA_Sentinel18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sentinel/skins/base/images/t_18_sentinel_teamplannersplash.png",
+      "sha256": "0c6ff8a893fb4d93bc902e4499f611403ff769a1a98a1ea77ee3fcbff1677d5b"
+    },
+    {
+      "path": "tft-units/DA_Taric18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_taric/skins/base/images/tft18_taric_splash_tile_1.png",
+      "sha256": "c70692497d726d487041e23aaaf37feb39aa1bc19883af9588bc6de81dd26c69"
+    },
+    {
+      "path": "tft-units/DA_Vi18.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_vi/skins/base/images/tft18_vi_splash_tile_39.png",
+      "sha256": "4ef090a4b6cc1ae799b5938bf3fd7cc95b616cd04d353a1590eb70e1136aec93"
+    },
+    {
+      "path": "tft-units/TFT14_EmblemArmoryKey.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft5_draconicegg_mobile.png",
+      "sha256": "031ae7ebe216997886e1395f6205c1f03a5770b54ab9034971712404ab98e942"
+    },
+    {
+      "path": "tft-units/TFT17_Aatrox.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_aatrox/skins/base/images/tft17_aatrox_splash_tile_30.png",
+      "sha256": "5dcefbb169cc0d8fe64812ad5f3681a2cd141b7dd5c5e74575a9c293ed58077b"
+    },
+    {
+      "path": "tft-units/TFT17_Akali.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_akali/skins/base/images/tft17_akali_splash_tile_68.png",
+      "sha256": "15edf23ab08fe8fb6c4a812032a45a95a239c4b4c1fb9571cf623e3641ca5835"
+    },
+    {
+      "path": "tft-units/TFT17_AurelionSol.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_aurelionsol/skins/base/images/tft17_aurelionsol_splash_tile_2.png",
+      "sha256": "b6e1b789b8f3c97a436d418fe83292207dbbaf5f3d886c18b29c68ed54cb5795"
+    },
+    {
+      "path": "tft-units/TFT17_Aurora.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_aurora/skins/base/images/tft17_aurora_splash_tile_1.png",
+      "sha256": "b582386ffa0139261bfa544c26a735a2baae1a5f8103093311afc816afafda75"
+    },
+    {
+      "path": "tft-units/TFT17_Bard.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_bard/skins/base/images/tft17_bard_splash_tile_8.png",
+      "sha256": "aaefbefa89c792a479d91efc1c4c26568e1ff864092ddb2e64474e836177d08d"
+    },
+    {
+      "path": "tft-units/TFT17_Belveth.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_belveth/skins/base/images/tft17_belveth_splash_tile_19.png",
+      "sha256": "f6e451b260c03d0ba07cad94badbab92b0fe907159adf703f43622127d3fe311"
+    },
+    {
+      "path": "tft-units/TFT17_Blitzcrank.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_blitzcrank/skins/base/images/tft17_blitzcrank_splash_tile_65.png",
+      "sha256": "5c877882dc20e2fb0d131555d8e47c4337c76f3a770c48fb44c879623661bfd3"
+    },
+    {
+      "path": "tft-units/TFT17_Briar.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_briar/skins/base/images/tft17_briar_splash_tile_10.png",
+      "sha256": "34616dd01748e757f01752d9701950c3b061ffc028fcdbf2249e801f66d6554e"
+    },
+    {
+      "path": "tft-units/TFT17_Caitlyn.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_caitlyn/skins/base/images/tft17_caitlyn_splash_tile_48.png",
+      "sha256": "644dc53f9b841a6d16ff42d22ceea6c28ddebd0b58d48f2ff3c3243dcd4ca292"
+    },
+    {
+      "path": "tft-units/TFT17_Chogath.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_chogath/skins/base/images/tft17_chogath_splash_tile_7.png",
+      "sha256": "229661b2db84d9057c4de1a32cfef4c31950bd9083708e53a70e5900d6b7b864"
+    },
+    {
+      "path": "tft-units/TFT17_Corki.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_corki/skins/base/images/tft17_corki_splash_tile_26.png",
+      "sha256": "ed4df3bd7e8c23a4f2835e24ffba8a8e8f55ef096a8564014a14cb83d8dfbbbc"
+    },
+    {
+      "path": "tft-units/TFT17_DRXTracker.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/tft15/tft15_powerexpunge.png",
+      "sha256": "f67cff0bffef4c18fb78c13d0b31817d6479ed4f864c4d3527f9502209d13e30"
+    },
+    {
+      "path": "tft-units/TFT17_DarkStarDamageTracker.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/tft15/tft15_powerexpunge.png",
+      "sha256": "f67cff0bffef4c18fb78c13d0b31817d6479ed4f864c4d3527f9502209d13e30"
+    },
+    {
+      "path": "tft-units/TFT17_DarkStar_FakeUnit.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_darkstar_fakeunit/hud/tft17_darkstar_fakeunit_smallsplash.png",
+      "sha256": "e1d7d4342154f3bd9dae8472344dd4c5edd7c169aae282bc6c7ed1997468dc90"
+    },
+    {
+      "path": "tft-units/TFT17_Diana.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_diana/skins/base/images/tft17_dianasplash_mobile.png",
+      "sha256": "64c26014c079397ef42d108beda78e3b72ec30fda6bbbd5ceb7db9c9e772d2b4"
+    },
+    {
+      "path": "tft-units/TFT17_Enemy_Aatrox.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_enemy_aatrox/skins/base/images/tft17_enemy_aatrox_splash_tile_33.png",
+      "sha256": "95f55080e09434265aee1b3a53b9e6617c36a38e082501743a8bd876f785b48f"
+    },
+    {
+      "path": "tft-units/TFT17_Ezreal.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_ezreal/skins/base/images/tft17_ezreal_splash_tile_5.png",
+      "sha256": "d9f8da73ea49228b1b61f3a6b9316f9e17fe0fb592660e88dfbab9dedc7aa758"
+    },
+    {
+      "path": "tft-units/TFT17_Fiora.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_fiora/skins/base/images/tft17_fiora_splash_tile_51.png",
+      "sha256": "45e6e822b099488eff389821a7e46397872e70699c26fe99cec682ce9f397c0a"
+    },
+    {
+      "path": "tft-units/TFT17_Fizz.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_fizz/skins/base/images/tft17_fizz_splash_tile_26.png",
+      "sha256": "ed9762107ac9cd83d6b6547aa97f6e699bc2c72865c443957bab825f432098a2"
+    },
+    {
+      "path": "tft-units/TFT17_Galio.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_galio/skins/base/images/tft17_galio_mobile.png",
+      "sha256": "9acb70c3641eb94e5479b671ddb9fe129a2d32063d1e5ea3eb602fa50c038e35"
+    },
+    {
+      "path": "tft-units/TFT17_Gnar.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_gnar/skins/base/images/tft17_gnar_splash_tile_15.png",
+      "sha256": "9202eae4a24ae8152e41ccc6efbca1f8ba4825f49b17060a8b581acb671d47d9"
+    },
+    {
+      "path": "tft-units/TFT17_Gragas.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_gragas/skins/base/images/tft17_gragas_splash_tile_10.png",
+      "sha256": "cebf4ae4a9cba86f57f766e00b173d8d711456f62f3305f180b9955de396b936"
+    },
+    {
+      "path": "tft-units/TFT17_Graves.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_graves/skins/base/images/tft17_graves_splash_tile_18.png",
+      "sha256": "1b23fd71896cb0c787b74e2892b17709adfd9a04a09b3a3378505589b5998364"
+    },
+    {
+      "path": "tft-units/TFT17_Gwen.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_gwen/skins/base/images/tft17_gwen_splash_tile_1.png",
+      "sha256": "b352c481a7a4eac652df09cdb167116fa574a30d0ecb5a63e30c57d13cf00238"
+    },
+    {
+      "path": "tft-units/TFT17_Illaoi.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_illaoi/skins/base/images/tft17_illaoi_splash_tile_27.png",
+      "sha256": "e786969e943ce2cee2eb97aad8bae20522c0851734b7099c824e2cf3139be7b6"
+    },
+    {
+      "path": "tft-units/TFT17_IvernMinion.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_ivernminion/skins/base/images/tft17_ivernminion_splash_tile_27.png",
+      "sha256": "46da74659f81724878b74bc283d43a5878639b669c6b93b6bf0d0918630bfd09"
+    },
+    {
+      "path": "tft-units/TFT17_Jax.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_jax/skins/base/images/tft17_jax_mobile.png",
+      "sha256": "827733e418aa1ab970f2c6e22e084cc781d318d3996d81c5b038383c84998001"
+    },
+    {
+      "path": "tft-units/TFT17_Jhin.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_jhin/skins/base/images/tft17_jhin_splash_tile_37.png",
+      "sha256": "d003d7a7c4097fdc682e2f429d58a19b949db56cb053a54ebb7801c9f0e60379"
+    },
+    {
+      "path": "tft-units/TFT17_Jinx.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_jinx/skins/base/images/tft17_jinx_splash_tile_38.png",
+      "sha256": "29d39fd826309693399c7bd2cb1d66a8f90001b733a161c1788938f1eaceb5db"
+    },
+    {
+      "path": "tft-units/TFT17_Kaisa.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_kaisa/skins/base/images/tft17_kaisa_splash_tile_69.png",
+      "sha256": "2cce04135690c8c497f7caa50dfa52b181053d2daf58e4a5fc92e16696b4aa58"
+    },
+    {
+      "path": "tft-units/TFT17_Karma.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_karma/skins/base/images/tft17_karma_splash_tile_8.png",
+      "sha256": "25f89b0c51a0680864c6efa1f822f23cd233da39464967db56e5128ba61758ea"
+    },
+    {
+      "path": "tft-units/TFT17_Kindred.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_kindred/skins/base/images/tft17_kindred_splash_tile_23.png",
+      "sha256": "e2dd7394616e4d01c9ac90c7c593d9156a87dc7cfae37bf7559b3ab62d101b0c"
+    },
+    {
+      "path": "tft-units/TFT17_Leblanc.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_leblanc/skins/base/images/tft17_leblanc_splash_tile_29.png",
+      "sha256": "284e2c4a69583d43d915e1c92361462cdf335af91d58f14d139ffbd9a9a8b197"
+    },
+    {
+      "path": "tft-units/TFT17_Leona.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_leona/skins/base/images/tft17_leona_splash_tile_64.png",
+      "sha256": "fedf0655bcbebd8fd00c790212aba5d75f2c4017fff0c0673720865d4d9bb998"
+    },
+    {
+      "path": "tft-units/TFT17_Lissandra.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_lissandra/skins/base/images/tft17_lissandra_splash_tile_12.png",
+      "sha256": "b0074165bd77257f4b54ce474c6eb99c83089a1bf9e900b7cb55b286e8483958"
+    },
+    {
+      "path": "tft-units/TFT17_Lulu.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_lulu/skins/base/images/tft17_lulu_splash_tile_14.png",
+      "sha256": "08b5f9d7e665ceff02727337d8437231c9059fd6b062685d95e60a07aad9e9bc"
+    },
+    {
+      "path": "tft-units/TFT17_Maokai.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_maokai/skins/base/images/tft17_maokai_splash_tile_33.png",
+      "sha256": "039f83ae9278cd870a147371334b1cc0ee8ea024f0d7590d78e1d359bdf3d8dc"
+    },
+    {
+      "path": "tft-units/TFT17_MasterYi.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_masteryi/skins/base/images/tft17_masteryi_splash_tile_33.png",
+      "sha256": "f930b2539957403fdb4829ee22e1ba3eaf2a0ab3fbf954ea5c1d0320f13b3193"
+    },
+    {
+      "path": "tft-units/TFT17_Milio.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_milio/skins/base/images/tft17_milio_splash_tile_0.png",
+      "sha256": "2e918c19d435bb3c7e85c42d39c021629ee66f1f47a6f3cb25e0e21353d4182d"
+    },
+    {
+      "path": "tft-units/TFT17_MissFortune.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_missfortune/skins/base/images/tft17_missfortune_splash_tile_16.png",
+      "sha256": "809fc8c885ef574805c013b328de9720b73ff40f4cde9f218a786266d8cad525"
+    },
+    {
+      "path": "tft-units/TFT17_MissFortune_TraitClone.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_missfortune/skins/base/images/tft17_missfortune_splash_tile_16.png",
+      "sha256": "809fc8c885ef574805c013b328de9720b73ff40f4cde9f218a786266d8cad525"
+    },
+    {
+      "path": "tft-units/TFT17_Mordekaiser.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_mordekaiser/skins/base/images/tft17_mordekaiser_splash_tile_6.png",
+      "sha256": "1d4b294f34890635846cb5afcb0fa3ec838e672cfffe47eabf6a278f3acbfeb7"
+    },
+    {
+      "path": "tft-units/TFT17_Morgana.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_morgana/skins/base/images/tft17_morgana_splash_tile_50.png",
+      "sha256": "a4cfaa4785c3b7d8fbc1459c2844c79f087025002aa2379979bab7310ce3b255"
+    },
+    {
+      "path": "tft-units/TFT17_Nami.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_nami/skins/base/images/tft17_nami_splash_tile_41.png",
+      "sha256": "e634e5c837ee2bb7691a05e47f88e892eba811cfcafab0c279309d3d2e0207be"
+    },
+    {
+      "path": "tft-units/TFT17_Nasus.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_nasus/skins/base/images/tft17_nasus_splash_tile_25.png",
+      "sha256": "3fcbce39059a510e604a499a3b5ed00d2a52e32a36e8b9d74c3bca10533e1cb0"
+    },
+    {
+      "path": "tft-units/TFT17_Nunu.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_nunu/skins/base/images/tft17_nunu_splash_tile_35.png",
+      "sha256": "ae28db6a7e00d606eb2be69275f1a63c917e453ab61dc37788165a22b4a3fd56"
+    },
+    {
+      "path": "tft-units/TFT17_Ornn.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_ornn/skins/base/images/tft17_ornn_splash_tile_11.png",
+      "sha256": "b561548d1d094f6bb4ba8de1f8c778693ef8e0841c139fafee9d5f70152fbe61"
+    },
+    {
+      "path": "tft-units/TFT17_PVE_ElderDragon.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft17_elderdragonsquare.png",
+      "sha256": "d7dde97d30df91461c4aac35e62be249343456ea6f28a366c47eea3048271988"
+    },
+    {
+      "path": "tft-units/TFT17_PVE_Gromp.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft17_pve_defaultmobile.png",
+      "sha256": "3bd34a1bb9b3c123b39da1e79a97e381b2388443a21df5ad290dccfc679023e4"
+    },
+    {
+      "path": "tft-units/TFT17_PVE_Krug.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft17_pve_defaultmobile.png",
+      "sha256": "3bd34a1bb9b3c123b39da1e79a97e381b2388443a21df5ad290dccfc679023e4"
+    },
+    {
+      "path": "tft-units/TFT17_PVE_Minion.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft17_pve_defaultmobile.png",
+      "sha256": "3bd34a1bb9b3c123b39da1e79a97e381b2388443a21df5ad290dccfc679023e4"
+    },
+    {
+      "path": "tft-units/TFT17_PVE_Pix.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft17_pve_defaultmobile.png",
+      "sha256": "3bd34a1bb9b3c123b39da1e79a97e381b2388443a21df5ad290dccfc679023e4"
+    },
+    {
+      "path": "tft-units/TFT17_PVE_Raptor.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft17_pve_defaultmobile.png",
+      "sha256": "3bd34a1bb9b3c123b39da1e79a97e381b2388443a21df5ad290dccfc679023e4"
+    },
+    {
+      "path": "tft-units/TFT17_Pantheon.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_pantheon/skins/base/images/tft17_pantheon_splash_tile_16.png",
+      "sha256": "08d2ebfbd92fe201902c17da484acf0308c1b8b291bbba3448735dd06e20bfd8"
+    },
+    {
+      "path": "tft-units/TFT17_Poppy.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_poppy/skins/base/images/tft17_poppy_splash_tile_16.png",
+      "sha256": "b47352bfa2609ee025eeaf0d43478fba62671fbcd81f4fd66affeb32eb24ada1"
+    },
+    {
+      "path": "tft-units/TFT17_PrimordianTracker.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_primordiantracker/hud/tft17_primordiantracker_square.png",
+      "sha256": "915d3f4ee36166756c0dfd1d6f25ef702e072284d0559d8fd556878d8ebcbed5"
+    },
+    {
+      "path": "tft-units/TFT17_Pyke.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_pyke/skins/base/images/tft17_pyke_splash_tile_25.png",
+      "sha256": "c5779e9d397178035b8e828495289b09a9134c5bf7744bcd527c819ac0e51491"
+    },
+    {
+      "path": "tft-units/TFT17_Rammus.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_rammus/skins/base/images/tft17_rammus_splash_tile_17.png",
+      "sha256": "10247e1d8a9a82f37f728b0dac1b36fcfa77358599f173b2afd2e54711823df5"
+    },
+    {
+      "path": "tft-units/TFT17_RekSai.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_reksai/skins/base/images/tft17_reksai_splash_tile_26.png",
+      "sha256": "37faa7582fc53ba4ab58ac07a469ca449d89191cccf616b9a541f50afbddf813"
+    },
+    {
+      "path": "tft-units/TFT17_Rhaast.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_rhaast/skins/base/images/tft17_kaynsplash_tile.png",
+      "sha256": "3325a9f462225ec9e486b881bf74ef68338d948ece8534126b1c65bb66f3ef30"
+    },
+    {
+      "path": "tft-units/TFT17_Riven.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_riven/skins/base/images/tft17_riven_splash_tile_18.png",
+      "sha256": "7b979e8b81b50218794a87557c043ffc013683dfe62cee6470346f4cecd9377d"
+    },
+    {
+      "path": "tft-units/TFT17_Samira.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_samira/skins/base/images/tft17_samira_splash_tile_10.png",
+      "sha256": "de31d8741a4e74c33f0d3b460a678d74ad1cdf56c265cb7261eb208a41f5d915"
+    },
+    {
+      "path": "tft-units/TFT17_Shen.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_shen/skins/base/images/tft17_shen_splash_tile_49.png",
+      "sha256": "b9e48cfb3bbbe3edb727fc6f617144d86497363f89bb596099999a4ff1a5d064"
+    },
+    {
+      "path": "tft-units/TFT17_Sona.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_sona/skins/base/images/tft17_sona_splash_tile_17.png",
+      "sha256": "be66bf53a3d30e2aadecd2a131e6a8c2217ebdf7d06d3ecf6c9ebac23d78271c"
+    },
+    {
+      "path": "tft-units/TFT17_Summon.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_summon/skins/base/images/shiro_small.png",
+      "sha256": "960ecc5eb321d921e9786432fc733ef3d07014bcf0f2b5863e1a793f8102f912"
+    },
+    {
+      "path": "tft-units/TFT17_TahmKench.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_tahmkench/skins/base/images/tft17_tahmkench_splash_tile_11.png",
+      "sha256": "9f99735f1c65d024e678d1782ecaa71d2a7f35bb27ccdca981b99029ab9e5328"
+    },
+    {
+      "path": "tft-units/TFT17_Talon.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_talon/skins/base/images/tft17_talon_splash_tile_39.png",
+      "sha256": "d453e93bc4b40fec2fc966665ff74330a892205cdb0979599522f6b86402427b"
+    },
+    {
+      "path": "tft-units/TFT17_Teemo.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_teemo/skins/base/images/tft17_teemo_splash_tile_47.png",
+      "sha256": "e9b304ec859b39d3280988809ac04f53c632e3ad4eea165d6595d7b1103dfd02"
+    },
+    {
+      "path": "tft-units/TFT17_TimebreakerCore.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_timebreakercore/hud/tft17_timebreakercore_square.png",
+      "sha256": "1ed4864cb68a8855293ce3b1a951bd21baff99f3cb787359ebcbe232d8ce0c2a"
+    },
+    {
+      "path": "tft-units/TFT17_TwistedFate.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_twistedfate/skins/base/images/tft17_twistedfate_splash_tile_45.png",
+      "sha256": "501e9312f47b9c33707128e2024b6c7e56cb5166979febf0dc1371b99d1e7d7c"
+    },
+    {
+      "path": "tft-units/TFT17_Urgot.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_urgot/skins/base/images/tft17_urgot_splash_tile_32.png",
+      "sha256": "30756be509ffc8a5c93fbf2534fbddfdbe9c87d9e70e4708daeea8479d5bc567"
+    },
+    {
+      "path": "tft-units/TFT17_Veigar.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_veigar/skins/base/images/tft17_veigar_splash_tile_32.png",
+      "sha256": "903e65316bdd7fa3befdeffaeb1e1bfcd88f21f722631a60da9eea8af0a18374"
+    },
+    {
+      "path": "tft-units/TFT17_Vex.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_vex/skins/base/images/tft17_vex_splash_tile_10.png",
+      "sha256": "aeb5962ec7f8b964ab9b3640694848d20705171a9f851582c80cfe602570ff4e"
+    },
+    {
+      "path": "tft-units/TFT17_Viktor.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_viktor/skins/base/images/tft17_viktor_splash_tile_5.png",
+      "sha256": "ee94667ffbdbbe084efb388c52ab88f01590a24c2c7b6904fe271742418e0efa"
+    },
+    {
+      "path": "tft-units/TFT17_Xayah.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_xayah/skins/base/images/tft17_xayah_splash_tile_1.png",
+      "sha256": "b963585965cb5a901196dcab0e182c0cf5e6ce3f4589dddebab862f696a7f5a7"
+    },
+    {
+      "path": "tft-units/TFT17_Zed.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_zed/skins/base/images/tft17_zed_splash_tile_68.png",
+      "sha256": "fa16ad6985966dffcf3ee68c9acd9e828ad2c8faaa499882a38164e2c59ae212"
+    },
+    {
+      "path": "tft-units/TFT17_Zoe.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft17_zoe/skins/base/images/tft17_zoe_splash_tile_43.png",
+      "sha256": "1c096af87ce790fd099123c35b6040b30f4e52f0d22e35e99090f984ca58e17b"
+    },
+    {
+      "path": "tft-units/TFT5_EmblemArmoryKey.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft5_draconicegg_mobile.png",
+      "sha256": "031ae7ebe216997886e1395f6205c1f03a5770b54ab9034971712404ab98e942"
+    },
+    {
+      "path": "tft-units/TFT6_MercenaryChest.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft6_mercenarychest_mobile.png",
+      "sha256": "90008c93bdba6e6f4f081712c25bd98c28ac254c569225ae52774dfd983edd67"
+    },
+    {
+      "path": "tft-units/TFT7_TempestStrike.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft7_tempeststrike_mobile.png",
+      "sha256": "f35d4d64d35e372ab1cfb420be6e3fa13aeacef9d7e34150886876ca3108dd41"
+    },
+    {
+      "path": "tft-units/TFT9_SLIME_Crab.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_scuttlecrab_mobile.png",
+      "sha256": "bf57e2c8ff168f7ea01d2217d84d5226ee575e1de8d469decde63430d48a31c3"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_BilgewaterCannons.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_bilgewatercannons/hud/tftevent5yr_bilgewatercannons_square.png",
+      "sha256": "ad8b882ba2dde87cf374077cc733a67cf7282daa052b8bd1576dcaf5d9347e2e"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_BirthdayPenguNPC.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft_itemunknown/skins/skin0/tft_item_unknown.png",
+      "sha256": "783962054491a1f275f05834195a2a6c8764da0f4704f1393bf5691123e6ebf6"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_Brock.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_brock/skins/base/images/tftevent5yr_brock_splash_tile_0.png",
+      "sha256": "76d7c07f49bd1e8de52f70a3e32cd47d2e3374c89802306fed2061183422ebc3"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_DemacianStandard.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_demacianstandard/hud/tftevent5yr_demacianstandard_square.png",
+      "sha256": "b601fab91213f36f582a4918cf85e094e5786f2760bb347a395264e71126277e"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_Galio.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_galio/skins/base/images/tftevent5yr_galio_splash_tile_0.png",
+      "sha256": "7df4cc5d38c783091f69c084240fd4005a39e1fca1284366a57946c6cbb4c676"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_Hecarim.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft8_hecarim_mobile.png",
+      "sha256": "f35d4d64d35e372ab1cfb420be6e3fa13aeacef9d7e34150886876ca3108dd41"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_HighRollerDamageTracker.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_highrollerdamagetracker/hud/tftevent5yr_highrollerdamagetracker_square.png",
+      "sha256": "8bdbd7bd6bc6d0b15e8f6d4257e1edd871b4580dc83d40c5999e777c071887a8"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_IxtalProp.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft16_explorerprop/hud/tft16_explorerprop_square.png",
+      "sha256": "8abf055a004eef6806cf9e169cb0d97010d4ac327d3ca6039ceed9056d0a9c1a"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_Kayle.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_kayle/skins/base/images/tftevent5yr_kayle_mobile.png",
+      "sha256": "68da30d20961856378474acbd0c297948dd68bef376017c15fd6835f838faa1c"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_Nitro_SummonLevel2.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_nitro_summonlevel2/skins/base/images/tftevent5yr_mimic_mobile.png",
+      "sha256": "8011a7e9751cdf0ef535f7850038f75125d99a47e4f6705b0f7ec97645850e32"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_Nitro_SummonLevel4.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_nitro_summonlevel4/skins/base/images/tft14_thex_mobile.png",
+      "sha256": "ee35516e87f458eb81c09845de960fe41be758af29f145c6d21c7912d7378f9b"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_PenguGarenNPC.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_pengugarennpc/skins/base/images/tftevent5yr_pengugarennpc_splash_tile_43.png",
+      "sha256": "e55205341a03f2fc05557ad18edd8723c6621c4de64f21d7b12777eb7a3efe9e"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_SuperMech.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_supermech/skins/base/images/tftevent5yr_supermech_mobile.png",
+      "sha256": "d86e5a7a599ba546f79c93fa6b20a5f7f470ff68fcffb187f76fe4e2b75c9337"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_TheCrewDamageTracker.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_15_starcrew.png",
+      "sha256": "af05d9ab5fe9d3f03d7032f7ff4c3d4d182ea100460179cfda5d9aa1aa40e6cb"
+    },
+    {
+      "path": "tft-units/TFTEvent5YR_Veigar.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tftevent5yr_veigar/skins/base/images/tftevent5yr_veigar_mobile.png",
+      "sha256": "446dac61f0dbac800df53d7e9b8183bccead8cf131d54cb1ba38f999e3cb629b"
+    },
+    {
+      "path": "tft-units/TFT_ArmoryKeyCompleted.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft_armorykeycompleted/hud/icons2d/tft_armorykeycompleted_square.png",
+      "sha256": "6156bef88d1954d5d911392edf48b9bbf68319c99bd5582ac3a5eee5e25de2b1"
+    },
+    {
+      "path": "tft-units/TFT_ArmoryKeyComponent.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft_armorykeycomponent/hud/icons2d/tft_armorykeycomponent_square.png",
+      "sha256": "9ee4f66dc5f983ead0c827cb1ea675f23695e572cfa02b8c1a90592a008a6b88"
+    },
+    {
+      "path": "tft-units/TFT_ArmoryKeyOrnn.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft_armorykeyornn/hud/icons2d/tft_armorykeyornn_square.png",
+      "sha256": "1b687ab9b9ded0ce80f064334174fbaee703d2853b1ce9181554d28a98f1b115"
+    },
+    {
+      "path": "tft-units/TFT_ArmoryKeySupport.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/characters/tft_armorykeysupport/hud/tft_armorykeysupport_square.png",
+      "sha256": "18bc8e8a9b8dae7127af7c113cb69dd6163d653faa39d13c4a6d3fddcce360ae"
+    },
+    {
+      "path": "tft-units/TFT_BlueGolem.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_bluegolem_mobile.png",
+      "sha256": "3eb6e3de6b7807d57f5b22cf034d7ba7c0d5d890d892dc492e9eb16b7ec25e55"
+    },
+    {
+      "path": "tft-units/TFT_ElderDragon.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_elderdragon_mobile.png",
+      "sha256": "ef03196f0b95cae2b7d5a853e5e607e055a7d0652ecf27e445241801e81c3e36"
+    },
+    {
+      "path": "tft-units/TFT_Krug.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_krug_mobile.png",
+      "sha256": "85959b2fc63d2f86a6200e619a1e782d420026c3970741db6bba8a7644ab3487"
+    },
+    {
+      "path": "tft-units/TFT_Murkwolf.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_murkwolf_mobile.png",
+      "sha256": "7ec67a89d81d9047e2ebbc1a0bc18bd657296f44f604574f1e36b4d4d9ac4416"
+    },
+    {
+      "path": "tft-units/TFT_MurkwolfMini.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_murkwolf_mobile.png",
+      "sha256": "7ec67a89d81d9047e2ebbc1a0bc18bd657296f44f604574f1e36b4d4d9ac4416"
+    },
+    {
+      "path": "tft-units/TFT_Razorbeak.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_razorbeak_mobile.png",
+      "sha256": "49eeeb5241ca4ca6cf681ab0582f5da5d23198476f0b527e0f107b2013ea5090"
+    },
+    {
+      "path": "tft-units/TFT_RazorbeakMini.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_razorbeak_mobile.png",
+      "sha256": "49eeeb5241ca4ca6cf681ab0582f5da5d23198476f0b527e0f107b2013ea5090"
+    },
+    {
+      "path": "tft-units/TFT_RiftHerald.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_riftherald_mobile.png",
+      "sha256": "e7c48f9f0d720903fadad69239c2352f74f74521ed3374db76f55848e8f39146"
+    },
+    {
+      "path": "tft-units/TFT_TrainingDummy.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tftdebug_dummy_mobile.png",
+      "sha256": "bd145038cdae921f4bb317fff02c3aeab2956a59f2112e09d5173f826c257cee"
+    },
+    {
+      "path": "tft-units/TFT_Voidspawn.png",
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft_voidspawn_mobile.png",
+      "sha256": "70cd2157286072051a4dc928faf5c77b4a0a72e8cb399e59b04cf43959194375"
+    },
+    {
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/teamplanner/tft_teamplanner_atlas_pc.png",
+      "sha256": "8a371b2463039233acaafc49fd076c1857e5ddfa4adee0a18a7eeb7710416579",
+      "cost": 1,
+      "frame": [
+        110,
+        667,
+        66,
+        66
+      ],
+      "color": "#31495a"
+    },
+    {
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/teamplanner/tft_teamplanner_atlas_pc.png",
+      "sha256": "8a371b2463039233acaafc49fd076c1857e5ddfa4adee0a18a7eeb7710416579",
+      "cost": 2,
+      "frame": [
+        189,
+        667,
+        66,
+        66
+      ],
+      "color": "#089210"
+    },
+    {
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/teamplanner/tft_teamplanner_atlas_pc.png",
+      "sha256": "8a371b2463039233acaafc49fd076c1857e5ddfa4adee0a18a7eeb7710416579",
+      "cost": 3,
+      "frame": [
+        270,
+        667,
+        66,
+        66
+      ],
+      "color": "#3192ef"
+    },
+    {
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/teamplanner/tft_teamplanner_atlas_pc.png",
+      "sha256": "8a371b2463039233acaafc49fd076c1857e5ddfa4adee0a18a7eeb7710416579",
+      "cost": 4,
+      "frame": [
+        351,
+        667,
+        66,
+        66
+      ],
+      "color": "#bd2cce"
+    },
+    {
+      "source": "https://raw.communitydragon.org/latest/game/assets/ux/tft/teamplanner/tft_teamplanner_atlas_pc.png",
+      "sha256": "8a371b2463039233acaafc49fd076c1857e5ddfa4adee0a18a7eeb7710416579",
+      "cost": 5,
+      "frame": [
+        432,
+        667,
+        66,
+        66
+      ],
+      "color": "#bd9218"
+    }
+  ]
+}

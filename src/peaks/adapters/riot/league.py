@@ -612,6 +612,30 @@ class LeagueClient:
         endpoint = CURRENT_RANKED_STATS_PATH if owned else RANKED_STATS_PATH + quote(puuid, safe="")
         return parse_ranked_stats(self.lcu_http.get_json(endpoint), queue_types=queue_types)
 
+    def owned_match_history(self, puuid: str, *, game: str, limit: int = 20) -> object:
+        """Read a bounded product history only after rechecking the local owner."""
+        if game not in {"League", "TFT"} or self.lcu_http is None or self.current_profile(puuid) is None:
+            return None
+        return self._product_match_history(puuid, game=game, limit=limit)
+
+    def public_match_history(self, profile: LeagueSummonerProfile, *, game: str, limit: int = 20) -> object:
+        """History the client permits for an exact, publicly resolved profile."""
+        if not isinstance(profile, LeagueSummonerProfile) or not profile.puuid or game not in {"League", "TFT"}:
+            return None
+        return self._product_match_history(profile.puuid, game=game, limit=limit)
+
+    def _product_match_history(self, puuid: str, *, game: str, limit: int) -> object:
+        if self.lcu_http is None:
+            return None
+        product = "lol" if game == "League" else "tft"
+        count = max(1, min(limit, 20))
+        # TFT's product endpoint rejects League's pagination arguments (400).
+        # It returns a recent page; history_details bounds it before parsing.
+        query = f"?begIndex=0&endIndex={count - 1}" if game == "League" else ""
+        return self.lcu_http.get_json(
+            f"/lol-match-history/v1/products/{product}/{quote(puuid, safe='')}/matches{query}"
+        )
+
     def session_player_profile(self, player: GamePlayer) -> LeagueSummonerProfile | None:
         """Resolve a visible member of the current client-provided roster.
 

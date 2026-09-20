@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
 from dataclasses import replace
 from datetime import UTC, datetime
 from types import SimpleNamespace
@@ -39,8 +40,8 @@ class FakeRepository:
         rows.append(match)
         return match
 
-    def list_matches(self, account_id: str, *, limit: int | None = None) -> list[Any]:
-        rows = list(self.matches.get(account_id, []))
+    def list_matches(self, account_id: str, *, game: Game | None = None, limit: int | None = None) -> list[Any]:
+        rows = [row for row in self.matches.get(account_id, []) if game is None or row.game == game]
         return rows[:limit] if limit is not None else rows
 
 
@@ -235,7 +236,7 @@ def test_added_account_is_immediately_hydrated_and_persisted() -> None:
     assert account["connected"] is False
     assert account["level"] == 284
     assert account["ranks"] == [
-        {"game": "VALORANT", "tier": "ascendant", "division": "1", "rating": 48}
+        {"game": "VALORANT", "tier": "ascendant", "division": "1", "rating": 48, "peakTier": "Immortal 1", "peakDivision": ""}
     ]
     assert account["matches"][0]["id"] == "match-1"
     assert account["matches"][0]["mode"] == "competitive"
@@ -550,6 +551,54 @@ def test_manual_refresh_reports_inactive_valorant_session() -> None:
         bridge.handle("refresh", {"accountId": "owned-puuid"})
 
 
+def test_background_refresh_preserves_cached_data_until_the_game_is_ready() -> None:
+    bridge, repository, _ = _bridge(_result())
+    repository.add_account(
+        Account(
+            "owned-puuid", "Peak Player", "EUW", "GLOBAL", "owned-puuid",
+            ranks=(RankInfo(Game.VALORANT, "gold", "2", 45),),
+        )
+    )
+    bridge._load_database()
+    initial_accounts = deepcopy(bridge.state()["accounts"])
+    service = SimpleNamespace(
+        owned_valorant_snapshot=lambda _puuid: None,
+        valorant_snapshot_failure="valorant_session_inactive",
+    )
+    bridge._account_refresh_factory = lambda: service
+
+    for _ in range(3):
+        state = bridge.handle("refresh", {"accountId": "owned-puuid", "background": True})
+        assert state["accounts"] == initial_accounts
+
+    # A background miss must still allow a later active session to hydrate.
+    service.owned_valorant_snapshot = lambda _puuid: {
+        "ranks": [{"game": "VALORANT", "tier": "Diamond 2", "rating": 64}],
+    }
+    state = bridge.handle("refresh", {"accountId": "owned-puuid", "background": True})
+    assert state["accounts"][0]["ranks"][0]["tier"] == "diamond"
+    rank = repository.accounts["owned-puuid"].rank_for(Game.VALORANT)
+    assert rank is not None and rank.label == "Diamond 2"
+
+
+@pytest.mark.parametrize("background", [False, "true", 1])
+def test_only_an_explicit_background_refresh_suppresses_game_unavailability(
+    background: object,
+) -> None:
+    bridge, repository, _ = _bridge(_result())
+    repository.add_account(
+        Account("owned-puuid", "Peak Player", "EUW", "GLOBAL", "owned-puuid")
+    )
+    bridge._load_database()
+    bridge._account_refresh_factory = lambda: SimpleNamespace(
+        owned_valorant_snapshot=lambda _puuid: None,
+        valorant_snapshot_failure="valorant_session_inactive",
+    )
+
+    with pytest.raises(RuntimeError, match="VALORANT is not active"):
+        bridge.handle("refresh", {"accountId": "owned-puuid", "background": background})
+
+
 def test_manual_refresh_reports_valorant_entitlements_startup_delay() -> None:
     bridge, repository, _ = _bridge(_result())
     repository.add_account(
@@ -631,7 +680,7 @@ def _live_match_bridge(
     bridge._current_game_service = service
     calls: list[str] = []
     bridge._account_refresh_factory = lambda: SimpleNamespace(
-        owned_valorant_snapshot=lambda puuid: calls.append(puuid) or {"matches": []}
+        owned_valorant_snapshot=lambda puuid, **_kwargs: calls.append(puuid) or {"matches": []}
     )
     return bridge, service, clock, calls
 
@@ -707,8 +756,9 @@ def test_confirmed_match_end_refreshes_exact_owned_account_and_waits_for_final_r
     bridge.handle("activity", {})
     assert len(calls) == 1
 
-    def snapshot(puuid: str) -> dict[str, Any]:
+    def snapshot(puuid: str, *, priority_match_id: str | None = None) -> dict[str, Any]:
         calls.append(puuid)
+        assert priority_match_id == "observed-match"
         return {"matches": [{
             "match_id": "observed-match", "game": "valorant", "result": "win",
             "played_at": "2026-09-04T10:00:00+00:00", "map_name": "Ascent",
@@ -834,3 +884,114 @@ def test_local_valorant_route_fills_only_missing_region_and_preserves_league() -
     bridge._merge_account_snapshot(bridge.accounts[0], {"valorantRegion": "NA"})
     assert repository.accounts["owned-puuid"].valorant_region == "EU"
     assert bridge.accounts[0]["valorantRegion"] == "EU"
+
+
+@pytest.mark.parametrize(("game", "saved_game", "queue", "result", "placement"), [
+    ("League", "league_of_legends", "420", "win", None),
+    ("TFT", "tft", "1100", "top_4", 4),
+    ("TFT", "tft", "Double Up", "top_2", 2),
+])
+def test_native_match_end_refreshes_exact_canonical_final_record(
+    monkeypatch: pytest.MonkeyPatch, game: str, saved_game: str, queue: str, result: str, placement: int | None,
+) -> None:
+    bridge, service, clock, _ = _live_match_bridge(monkeypatch)
+    service.value = {"id": "123", "phase": "live", "game": game, "teams": []}
+    service.client_status["game"] = game
+    rows: list[dict[str, Any]] = []
+    calls: list[str] = []
+    bridge._account_refresh_factory = lambda: SimpleNamespace(
+        owned_league_snapshot=lambda puuid: calls.append(puuid) or {"matches": list(rows)},
+        # TFT/League match IDs must never be passed as a VALORANT priority.
+        owned_valorant_snapshot=lambda _puuid: None,
+    )
+    bridge.handle("activity", {})
+    assert calls == []
+    service.value = None
+    bridge.handle("activity", {})
+    assert calls == ["owned-puuid"]
+    assert bridge._post_match_refresh is not None
+    rows.append({
+        "id": "EUW1_123", "game": saved_game, "queue": queue, "result": result,
+        "played_at": "2026-09-20T05:30:00+00:00",
+        "metadata": {"teams": [{"players": [{"self": True, "stats": {"placement": placement}}]}]},
+    })
+    clock[0] += 15
+    state = bridge.handle("activity", {})
+    assert calls == ["owned-puuid", "owned-puuid"]
+    assert state["accounts"][0]["matches"][0]["id"] == "EUW1_123"
+    assert bridge._post_match_refresh is None
+
+
+@pytest.mark.parametrize(("saved_game", "saved_id", "stats"), [
+    ("tft", "NA1_123", {"placement": 4}),
+    ("tft", "EUW1_1234", {"placement": 4}),
+    ("valorant", "EUW1_123", {"placement": 4}),
+    ("tft", "EUW1_123", {"standing": 4}),
+    ("tft", "EUW1_123", {"placement": True}),
+])
+def test_tft_end_does_not_accept_other_shards_games_or_provisional_standings(
+    monkeypatch: pytest.MonkeyPatch, saved_game: str, saved_id: str, stats: dict[str, Any],
+) -> None:
+    bridge, service, _clock, _calls = _live_match_bridge(monkeypatch)
+    service.value = {"id": "123", "phase": "live", "game": "TFT"}
+    bridge._account_refresh_factory = lambda: SimpleNamespace(
+        owned_league_snapshot=lambda _puuid: {"matches": [{
+            "id": saved_id, "game": saved_game, "result": "unknown", "queue": "1100",
+            "played_at": "2026-09-20T05:30:00+00:00",
+            "metadata": {"freeForAll": True, "teams": [{"players": [{"self": True, "stats": stats}]}]},
+        }]},
+        owned_valorant_snapshot=lambda _puuid: None,
+    )
+    bridge.handle("activity", {})
+    service.value = None
+    bridge.handle("activity", {})
+    assert bridge._post_match_refresh is not None
+
+
+def test_tft_local_result_is_persisted_during_next_game_without_waiting_for_remote_refresh(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bridge, service, clock, remote_calls = _live_match_bridge(monkeypatch)
+    service.value = {"id": "456", "phase": "live", "game": "TFT"}
+    source = {"matches": [{
+        "id": "EUW1_123", "game": "tft", "queue": "1100", "result": "placement",
+        "played_at": "2026-09-20T05:30:00+00:00", "duration_seconds": 1533,
+        "metadata": {"localEndOfGame": True, "teams": [{"players": [
+            {"self": True, "name": "Peak Player#EUW", "riotId": "Peak Player#EUW", "stats": {"placement": 7}},
+        ]}]},
+    }]}
+    local_calls: list[tuple[str, str]] = []
+    service.owned_tft_local_snapshot = lambda puuid, *, platform: local_calls.append((puuid, platform)) or deepcopy(source)
+    writes: list[str] = []
+    original_add_match = bridge._repository.add_match
+    bridge._repository.add_match = lambda match: writes.append(match.match_id) or original_add_match(match)
+    state = bridge.handle("activity", {})
+    assert state["currentMatch"]["id"] == "456"
+    assert state["accounts"][0]["matches"][0]["id"] == "EUW1_123"
+    assert state["accounts"][0]["matches"][0]["localEndOfGame"] is True
+    assert local_calls == [("owned-puuid", "EUW")]
+    assert writes == ["EUW1_123"]
+    assert remote_calls == []
+    bridge.handle("activity", {})
+    assert len(local_calls) == 1
+    clock[0] += 15
+    bridge.handle("activity", {})
+    assert len(local_calls) == 2
+    assert writes == ["EUW1_123"]
+    assert remote_calls == []
+
+
+@pytest.mark.parametrize("game", ["TFT", "League"])
+def test_native_detection_outage_does_not_schedule_a_false_match_end(
+    monkeypatch: pytest.MonkeyPatch, game: str,
+) -> None:
+    bridge, service, _clock, calls = _live_match_bridge(monkeypatch)
+    service.value = {"id": "123", "phase": "live", "game": game}
+    bridge.handle("activity", {})
+    service.value = None
+    service.detection_available = False
+    state = bridge.handle("activity", {})
+    assert state["currentMatch"]["id"] == "123"
+    assert state["currentMatch"]["isStale"] is True
+    assert getattr(bridge, "_post_match_refresh", None) is None
+    assert calls == []

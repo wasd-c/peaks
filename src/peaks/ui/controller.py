@@ -2425,7 +2425,7 @@ class AppController(QObject):
         data = value.to_dict() if hasattr(value, "to_dict") else dict(value)
         game_value = str(data.get("game", "valorant"))
         result_value = str(data.get("result", "unknown"))
-        positive = result_value.lower() in {"win", "victory", "top_4"}
+        positive = result_value.lower() in {"win", "victory", "top_4", "top_2"}
         kills = data.get("kills")
         deaths = data.get("deaths")
         assists = data.get("assists")

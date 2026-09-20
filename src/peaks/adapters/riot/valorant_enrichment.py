@@ -164,8 +164,12 @@ class CompletedMatch:
 class ValorantEnrichmentCache:
     """One authenticated owner/shard's bounded sanitized cache, reused by polls."""
 
-    def __init__(self, *, clock: Callable[[], float] = time.monotonic) -> None:
+    def __init__(
+        self, *, clock: Callable[[], float] = time.monotonic,
+        catalog_fallback: Callable[[], SeasonCatalog] | None = None,
+    ) -> None:
         self.clock = clock
+        self._catalog_fallback = catalog_fallback
         self._entries: OrderedDict[tuple[str, str], tuple[float, Any]] = OrderedDict()
         self._lock = RLock()
 
@@ -197,6 +201,8 @@ class ValorantEnrichmentCache:
             parsed = parse_season_catalog(client._get_json("shared", "/content-service/v3/content"))
         except RiotClientError:
             parsed = SeasonCatalog()
+        if not parsed.labels and self._catalog_fallback and budget.take():
+            parsed = self._catalog_fallback()
         self._put("catalog", "seasons", parsed, 21_600 if parsed.labels else 60)
         return parsed
 

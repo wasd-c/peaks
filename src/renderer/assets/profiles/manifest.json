@@ -1,0 +1,1951 @@
+{
+  "version": "16.18.1",
+  "sources": [
+    "https://developer.riotgames.com/docs/lol#data-dragon",
+    "https://developer.riotgames.com/docs/tft#data-dragon"
+  ],
+  "files": [
+    {
+      "id": "Aatrox",
+      "path": "champions/Aatrox.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Aatrox_0.jpg",
+      "sha256": "32eea851ce43bb321e0055043dc7527e3667dfca94d46dc7f9f716593ab58387"
+    },
+    {
+      "id": "Ahri",
+      "path": "champions/Ahri.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg",
+      "sha256": "5692325f0e0f04856d41d9b556233ee5eb7966a615948c3a6db28b6e97283822"
+    },
+    {
+      "id": "Akali",
+      "path": "champions/Akali.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Akali_0.jpg",
+      "sha256": "d1c479410ec99da13c126d1aea5385abd9952d23ce59db5ad92450503ccb80b2"
+    },
+    {
+      "id": "Akshan",
+      "path": "champions/Akshan.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Akshan_0.jpg",
+      "sha256": "60688bd2116a00b3e175ead58850d9042ea594c0ddd833c9712c33cda35f75e0"
+    },
+    {
+      "id": "Alistar",
+      "path": "champions/Alistar.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Alistar_0.jpg",
+      "sha256": "843b9433875f933a013e8a4a3ae411d068615abc6fca3891535b93f3c4e5547d"
+    },
+    {
+      "id": "Ambessa",
+      "path": "champions/Ambessa.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ambessa_0.jpg",
+      "sha256": "e2be7c3b460d7941718edd90957469e5522f15b96ec46c9e386c196ba64f0afe"
+    },
+    {
+      "id": "Amumu",
+      "path": "champions/Amumu.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Amumu_0.jpg",
+      "sha256": "aa44d59120ad6238fcf93acae7993b785f95850fe075de533d4e05fa8f01d0b0"
+    },
+    {
+      "id": "Anivia",
+      "path": "champions/Anivia.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Anivia_0.jpg",
+      "sha256": "9344d41c18f0a38c37db8cdd6bb3133bb64ee715c843d094d5a0ce8fd38461e5"
+    },
+    {
+      "id": "Annie",
+      "path": "champions/Annie.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Annie_0.jpg",
+      "sha256": "c317600d85efa7a5ea3ff65dfefd6e50da62adc8163f2fe54e857a4754fe4361"
+    },
+    {
+      "id": "Aphelios",
+      "path": "champions/Aphelios.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Aphelios_0.jpg",
+      "sha256": "c31a71de532b5c73184b7ab8c040872e27181914a724e85f8ff45838f03a20bc"
+    },
+    {
+      "id": "Ashe",
+      "path": "champions/Ashe.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ashe_0.jpg",
+      "sha256": "2479db21557d3eb0381067cf5addcfe467654fe23fe21f84ea32fcc49412a161"
+    },
+    {
+      "id": "AurelionSol",
+      "path": "champions/AurelionSol.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/AurelionSol_0.jpg",
+      "sha256": "3fa11923f6b08307e7bd6d97da5ffcda1d66a9b8c5bc7744cf76991ac2165a7c"
+    },
+    {
+      "id": "Aurora",
+      "path": "champions/Aurora.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Aurora_0.jpg",
+      "sha256": "33bc9576ca3d93e5fce3f7294359987f2a66247612ac9b3076cfadc9348af957"
+    },
+    {
+      "id": "Azir",
+      "path": "champions/Azir.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Azir_0.jpg",
+      "sha256": "d0fb2fd048fedc1c67b27bc97e48178e53e7f13558bb9b6d6d969cb5dc819446"
+    },
+    {
+      "id": "Bard",
+      "path": "champions/Bard.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Bard_0.jpg",
+      "sha256": "742ba53e5cbb4ff840ac1ceee60a0eb8e48299bc8b034f80f1d30bc5e3b5ca23"
+    },
+    {
+      "id": "Belveth",
+      "path": "champions/Belveth.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg",
+      "sha256": "8ffd9ed04f377f2c97ab3b78b4122c358b025efc4ab82b158102202ff69e81f4"
+    },
+    {
+      "id": "Blitzcrank",
+      "path": "champions/Blitzcrank.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Blitzcrank_0.jpg",
+      "sha256": "03fedb84d669f7874e581c04e9f6aac9deadba6d7a32ce2429ed4e8132846334"
+    },
+    {
+      "id": "Brand",
+      "path": "champions/Brand.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Brand_0.jpg",
+      "sha256": "69378a9dbe214929f8cb3ea4ac7aa194d4078375129781de52c9f2340fe288a0"
+    },
+    {
+      "id": "Braum",
+      "path": "champions/Braum.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Braum_0.jpg",
+      "sha256": "2154f67c2c46acd5d42f971a53c00f10d3297f125d2c87b3d23426ea6bb179b7"
+    },
+    {
+      "id": "Briar",
+      "path": "champions/Briar.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Briar_0.jpg",
+      "sha256": "399914a880ec3a7e9e0ac00e2ff908b7b610f927c7178600c304939a88b6931a"
+    },
+    {
+      "id": "Caitlyn",
+      "path": "champions/Caitlyn.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Caitlyn_0.jpg",
+      "sha256": "a8d956a0bf0cfcc224c5f5c4c2e7a6336c76c1d9d20f03039f0b130e11c02fee"
+    },
+    {
+      "id": "Camille",
+      "path": "champions/Camille.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Camille_0.jpg",
+      "sha256": "a13315916b0f4b8b78f36ebdbf58bcd35be4f2cd38bf0941bd0a58db0608364b"
+    },
+    {
+      "id": "Cassiopeia",
+      "path": "champions/Cassiopeia.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Cassiopeia_0.jpg",
+      "sha256": "b93a3b2d48c0b3d69275eecdb83d7fe06c52bd7d1fd9dd35d96cfb76dc836de3"
+    },
+    {
+      "id": "Chogath",
+      "path": "champions/Chogath.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Chogath_0.jpg",
+      "sha256": "21a1f42536ac36e58f732d83c511e7e5b5abf22d52b63ae2bfd64434f06ec041"
+    },
+    {
+      "id": "Corki",
+      "path": "champions/Corki.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Corki_0.jpg",
+      "sha256": "81ee6d41731c57f49b01908e994a1faa0863b595fcf90936024ff16f5e8453b2"
+    },
+    {
+      "id": "Darius",
+      "path": "champions/Darius.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Darius_0.jpg",
+      "sha256": "8dedddd4cc44aec6e20ccf563824c88b40d0cbeff683dbd0ca831bf2311259c7"
+    },
+    {
+      "id": "Diana",
+      "path": "champions/Diana.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Diana_0.jpg",
+      "sha256": "06fec009740d2fe404031b26d96ef1d214b6148e218d8be6390483794fb533f5"
+    },
+    {
+      "id": "DrMundo",
+      "path": "champions/DrMundo.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/DrMundo_0.jpg",
+      "sha256": "c2168260135634a9cf786f74c5428898751657661641747ae5eedf69a29aed47"
+    },
+    {
+      "id": "Draven",
+      "path": "champions/Draven.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Draven_0.jpg",
+      "sha256": "db0de57464d7c5c49e5d7e9740b422a87cabe9ea7b4145bfddbc77bb328f213c"
+    },
+    {
+      "id": "Ekko",
+      "path": "champions/Ekko.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ekko_0.jpg",
+      "sha256": "11f2bad8a0d742d4947ffc7ca6269d0f983990225221cfc8253e2923953d76ea"
+    },
+    {
+      "id": "Elise",
+      "path": "champions/Elise.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Elise_0.jpg",
+      "sha256": "8b3dd368704117b023eba0ca5e8a6977e95ee7dbc8b5aa6077409c0f6f499a3d"
+    },
+    {
+      "id": "Evelynn",
+      "path": "champions/Evelynn.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Evelynn_0.jpg",
+      "sha256": "7551800aa8577a42b6626290c87cbbbdea675c214df010e8a036c9d596f76c04"
+    },
+    {
+      "id": "Ezreal",
+      "path": "champions/Ezreal.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ezreal_0.jpg",
+      "sha256": "ad83839b02efde4b912781788b883af91bdad94fbe965b8fd52422ed2c532471"
+    },
+    {
+      "id": "Fiddlesticks",
+      "path": "champions/Fiddlesticks.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiddlesticks_0.jpg",
+      "sha256": "e22537817b5af3ac485fcda772ed796ebdf2e4d993018d564cc4759352917e50"
+    },
+    {
+      "id": "Fiora",
+      "path": "champions/Fiora.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_0.jpg",
+      "sha256": "7d55ca7fc9fc9ec50500a0e5eced779abc05944c8c31d24b60073b499374083a"
+    },
+    {
+      "id": "Fizz",
+      "path": "champions/Fizz.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fizz_0.jpg",
+      "sha256": "e59ab851adf2246cc52465a485bd5e475688b6f8432f1a238b6bfcad36fe98ae"
+    },
+    {
+      "id": "Galio",
+      "path": "champions/Galio.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Galio_0.jpg",
+      "sha256": "c1c50550b59a11583428c227135791cfadbb1fb194375f2e44d69c132a4f7d28"
+    },
+    {
+      "id": "Gangplank",
+      "path": "champions/Gangplank.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg",
+      "sha256": "fa95f5bec77c904ac4a324d6ca50564c4f227c2dd191cf09d876495058611e33"
+    },
+    {
+      "id": "Garen",
+      "path": "champions/Garen.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Garen_0.jpg",
+      "sha256": "7dc51ad256efce721489626a5b28d834453afe079479a142b6fb3b368acc098b"
+    },
+    {
+      "id": "Gnar",
+      "path": "champions/Gnar.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gnar_0.jpg",
+      "sha256": "d7fb1929954a861b2a1acffcf4064cfad7792a75d0bd30aad6f54e064030c92e"
+    },
+    {
+      "id": "Gragas",
+      "path": "champions/Gragas.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gragas_0.jpg",
+      "sha256": "77d23e334074c31f5f78f37510bd94aaa62da47e0faf628f4a7360485e1cb8dd"
+    },
+    {
+      "id": "Graves",
+      "path": "champions/Graves.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Graves_0.jpg",
+      "sha256": "2c66a7ccd6bc8363a2302ddbed65401b1df0814b4dc5b85d6d69f11e5d43589d"
+    },
+    {
+      "id": "Gwen",
+      "path": "champions/Gwen.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gwen_0.jpg",
+      "sha256": "69602dcd1d19ba4e85e256bf06eb57be1845350ef92488151662118381cea631"
+    },
+    {
+      "id": "Hecarim",
+      "path": "champions/Hecarim.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Hecarim_0.jpg",
+      "sha256": "42dbbbd3a1bd99b8e9c89fb0c1a491fa7d033eb7d02f1123dd7edbeaad2c2c6c"
+    },
+    {
+      "id": "Heimerdinger",
+      "path": "champions/Heimerdinger.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Heimerdinger_0.jpg",
+      "sha256": "241ba8f213af4ba6536941a024634631aa70a4c07741a87292ed85c100ee62eb"
+    },
+    {
+      "id": "Hwei",
+      "path": "champions/Hwei.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Hwei_0.jpg",
+      "sha256": "fe835cdfdab797e2ec6189547e798e698df4b43dede0448fea3c5bd301cf4cb5"
+    },
+    {
+      "id": "Illaoi",
+      "path": "champions/Illaoi.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Illaoi_0.jpg",
+      "sha256": "7c108bf13ceb65597056b754636e6d64cc72d0a2ae76fd45afda49ee8a259958"
+    },
+    {
+      "id": "Irelia",
+      "path": "champions/Irelia.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Irelia_0.jpg",
+      "sha256": "68fea8f1b58a46eb3d815a68d879b567ed1b4bc385cd584b5fca2e26f4603157"
+    },
+    {
+      "id": "Ivern",
+      "path": "champions/Ivern.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ivern_0.jpg",
+      "sha256": "e7eaa48fe292f5dc730c2b5b6d5f3b4cc3f65115ea0f2b1b7570d853143a6fce"
+    },
+    {
+      "id": "Janna",
+      "path": "champions/Janna.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Janna_0.jpg",
+      "sha256": "b565476ce363940a633a5c4eb5bb7a4f4decfd8ecea2ad611722ae524b5c01f5"
+    },
+    {
+      "id": "JarvanIV",
+      "path": "champions/JarvanIV.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/JarvanIV_0.jpg",
+      "sha256": "fba20c1076097b2d1d62012ea273bee60bb8ed0a68dcf9867e907c5f0a4adaab"
+    },
+    {
+      "id": "Jax",
+      "path": "champions/Jax.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jax_0.jpg",
+      "sha256": "ed2fd1475595f90b925937068388da3be175b9c9a117774050c00b3a4fdf66ae"
+    },
+    {
+      "id": "Jayce",
+      "path": "champions/Jayce.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jayce_0.jpg",
+      "sha256": "ec7733055b803f4adba6d4a4c021214080272082bdba2230b8a9417b150e32be"
+    },
+    {
+      "id": "Jhin",
+      "path": "champions/Jhin.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jhin_0.jpg",
+      "sha256": "787d8dbc4d95b3fecaf85f9c4b53fec99ca827bd63cad7c3485fa75e6ea0f771"
+    },
+    {
+      "id": "Jinx",
+      "path": "champions/Jinx.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jinx_0.jpg",
+      "sha256": "7f67bd3bd4191c3acc5b7f6be9214eb90f75107d45d69a3f4ae3dacf13e88f24"
+    },
+    {
+      "id": "KSante",
+      "path": "champions/KSante.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/KSante_0.jpg",
+      "sha256": "1a20cb1fc4552087d3640530353ac08f04dc1f30a67cba95056fd4d2d2d1ab16"
+    },
+    {
+      "id": "Kaisa",
+      "path": "champions/Kaisa.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kaisa_0.jpg",
+      "sha256": "9123d748fb6583eacb2cc42e4259509b1992767b0a2b989bd1bc989ead11ca6b"
+    },
+    {
+      "id": "Kalista",
+      "path": "champions/Kalista.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg",
+      "sha256": "133982b56ec6c4dba4523c108ca3bade93f6f7b15d965a118e08d28d88001f12"
+    },
+    {
+      "id": "Karma",
+      "path": "champions/Karma.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Karma_0.jpg",
+      "sha256": "86b2f62c4f6deef832fe5f9952585235a9c7c7e8f754cbd18cc3e08248d67b62"
+    },
+    {
+      "id": "Karthus",
+      "path": "champions/Karthus.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Karthus_0.jpg",
+      "sha256": "f8f299d847c7896fedfc1ec8400273d7bf45ed85359fe710905afe1ecfd7fd41"
+    },
+    {
+      "id": "Kassadin",
+      "path": "champions/Kassadin.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kassadin_0.jpg",
+      "sha256": "a77b55b6f67de16be024299f734a9cb63476393ea14be5b05337bde3f8331bfb"
+    },
+    {
+      "id": "Katarina",
+      "path": "champions/Katarina.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Katarina_0.jpg",
+      "sha256": "7a9e658a34f32124e9593558cb43b82c15cdf48553d8b43dbafedd6fcf376103"
+    },
+    {
+      "id": "Kayle",
+      "path": "champions/Kayle.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kayle_0.jpg",
+      "sha256": "1d13774137fdd23d1d0a02deb3672f1333511b59941bc42b3e5d72c63e5106b5"
+    },
+    {
+      "id": "Kayn",
+      "path": "champions/Kayn.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kayn_0.jpg",
+      "sha256": "37c3b5bd951f290cd8dbd1951d3a4d2624454b61d8b59fa859119048c203b125"
+    },
+    {
+      "id": "Kennen",
+      "path": "champions/Kennen.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kennen_0.jpg",
+      "sha256": "491b75be855b7a39d666b953649ae82b268529212d5baa15d20fd51b71444c23"
+    },
+    {
+      "id": "Khazix",
+      "path": "champions/Khazix.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Khazix_0.jpg",
+      "sha256": "6df6f7432580389f50796ec3523b82655f14c8121b9ec36eff636ed6140ea2fd"
+    },
+    {
+      "id": "Kindred",
+      "path": "champions/Kindred.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kindred_0.jpg",
+      "sha256": "d1cc2908e0aa167709c425b46105909ce9b4544d8c904288bd0075a801a0592b"
+    },
+    {
+      "id": "Kled",
+      "path": "champions/Kled.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kled_0.jpg",
+      "sha256": "783937c40026896aa17197e50652ebf8d7732c87d25819a560298a27fcc61456"
+    },
+    {
+      "id": "KogMaw",
+      "path": "champions/KogMaw.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/KogMaw_0.jpg",
+      "sha256": "2c02494e36b5f87db7f1400d9b471cbae5a7dffee2a3496f9e27fa9f78a84d70"
+    },
+    {
+      "id": "Leblanc",
+      "path": "champions/Leblanc.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg",
+      "sha256": "e26b569d9346bd1a92ee2a2e23549c989e03967418396ef067f419c86844a436"
+    },
+    {
+      "id": "LeeSin",
+      "path": "champions/LeeSin.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/LeeSin_0.jpg",
+      "sha256": "b42b1d2eea0efdcb502d6548b7707187750c5d0acb8a81d222441fd54ac25f53"
+    },
+    {
+      "id": "Leona",
+      "path": "champions/Leona.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leona_0.jpg",
+      "sha256": "e5f60f6cb8ce673531ad6f5002c6c7d2fd4dfa45eaaec56a4a4204dd02b77a52"
+    },
+    {
+      "id": "Lillia",
+      "path": "champions/Lillia.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lillia_0.jpg",
+      "sha256": "fd360e33e055718d1386c570acdc1213242fab631592f25e3be55832b765c9af"
+    },
+    {
+      "id": "Lissandra",
+      "path": "champions/Lissandra.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lissandra_0.jpg",
+      "sha256": "5ff5b7e9cd85d7222992befde8387b7704b203c669ee3e78f7a8b7829401d92b"
+    },
+    {
+      "id": "Locke",
+      "path": "champions/Locke.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Locke_0.jpg",
+      "sha256": "5a60cf4c4989536d4ca8b22e53a61e4cc587a817087a42832425c812f4111cc8"
+    },
+    {
+      "id": "Lucian",
+      "path": "champions/Lucian.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg",
+      "sha256": "567a94d9cb87111540a1f6320ee822ce0e079b25e642e5521a85ddb8f92fa86d"
+    },
+    {
+      "id": "Lulu",
+      "path": "champions/Lulu.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lulu_0.jpg",
+      "sha256": "b2525f21a72b38d7a35d3d63b7b31197d5bf92f3916f892fc7365b4108357ca6"
+    },
+    {
+      "id": "Lux",
+      "path": "champions/Lux.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_0.jpg",
+      "sha256": "b4066f0777eab0b7ec4896729af9f7e5b174db0d2221965ce4b80a148fe62536"
+    },
+    {
+      "id": "Malphite",
+      "path": "champions/Malphite.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Malphite_0.jpg",
+      "sha256": "22627b03f1413c3961226ab67d276e8d064f2e1ea412954c88905eb458755ce2"
+    },
+    {
+      "id": "Malzahar",
+      "path": "champions/Malzahar.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Malzahar_0.jpg",
+      "sha256": "c858d78f1ecf872041e733b03eed01bc2c30fabb3d34dd1f83bf5da4ab26a273"
+    },
+    {
+      "id": "Maokai",
+      "path": "champions/Maokai.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Maokai_0.jpg",
+      "sha256": "94780f064a5b95c8af9f2718b31fd576e96ff8b74860e8548510f0ac44ebb822"
+    },
+    {
+      "id": "MasterYi",
+      "path": "champions/MasterYi.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/MasterYi_0.jpg",
+      "sha256": "aa90a24722fb42c87dd4870352fea8ed43a331e2f9b111072d4b49383d361d7a"
+    },
+    {
+      "id": "Mel",
+      "path": "champions/Mel.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mel_0.jpg",
+      "sha256": "9f15d253bc068f6acc56eff67e0021916590fb08c9b30b05a5667766cc72ac74"
+    },
+    {
+      "id": "Milio",
+      "path": "champions/Milio.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Milio_0.jpg",
+      "sha256": "0f6c44c11aa76ccde931cf616d125b4db248bae92b6fbac7566e2f6a676dccb6"
+    },
+    {
+      "id": "MissFortune",
+      "path": "champions/MissFortune.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/MissFortune_0.jpg",
+      "sha256": "93afa59df60fcd23338f2ba9aaff024cca0314269cbc96aa8f166d5b49af017d"
+    },
+    {
+      "id": "Mordekaiser",
+      "path": "champions/Mordekaiser.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg",
+      "sha256": "e5d150e47766967b650f50693e32ff924c5c02e91d0bed27d5ebd993b4f1dafa"
+    },
+    {
+      "id": "Morgana",
+      "path": "champions/Morgana.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Morgana_0.jpg",
+      "sha256": "1dd3ddcea5c104f2bc27cc6e35eeb1ccb6fcedbfb7ad2e1f64a8fe76a49ef8f3"
+    },
+    {
+      "id": "Naafiri",
+      "path": "champions/Naafiri.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Naafiri_0.jpg",
+      "sha256": "e708985ba2a6a66af8b2c8984217ce10a0965a8f56750228f23e12c990948541"
+    },
+    {
+      "id": "Nami",
+      "path": "champions/Nami.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nami_0.jpg",
+      "sha256": "179992cc1d69bf9a4e7a8eb3e1d62a5a3b11bbf20051de9e6921c5e4861ef83d"
+    },
+    {
+      "id": "Nasus",
+      "path": "champions/Nasus.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nasus_0.jpg",
+      "sha256": "b8ffdcac65f28696a9611c1e973b704b86c98954a844fce642affcce65e216df"
+    },
+    {
+      "id": "Nautilus",
+      "path": "champions/Nautilus.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nautilus_0.jpg",
+      "sha256": "4deb0883da3268901585c74781bd4030f832c9552b3926c1c4acf159239abd5e"
+    },
+    {
+      "id": "Neeko",
+      "path": "champions/Neeko.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Neeko_0.jpg",
+      "sha256": "722ac763c5a2293eb58daf1b418d690ae79fc16db31172de6087917b95196827"
+    },
+    {
+      "id": "Nidalee",
+      "path": "champions/Nidalee.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nidalee_0.jpg",
+      "sha256": "ad303ab3b4496fbcc855324533b70c40f882d5c16ad1e358a63f9daf3db53a75"
+    },
+    {
+      "id": "Nilah",
+      "path": "champions/Nilah.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nilah_0.jpg",
+      "sha256": "366a2e1e960f3bf99546233d2e594eb0821ed8519a2b23991d1d7e66b4f8f412"
+    },
+    {
+      "id": "Nocturne",
+      "path": "champions/Nocturne.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nocturne_0.jpg",
+      "sha256": "b5331da7a588f3f0e6d1b87e7c8b3ca9bc3d6f586402fe2873444451869d4fa0"
+    },
+    {
+      "id": "Nunu",
+      "path": "champions/Nunu.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nunu_0.jpg",
+      "sha256": "950d92b86846825fb9de82bc6c0fd8cca38384f398553d133292b0c1210991f2"
+    },
+    {
+      "id": "Olaf",
+      "path": "champions/Olaf.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Olaf_0.jpg",
+      "sha256": "a6d9e648629759a9bd88c2508c69c9ea79aeb02c919f7348471faf7dc1cb682c"
+    },
+    {
+      "id": "Orianna",
+      "path": "champions/Orianna.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Orianna_0.jpg",
+      "sha256": "d50ac650ed88c9c1514fa6261f3409c9c11e145e93c975d29adada27851efd2c"
+    },
+    {
+      "id": "Ornn",
+      "path": "champions/Ornn.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ornn_0.jpg",
+      "sha256": "4fe639db1905961eda84161fb81941bee8d3c20305b40fc022400923e2aa6887"
+    },
+    {
+      "id": "Pantheon",
+      "path": "champions/Pantheon.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Pantheon_0.jpg",
+      "sha256": "7d758ff65ae0cc612f8af656b9053e32caf5a86fe904722470d9f3a6ed04ff41"
+    },
+    {
+      "id": "Poppy",
+      "path": "champions/Poppy.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Poppy_0.jpg",
+      "sha256": "fdb83251e3d04c446ad4e7ad8094a077df149810f66b550e23eaf6bee8efb59e"
+    },
+    {
+      "id": "Pyke",
+      "path": "champions/Pyke.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Pyke_0.jpg",
+      "sha256": "ae4333379fbf444771c569b69290992af5002a7116b88e83a33f1d21a3e0a941"
+    },
+    {
+      "id": "Qiyana",
+      "path": "champions/Qiyana.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Qiyana_0.jpg",
+      "sha256": "60c93c6d95a04c79f4684a5931d590b8efe6996e30efb84c9b79c6e8e941bc37"
+    },
+    {
+      "id": "Quinn",
+      "path": "champions/Quinn.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Quinn_0.jpg",
+      "sha256": "37bf5c5cd4922652b6585e548bcf1838b481306be2bc05f5c1f9a7caad57a0e4"
+    },
+    {
+      "id": "Rakan",
+      "path": "champions/Rakan.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Rakan_0.jpg",
+      "sha256": "adee3d513a9ef82a10fd3a80ffbe82d25cb126bea7fc6df97a681d33610ffa33"
+    },
+    {
+      "id": "Rammus",
+      "path": "champions/Rammus.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Rammus_0.jpg",
+      "sha256": "a9d17a6e3607132f82b663e71318303a19adde7e2e32f03dba5c5e4f62552441"
+    },
+    {
+      "id": "RekSai",
+      "path": "champions/RekSai.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/RekSai_0.jpg",
+      "sha256": "3013a660c6aef9b1e749e50664b9a8e264a9f26bd0d178417b959731a85c10d5"
+    },
+    {
+      "id": "Rell",
+      "path": "champions/Rell.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Rell_0.jpg",
+      "sha256": "a45999089ca68fb6d887c29a09daa3b269944c4ba430bca804f7ac5188d55261"
+    },
+    {
+      "id": "Renata",
+      "path": "champions/Renata.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Renata_0.jpg",
+      "sha256": "51b5678b247ac6278b6470bc221f28495a6fe7e63afa22f3278ac4dc669c9a24"
+    },
+    {
+      "id": "Renekton",
+      "path": "champions/Renekton.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Renekton_0.jpg",
+      "sha256": "7909e1a57f67239f9a24c8ac8dfb95b1e029443d3727aed800cb0a34b2bc89ad"
+    },
+    {
+      "id": "Rengar",
+      "path": "champions/Rengar.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Rengar_0.jpg",
+      "sha256": "5301bbff5c254313896d57467e0a9de55d805d7b9952b044d8a0092dfc84a651"
+    },
+    {
+      "id": "Riven",
+      "path": "champions/Riven.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Riven_0.jpg",
+      "sha256": "08dea2314bf991e12feab11b9f6350140af4a52387bc4087b248cecdd6d55638"
+    },
+    {
+      "id": "Rumble",
+      "path": "champions/Rumble.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Rumble_0.jpg",
+      "sha256": "a451dff01e6e2d1160ac968e72f2e2b0d30db0d31fe0b730e7bfd77dcd991c2b"
+    },
+    {
+      "id": "Ryze",
+      "path": "champions/Ryze.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ryze_0.jpg",
+      "sha256": "71680f0858f195f00fb2bf47705e48481c7209a16d04bc0f590dafea00631ae7"
+    },
+    {
+      "id": "Samira",
+      "path": "champions/Samira.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Samira_0.jpg",
+      "sha256": "c7b30a00b55652ad98f740e08a2133fa7f60253c151a2dcbfcb7f59de19b85ad"
+    },
+    {
+      "id": "Sejuani",
+      "path": "champions/Sejuani.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Sejuani_0.jpg",
+      "sha256": "f1a177ed599f7668636cc42faec8d1a1376c57d0ede3674ee20dd1f918850430"
+    },
+    {
+      "id": "Senna",
+      "path": "champions/Senna.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Senna_0.jpg",
+      "sha256": "f2aadd9d698195884a392a4878695350255eadd169a171d6bded6f97ecfc5ca7"
+    },
+    {
+      "id": "Seraphine",
+      "path": "champions/Seraphine.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Seraphine_0.jpg",
+      "sha256": "3b60142330df5ce2610fca6144de8ff1c94d56f99e145604383aaa139b4b7b8b"
+    },
+    {
+      "id": "Sett",
+      "path": "champions/Sett.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Sett_0.jpg",
+      "sha256": "b07120dc2bc98f4695c872db8a97c70b1e184b61cadddd924dc95e7a516bb99d"
+    },
+    {
+      "id": "Shaco",
+      "path": "champions/Shaco.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Shaco_0.jpg",
+      "sha256": "e8f0c63141606f27ffeb849fad93c1636f59fa181be40084066f19bd165d8513"
+    },
+    {
+      "id": "Shen",
+      "path": "champions/Shen.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Shen_0.jpg",
+      "sha256": "6eb13866c3cb5d03d16b5b9f93f029c37a7ec17fe3e848c92e80948701a66683"
+    },
+    {
+      "id": "Shyvana",
+      "path": "champions/Shyvana.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Shyvana_0.jpg",
+      "sha256": "13a27a3198181018f97143093c9fe0092bf65e630ea831804d28b5f10bd4dc59"
+    },
+    {
+      "id": "Singed",
+      "path": "champions/Singed.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Singed_0.jpg",
+      "sha256": "d955dc9bee9b97e80436a2b2d42411a77b13904e993c7023c373395f0d447c5f"
+    },
+    {
+      "id": "Sion",
+      "path": "champions/Sion.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Sion_0.jpg",
+      "sha256": "3128485b108bd7b5c34467f9fb1565f3aec71a50a2fefacf14599dee430c86c4"
+    },
+    {
+      "id": "Sivir",
+      "path": "champions/Sivir.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Sivir_0.jpg",
+      "sha256": "cb392ddf8566fc5fca581105bf8daa5121abe4a998dcd448ef8bae72edc9ebe4"
+    },
+    {
+      "id": "Skarner",
+      "path": "champions/Skarner.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Skarner_0.jpg",
+      "sha256": "c84764d35d80cae516abaff41ee4fb5cc5fa37b57c2da0d7f5e3311201929f56"
+    },
+    {
+      "id": "Smolder",
+      "path": "champions/Smolder.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Smolder_0.jpg",
+      "sha256": "9aca3b6ad66a9fcd740058cd5df828dea16e1539652b14fb4cea1191eedbb706"
+    },
+    {
+      "id": "Sona",
+      "path": "champions/Sona.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Sona_0.jpg",
+      "sha256": "795027d3f6523a7c3409bad2e8f5996bc19c4717a3d67eb97c824ecd62c9a02c"
+    },
+    {
+      "id": "Soraka",
+      "path": "champions/Soraka.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Soraka_0.jpg",
+      "sha256": "7d437361bbd01633762c8d6d77cd9ef5067e3acf8cca5b345396beeb63cff545"
+    },
+    {
+      "id": "Swain",
+      "path": "champions/Swain.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Swain_0.jpg",
+      "sha256": "225823b6f8f685320c68ca108bacde77fc6d66a54acd219060f7c1c1732b3429"
+    },
+    {
+      "id": "Sylas",
+      "path": "champions/Sylas.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Sylas_0.jpg",
+      "sha256": "ba3ad1f753e1327c09ce0815a261abbdf1ddd3329ba8129e8b7f515da84789d1"
+    },
+    {
+      "id": "Syndra",
+      "path": "champions/Syndra.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Syndra_0.jpg",
+      "sha256": "f305e24eb389f5f31be966ac3406cd56e0dc414fd6ebbc1bfb2389026932e1a3"
+    },
+    {
+      "id": "TahmKench",
+      "path": "champions/TahmKench.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/TahmKench_0.jpg",
+      "sha256": "f37277d25f272e184a91caa8cd69ae4aa0b5685cf77fa07d192ee3f0a6528cdd"
+    },
+    {
+      "id": "Taliyah",
+      "path": "champions/Taliyah.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Taliyah_0.jpg",
+      "sha256": "b6225fedb533b4798ed66a334b9dbeef422a3b7b0d12759e5ff5f4959c1103ca"
+    },
+    {
+      "id": "Talon",
+      "path": "champions/Talon.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Talon_0.jpg",
+      "sha256": "0cbcf0f1c1199e458ba087ef98b8e1dd053a03898591a211f1037a5384893aa3"
+    },
+    {
+      "id": "Taric",
+      "path": "champions/Taric.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Taric_0.jpg",
+      "sha256": "b9bc5809433a4301f66ba7fe02ef738162cc4f5332751f264dee06af1a1f5f9d"
+    },
+    {
+      "id": "Teemo",
+      "path": "champions/Teemo.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Teemo_0.jpg",
+      "sha256": "7aa0d1f6f23180bf47a1d5b22db3e7b8f3bfb994ba31f7863f2753f360fa98c5"
+    },
+    {
+      "id": "Thresh",
+      "path": "champions/Thresh.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg",
+      "sha256": "3d03cfd26e0fdb4e45329ac9b68d4a5c7117006e0bef58ef4ce0e7f3b878bc99"
+    },
+    {
+      "id": "Tristana",
+      "path": "champions/Tristana.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Tristana_0.jpg",
+      "sha256": "0d8f97424ec9f3f1efd753374819ee752bb1ae56098b6e6319105d8109b12fcf"
+    },
+    {
+      "id": "Trundle",
+      "path": "champions/Trundle.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Trundle_0.jpg",
+      "sha256": "19b880f3b5939d864f18f407983f40f68f01a19c71477c22ce79cb03eb1e956b"
+    },
+    {
+      "id": "Tryndamere",
+      "path": "champions/Tryndamere.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Tryndamere_0.jpg",
+      "sha256": "75d8b2fb925eeecf57623728d4a019bc9f86c032b2150266725136b5d9108b4f"
+    },
+    {
+      "id": "TwistedFate",
+      "path": "champions/TwistedFate.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/TwistedFate_0.jpg",
+      "sha256": "5ccbdf09f6dd249c92e5acf0a9048774a375e73d44dc68d12f7b31810b5b285c"
+    },
+    {
+      "id": "Twitch",
+      "path": "champions/Twitch.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Twitch_0.jpg",
+      "sha256": "2428e5664788797b0a9d968ab52f12f61ada5b9689809c091f2bcc01d1d7d26e"
+    },
+    {
+      "id": "Udyr",
+      "path": "champions/Udyr.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Udyr_0.jpg",
+      "sha256": "3296f7bc56ecb7e17c8db497837ed38f1ad9a185e34a810f406f2457770e19e0"
+    },
+    {
+      "id": "Urgot",
+      "path": "champions/Urgot.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Urgot_0.jpg",
+      "sha256": "b25c441e4975acde1dcbebe8392585a42eed9610d3f02a506db1f0e4cf1ea564"
+    },
+    {
+      "id": "Varus",
+      "path": "champions/Varus.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Varus_0.jpg",
+      "sha256": "b0c4353182732beddcf0774bace0fb58b6ec77de90613d012a19b266af932ec9"
+    },
+    {
+      "id": "Vayne",
+      "path": "champions/Vayne.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vayne_0.jpg",
+      "sha256": "9c7d2ff5d621bc826f08a38ae77b19842133441c1836d3b95de625fcf6e6bf50"
+    },
+    {
+      "id": "Veigar",
+      "path": "champions/Veigar.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Veigar_0.jpg",
+      "sha256": "b1dfdd6d5b6c899ac93c011c724896380077538506019de98bed72c5fca9d0c6"
+    },
+    {
+      "id": "Velkoz",
+      "path": "champions/Velkoz.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Velkoz_0.jpg",
+      "sha256": "bafe6a8de0e2386b32e3824e9651c19e38d6c07f353cf151343bebbec335b769"
+    },
+    {
+      "id": "Vex",
+      "path": "champions/Vex.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vex_0.jpg",
+      "sha256": "c9db8134b8bdb22e505cc7430592e99b5c256f687808e57da8d9674a0e9a6ebf"
+    },
+    {
+      "id": "Vi",
+      "path": "champions/Vi.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vi_0.jpg",
+      "sha256": "98229c2fa03b3e79965c1964b071d25bebcd3333de014dca5472b25d6e171d52"
+    },
+    {
+      "id": "Viego",
+      "path": "champions/Viego.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg",
+      "sha256": "66f863bfa6d0fc5b5351966efd5d0e3a910e884b426333c480caa1cc6c72442f"
+    },
+    {
+      "id": "Viktor",
+      "path": "champions/Viktor.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viktor_0.jpg",
+      "sha256": "bff3df0defb4f03f6c2fd8df3b8fc5839f3234344500f260f579f190f656de8b"
+    },
+    {
+      "id": "Vladimir",
+      "path": "champions/Vladimir.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg",
+      "sha256": "f16b0e27b2a3689784a0c0daf45557303e14d17a15e1327fa490aaebccddaa00"
+    },
+    {
+      "id": "Volibear",
+      "path": "champions/Volibear.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Volibear_0.jpg",
+      "sha256": "18a8fe7ab53fccdc80858b67c1fbc7c9ccccdc7f4cd2ce0772595270f6a8b423"
+    },
+    {
+      "id": "Warwick",
+      "path": "champions/Warwick.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Warwick_0.jpg",
+      "sha256": "caa9d8f3802dd081633b47242183f3c797eb872ec7b8e258ec32d7bc90e513dc"
+    },
+    {
+      "id": "MonkeyKing",
+      "path": "champions/MonkeyKing.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/MonkeyKing_0.jpg",
+      "sha256": "f7be5dcff1438d389fb669267fe33fce75b981469c654c0d9ca5785a2caea6e5"
+    },
+    {
+      "id": "Xayah",
+      "path": "champions/Xayah.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Xayah_0.jpg",
+      "sha256": "4c6e9394c61da4d006f6609867bd5f5d62ca1f1d69662590e22d8e1e695e2307"
+    },
+    {
+      "id": "Xerath",
+      "path": "champions/Xerath.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Xerath_0.jpg",
+      "sha256": "db099f54651437fdf51705fe925a6904dfc3c71de9019ffb2b28f60329e14351"
+    },
+    {
+      "id": "XinZhao",
+      "path": "champions/XinZhao.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/XinZhao_0.jpg",
+      "sha256": "cd99dc6e331050f8d79565f8ed6e9a90a89a9c026328ccb15b0dc196b0285769"
+    },
+    {
+      "id": "Yasuo",
+      "path": "champions/Yasuo.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yasuo_0.jpg",
+      "sha256": "bbd5c42c623b1d096db48ffc669f133e4535851ecb3fdf9afbdc4f914fb6e1c2"
+    },
+    {
+      "id": "Yone",
+      "path": "champions/Yone.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yone_0.jpg",
+      "sha256": "b5e9f5b7c60e1b38f90158b02bc0cc7d9c705c31c0ed72e6f1ab308b6586d134"
+    },
+    {
+      "id": "Yorick",
+      "path": "champions/Yorick.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg",
+      "sha256": "563a6aabfcc75c82a41012704a8ee4266120c9c5e66ec7c76ad942e65ba4f2c8"
+    },
+    {
+      "id": "Yunara",
+      "path": "champions/Yunara.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yunara_0.jpg",
+      "sha256": "1975f947c58b7c8ce1e28b1326dfc98499d8da248337fd90fe0d5732239bff3c"
+    },
+    {
+      "id": "Yuumi",
+      "path": "champions/Yuumi.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yuumi_0.jpg",
+      "sha256": "bc896509b344218750af02473c508f2ff4752159f6a4f18fc8b1418717f39696"
+    },
+    {
+      "id": "Zaahen",
+      "path": "champions/Zaahen.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zaahen_0.jpg",
+      "sha256": "bec3a7cf46614415776cd12b941b4a4854bd69725086218a12dea828b624d4f6"
+    },
+    {
+      "id": "Zac",
+      "path": "champions/Zac.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zac_0.jpg",
+      "sha256": "ff47d1aa886a2b392e1a951be09ea47be07bb7b9b763689139eb367439a822e3"
+    },
+    {
+      "id": "Zed",
+      "path": "champions/Zed.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zed_0.jpg",
+      "sha256": "622fdfa785f923775d9c7adc5a96ae767dd4b0c724207915380ef13e7d63f9da"
+    },
+    {
+      "id": "Zeri",
+      "path": "champions/Zeri.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zeri_0.jpg",
+      "sha256": "3c845bb251cc16edae7e7e07c67d813bb1bd26b57b1e5e76d5f2afdcccb31d51"
+    },
+    {
+      "id": "Ziggs",
+      "path": "champions/Ziggs.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ziggs_0.jpg",
+      "sha256": "e821c8b42227593f68b7b21aa126b6e15cbd798b169eef83961429af40cf6930"
+    },
+    {
+      "id": "Zilean",
+      "path": "champions/Zilean.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zilean_0.jpg",
+      "sha256": "d94b22b8e491fe4c2b02f64e31654dba8a9ba39e350807f6d030511d1f1862e2"
+    },
+    {
+      "id": "Zoe",
+      "path": "champions/Zoe.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zoe_0.jpg",
+      "sha256": "124d02d0acbe803027dce808e35247568038d04b784e6293c0c58f6872134aeb"
+    },
+    {
+      "id": "Zyra",
+      "path": "champions/Zyra.webp",
+      "source": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zyra_0.jpg",
+      "sha256": "e17bc5bb7a60feecd6594e9cdc442a71b8bc08664743c39ac176d014aa707792"
+    },
+    {
+      "path": "tft/tft-augment0.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment0.png",
+      "sha256": "792a5a6b94dfea3e05b7b49b5015b3d509bcb6a4684411013155c29ece3f4c4e"
+    },
+    {
+      "path": "tft/tft-augment1.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment1.png",
+      "sha256": "245516d6dbecf52858cec81a8f5f50b02e7feed2aa960b0e9947374c67d8b694"
+    },
+    {
+      "path": "tft/tft-augment10.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment10.png",
+      "sha256": "fe0f37bc55a52372be8d25f1c8e2bdb8ec27a7ea805f48fe1016eb08361fb1e1"
+    },
+    {
+      "path": "tft/tft-augment11.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment11.png",
+      "sha256": "44ddcd1af200fb85b957f7279fc9265387ee83e92524c2f233eef399956968f4"
+    },
+    {
+      "path": "tft/tft-augment12.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment12.png",
+      "sha256": "c76bfcf79297c8ba63998c4b771e2c1c45eb2158cf64a4b30361c05cffb7e8cc"
+    },
+    {
+      "path": "tft/tft-augment13.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment13.png",
+      "sha256": "ba81a8f7904303044f58c37bc38345ef16de4ed16933c0733e043f6b0046a184"
+    },
+    {
+      "path": "tft/tft-augment14.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment14.png",
+      "sha256": "d4eb51afec92aa1773bc74df7622143bc72f4b38b16274ab8f5601f60a98d114"
+    },
+    {
+      "path": "tft/tft-augment15.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment15.png",
+      "sha256": "e00719234b0844c84161e36f3b5c52b2e4fb40ab607debd1feba5e1edf089a26"
+    },
+    {
+      "path": "tft/tft-augment16.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Salvage2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Big-Friend-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Cybernetic-Uplink-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Ascension3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TimeSkip_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SilverDestiny_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Protaganist_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/QuestForTheSeven_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TeslaCoil_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/HowlingGale_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/EvilBeyondMeasure_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BloodRage_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BackupDancers_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Crossfire_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Incoming_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/UnlimitedPower_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/WaterLotus_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/WaterLotus_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/AnotherOne_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/AnotherOne_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PsychicForge_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PocketRecombulator_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Reroll-Transfer-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Keepers-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Keepers-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Underdogs1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Fully-Adapted-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/QuietQuitting_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/AGoldenQuest_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MaxBuild_II.png"
+      ],
+      "sha256": "21713e783532cc9d7791f3994d2a5d90761833e2067f37e28a004354f88986df"
+    },
+    {
+      "path": "tft/tft-augment17.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/AdvancedLoan_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/AdvancedLoan_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ArcaneViktory_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Ascension2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PowerUp_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BacklineBlueprint_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/RecurveWrecker_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BandThieves1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BandThieves3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BandThieves3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BandThieves3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TheBaronsLair_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BeltOverflow_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Grab-Bag-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Golden-Gifts-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BirthdayReunion_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BodyguardsTraining_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BoosterPack1_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BoosterPack1_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BoosterPack1_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BoxingLessons_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Branching-Out-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Branching-Out-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BronzeForLife_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BronzeForLife_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Buried-Treasures-III.png"
+      ],
+      "sha256": "af15393cde2db5e8e5e88a96d1ca385c15cd229432e6a33a6878da91f2c216df"
+    },
+    {
+      "path": "tft/tft-augment18.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CalledShot_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CallToChaos_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Caretaker_s-Chosen-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Caretaker_s-Chosen-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CarveAPath_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CelestialBlessing1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CelestialBlessing2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CelestialBlessing3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ClearMind2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ClockworkAccelerator_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Dizzy-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CognitiveOverload_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CognitiveTax_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CognitiveTax_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ComebackStory_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Trade3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/The-customer-is-always-right-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CookingPot_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Coronation_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Corrosion_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CraftedCrafting_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CryMeARiver_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/CursedCrown-III.png"
+      ],
+      "sha256": "6bae59bdfcba898053eeaf980ab41bb6c6ae27a2f34901fd5e6150769bb32d8c"
+    },
+    {
+      "path": "tft/tft-augment19.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/DeadlierBlades_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Dummify_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/DuoQueue_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/EarlyLearning_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Electrocharge-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Electrocharge-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/EpicRolldown_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Epoch_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Epoch_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ExclusiveCustomization_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Expedition_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ExplosiveGrowth_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ExplosiveGrowth_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ExtraBuckles_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/FeelingLucky_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/FindYourCenter_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Flexible_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GriefoftheGreatGoddess_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MarksMan_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ForgedInStrength_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/FrontlineFoundation_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Windfall2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GiantandMighty_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GildedSteel_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GlassCannon_II.png"
+      ],
+      "sha256": "5088fc9d7a45be90ee371908428984faa4bf9dee526243a5581e61eae768671f"
+    },
+    {
+      "path": "tft/tft-augment2.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment2.png",
+      "sha256": "70e51015d1741ed1234a7ce0be432fcd6a8f0055c9f801843136eabd61c9a2d5"
+    },
+    {
+      "path": "tft/tft-augment20.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GlassCannon_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Going-Long-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/The-Golden-Egg-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GoldenGamble_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GoldenGamble_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GoldenGamble_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Good-For-Something-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GroupHug1_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GroupHug2_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/HardBargain_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/HardCommit_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Healing-Orbs-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Healing-Orbs-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/HealthyGains_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/RichGetRicher3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Heroic-Grab-Bag-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Heroic-Grab-Bag-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Heroic-Grab-Bag-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/HoldTheLine_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Hyperroll2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/InfinityProtection_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Invested-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Invested-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/InvestmentStrategy_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/InvestmentStrategy_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Iron-Assets-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ItemGrabBag1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Jeweled-Lotus-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Jeweled-Lotus-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/KickStart_I.png"
+      ],
+      "sha256": "46cd4d762d6aa6f31c21c3ae31b438679e54a127049eefdefb20f988505ee828"
+    },
+    {
+      "path": "tft/tft-augment21.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Kingslayer_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/LateGameScaling_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Late-Game-Specialist-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Long-time-Crafting-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/LegionofThrees_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/LevelUp3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Living-Forge-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Lucky-Gloves-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Lucky-Gloves-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/LuxurySubscription_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/A-Magical-Roll-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Makeshift1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Makeshift2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MirroredMonetization_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MaxBuild_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MoneyHungry1_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MoneyHungry2_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MoneyMonsoon_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/NoScoutNoPivot_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/OneBuffTwoBuff_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/One-Two-Five-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Pandora1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Pandora2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Pandora3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Ascension1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PatienceIsAVirtue_I.png"
+      ],
+      "sha256": "2f01cadd9cf29da141fa3fde3ec65b6ec7415e597bc6eacd3864928adeef6df5"
+    },
+    {
+      "path": "tft/tft-augment22.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Learning-From-Experience-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Pilfer_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PortableForge2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GoldenTicket3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PromisedProtection_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Roll-the-Dice-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/RadiantRelic-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Recombobulator-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Replication-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Retribution_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Rolling-For-Days-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Salvage2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Salvage2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SeraphimsStaff_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ShimmerscaleEssence_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Silver-ticket-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Silver-Spoon-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Slammin_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Slammin_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Slice_of_Life_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SlightlyMagicRoll_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SmallGrabBag_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SoloLeveling_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SoloPlate_II.png"
+      ],
+      "sha256": "401ac255c8d94ab3ba3d8e41b417f4147efaf97efc5a833cfbc73492c2f4b78a"
+    },
+    {
+      "path": "tft/tft-augment23.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/AwakenedSoul_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SpeedyDoubleKill_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SpiritofRedemption_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SpreadingRoots_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SpreadingRoots_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Rodsmith_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/StandUnited1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SweetTreats_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/BladeOverflow_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Swordsmith_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TacticiansKitchen_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Building-an-army-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TheGoldenDragon_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TheTower_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TheTraitTree_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TheTraitTree_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TimeSkip_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Tons-of-Stats-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Tons-of-Stats-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Trade2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Trade2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/TwinGuardians_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/UpwardMobility_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/UltraRapidFire_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Urfs-Grab-Bag-III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/WandOverflow_III.png"
+      ],
+      "sha256": "469d977011de88a970ba5450c9575d233a255f8a3e4caf9cc43032dc484a42a8"
+    },
+    {
+      "path": "tft/tft-augment24.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Warpath_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/WeStickTogether_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/WorthTheWait_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/WorthTheWait_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/WovenMagic_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Young-and-wild-and-free-I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Cybernetic2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Cybernetic-Uplink-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PlotArmor_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Pandoras-Bench-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/DeadlierCaps_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T3.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GoldenDestiny_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/GoldenDestiny_II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/MinMax_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missed-Connections-I.png"
+      ],
+      "sha256": "c2e35c97cc5302bd8a06814dfb375fe2025e98a9d2a0acf36e22003c89539b02"
+    },
+    {
+      "path": "tft/tft-augment25.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PrismaticDestiny_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/PrismaticDestiny_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SilverDestiny_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SilverDestiny_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/SilverDestiny_I.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T2.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/ConstructaCompanion_III.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Know-Your-Enemy-II.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-augment/Missing-T1.png"
+      ],
+      "sha256": "8ddbab876756c903bdf9a43a33086119103eebe04e065cbdc445da3a4cc7ac6c"
+    },
+    {
+      "path": "tft/tft-augment3.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment3.png",
+      "sha256": "7c0118831819273378dd52c7bc8ee8e443be3f908efc0bfd39bb3e3545ec2670"
+    },
+    {
+      "path": "tft/tft-augment4.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment4.png",
+      "sha256": "7025cfc82a03cc9d05000d85597f0a58d6a0f6a1cc9b0b3a9c7ffa6013bf3f5c"
+    },
+    {
+      "path": "tft/tft-augment5.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment5.png",
+      "sha256": "1756a56dda67ebbc385d9c0ecf9a9c5a5a495b1e2bb770d962e1b5259835da4d"
+    },
+    {
+      "path": "tft/tft-augment6.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment6.png",
+      "sha256": "8dc6c8c2b5f6d02e605880ca3ab3bd961ce7076e3b6dea0671484a0cda1489da"
+    },
+    {
+      "path": "tft/tft-augment7.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment7.png",
+      "sha256": "5143be08944de5d6a480beb9819fddd18abdf8dd2a765f46292e7f2b8ec3e172"
+    },
+    {
+      "path": "tft/tft-augment8.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment8.png",
+      "sha256": "3e94e40b064ebac4a1bf511787b64eae96136e9626c2b99b40e326a901a72047"
+    },
+    {
+      "path": "tft/tft-augment9.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-augment9.png",
+      "sha256": "e5152141d843766d86292af53b4f6a92115bfe4a7221c3ce928e314ecbb08766"
+    },
+    {
+      "path": "tft/tft-champion0.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion0.png",
+      "sha256": "8c856f0f97542f7a27ea048fc0a9417296fce67d905152857e34e245c2b90d3d"
+    },
+    {
+      "path": "tft/tft-champion1.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion1.png",
+      "sha256": "81143366a8d5d5908ad79ce17ba30f0e54afb89ea1d963ee4facfe416051e6f6"
+    },
+    {
+      "path": "tft/tft-champion10.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion10.png",
+      "sha256": "443d55adf267f2eae5570fa09428c141bdbf06738440e5bef239eb3cc0d9e236"
+    },
+    {
+      "path": "tft/tft-champion11.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-champion/TFT18_Lux_splash_centered_7.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-champion/TFT18_Lux_splash_centered_7.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-champion/TFT18_Lux_splash_centered_7.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-champion/TFT18_Lux_splash_centered_7.TFT_Set18.png"
+      ],
+      "sha256": "3755abdadee540981b0be67f9dd91343dfa89008a94506ba18cc829c987d2467"
+    },
+    {
+      "path": "tft/tft-champion2.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion2.png",
+      "sha256": "a2821c61932c8d06fa7bb94435831d30ca99d4053e400841ee5813b8baca2221"
+    },
+    {
+      "path": "tft/tft-champion3.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion3.png",
+      "sha256": "76e43ca5e7abb14fa928ec5be0f737e10e55458ced6d0f2bc74b1edaa204e3e8"
+    },
+    {
+      "path": "tft/tft-champion4.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion4.png",
+      "sha256": "d4d9d0458c5a403700fc91fb49d2fa383454b9358cb5d0158358372b0701219b"
+    },
+    {
+      "path": "tft/tft-champion5.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion5.png",
+      "sha256": "dd90b74057d354c4c37879a6bab6573988a7154945d150177f144f8641ee43c5"
+    },
+    {
+      "path": "tft/tft-champion6.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion6.png",
+      "sha256": "2bd4c9bbe46394c90d68ec49ebdfaff6fb63826dda9ffbea656275b8299dddf3"
+    },
+    {
+      "path": "tft/tft-champion7.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion7.png",
+      "sha256": "df6dd35b7420ffd49208ca54822a248133afe02aad792cbbc005d870648d810d"
+    },
+    {
+      "path": "tft/tft-champion8.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion8.png",
+      "sha256": "81a6fe965e107307561ebc39bcfd5bda08a51304b07e72df75ad6f52a6a59379"
+    },
+    {
+      "path": "tft/tft-champion9.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-champion9.png",
+      "sha256": "e8a7f3cb2891d4b69d69889c9fc8692755fe54dc216772dd5aa0cb1ea5f63e00"
+    },
+    {
+      "path": "tft/tft-item0.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item0.png",
+      "sha256": "f5925737b2377dcae0a54e17a23d3a8238aa116edd74b5f34df249ac89d18177"
+    },
+    {
+      "path": "tft/tft-item1.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item1.png",
+      "sha256": "1845acd3bcba70b0d069fb2142ab1f3a7be0887962a3fa55dfc734885c5a07fd"
+    },
+    {
+      "path": "tft/tft-item10.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item10.png",
+      "sha256": "9ee1a2cc1b5ee1998176ddc9bc23cb05b81a309db5fde1b1657ae42f7347b015"
+    },
+    {
+      "path": "tft/tft-item11.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item11.png",
+      "sha256": "ed26bc07b91bef94d387344c07b033e16a9895a98a10154732ea71790104222c"
+    },
+    {
+      "path": "tft/tft-item12.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item12.png",
+      "sha256": "1f4fb678947b298f4dab10bab864c94da563f8245b9aa189e4f21daa28935485"
+    },
+    {
+      "path": "tft/tft-item13.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item13.png",
+      "sha256": "d67f218f5305b7c468d5ea7b21a0e58710effef47ec24c3ad16cee6f8417b09c"
+    },
+    {
+      "path": "tft/tft-item14.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item14.png",
+      "sha256": "4727e4c6dd87d41a898754b59c5b850942037126902ec9e88f0f0348f27068e8"
+    },
+    {
+      "path": "tft/tft-item15.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item15.png",
+      "sha256": "47360d8f2cdeeb226fe70c60f8cbd0da5d1c0dccdb02a6c4bcc9d7e661fcafbb"
+    },
+    {
+      "path": "tft/tft-item16.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item16.png",
+      "sha256": "d79895e88667da12c0b1174caa5ed4c046c2c2c63218dfe580f56e6dcfea1f3a"
+    },
+    {
+      "path": "tft/tft-item17.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item17.png",
+      "sha256": "818c8bc8e8c28dd75c7321a45492a313b60010ea6237595614b7058213375063"
+    },
+    {
+      "path": "tft/tft-item18.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item18.png",
+      "sha256": "1b76fbd4a5c3eae499b601a7910175fa17f91bd1d305869e62639b788e0f46ee"
+    },
+    {
+      "path": "tft/tft-item19.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item19.png",
+      "sha256": "190aee59da54608b2598486162e2cb874bd416889c71be3ec087cde9fd78dcb5"
+    },
+    {
+      "path": "tft/tft-item2.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item2.png",
+      "sha256": "66309dce8ed6cd094ab3a6c21354cd7fa8620e95cffa92aa3a1b7544ba5016be"
+    },
+    {
+      "path": "tft/tft-item20.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item20.png",
+      "sha256": "d09f39dcca141968e889aa8f206c11af745d5241fc39b3b9d59091db0b0ac643"
+    },
+    {
+      "path": "tft/tft-item21.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item21.png",
+      "sha256": "44b111aac47ce64c36c1f4d72d34088a01f10fcb508ca25dfbac74a448b3ac50"
+    },
+    {
+      "path": "tft/tft-item22.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item22.png",
+      "sha256": "9b4b99c429d2deb08262450c306c7bad392fb6b14619ae199f23bf2dd1b561a5"
+    },
+    {
+      "path": "tft/tft-item23.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item23.png",
+      "sha256": "956a83d33d78b9048834226e076d6d121f80599544db8de2cb7c49eb85d70283"
+    },
+    {
+      "path": "tft/tft-item24.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item24.png",
+      "sha256": "a93679c5864a3372d70401f14094163c1614161ba8b579bb8b3fa5c53bbeb023"
+    },
+    {
+      "path": "tft/tft-item25.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item25.png",
+      "sha256": "2ebbe12d9233d0a7ddde18e57271cbe17e1789fbba7d4c3741dfa13c82782e73"
+    },
+    {
+      "path": "tft/tft-item26.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item26.png",
+      "sha256": "ec30a2b9d9587eb47d50155bd670246253b7f4e829da9f2320bedf397d1180ce"
+    },
+    {
+      "path": "tft/tft-item27.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item27.png",
+      "sha256": "552338d3dab888a25c18c638f8415211df90387656865d3e9a1f784602cadfc4"
+    },
+    {
+      "path": "tft/tft-item28.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item28.png",
+      "sha256": "c941743ff6481608219c11d173373928578e0b026ec12be4700e487dc55ab79e"
+    },
+    {
+      "path": "tft/tft-item29.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item29.png",
+      "sha256": "666ed657e9c99f7f08764e12e44ea6adf0c80590460cb76508b0a05be2d15a89"
+    },
+    {
+      "path": "tft/tft-item3.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item3.png",
+      "sha256": "f95f2d9f0aad9c0608c275acaa43974dd8b54c8dd9453c0469724655e0b0066a"
+    },
+    {
+      "path": "tft/tft-item30.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item30.png",
+      "sha256": "95e0bcd16cce95303d5ac5cab5b02bae85da35a959e9dbb2736320079b73ab80"
+    },
+    {
+      "path": "tft/tft-item31.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item31.png",
+      "sha256": "f4acd7e04c1fefbd993f39b0b0a5bc9b02aa2e1591d6a7fa418a72527f732d88"
+    },
+    {
+      "path": "tft/tft-item32.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item32.png",
+      "sha256": "e73c12dbbc92274e7ad10022dd634b3867fb94e43b73c29fc77b7b1ef0756a12"
+    },
+    {
+      "path": "tft/tft-item33.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item33.png",
+      "sha256": "16e6651f51a3b2e699a9fa2ffb951029e2a410ee02af102859c9878120322a96"
+    },
+    {
+      "path": "tft/tft-item34.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item34.png",
+      "sha256": "0638030db367a6b2f9eacff811cc4e448b421a091afcbf88431e2c9ebddc063b"
+    },
+    {
+      "path": "tft/tft-item35.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item35.png",
+      "sha256": "3e0952e80d90e0ab6f23bd154e7fe86b93756c8114637ef74bd807651b5e70ec"
+    },
+    {
+      "path": "tft/tft-item36.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item36.png",
+      "sha256": "ba44314536f6ed4b14ecf9f0e819fb22e94c89f717b3f9342863a99abce1673b"
+    },
+    {
+      "path": "tft/tft-item37.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item37.png",
+      "sha256": "2be569d31d4ea9acf7d0720a3e1b2c2843bfb63f0b9cfa2814ed16c6a1f99ba5"
+    },
+    {
+      "path": "tft/tft-item38.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item38.png",
+      "sha256": "a1a6d610fa03aeb9f50a5424b7d0aa3ee85b708117224b20c86026335a3038de"
+    },
+    {
+      "path": "tft/tft-item39.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item39.png",
+      "sha256": "94ecc096fa5321c08a0186bad7f5236612922198daeedab41d35ac8df93be3cb"
+    },
+    {
+      "path": "tft/tft-item4.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item4.png",
+      "sha256": "815e8e509a7900876d04a98bc2ef46fcb5a3f0bc89b8e8322fd3a2677b0a6a71"
+    },
+    {
+      "path": "tft/tft-item5.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item5.png",
+      "sha256": "406be363a29ff9f1d1a80f5d2b74c4b4d0afe991be6b23927a30238381814812"
+    },
+    {
+      "path": "tft/tft-item6.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item6.png",
+      "sha256": "462d3d125ef72b16e603ab494d46238092e455ef873362d4e8e3bcde30a49b81"
+    },
+    {
+      "path": "tft/tft-item7.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item7.png",
+      "sha256": "1e2d1fd2634f0e3fd159fef36b5f95889d25134c738ecba2ba07f6990180991d"
+    },
+    {
+      "path": "tft/tft-item8.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item8.png",
+      "sha256": "3ae8e14956db0cf2f98ae7efd285411e10e496d9bf7d09a86c542ad4d711a6cc"
+    },
+    {
+      "path": "tft/tft-item9.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-item9.png",
+      "sha256": "844882b1dce09fef39b28dd84180feb7c3580a958388c84cf01a16ee6dd429fe"
+    },
+    {
+      "path": "tft/tft-trait0.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-trait0.png",
+      "sha256": "e384479584e7612e62e94772168317428b424600af61f7f048d689d636e8e845"
+    },
+    {
+      "path": "tft/tft-trait1.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-trait1.png",
+      "sha256": "c55a9ed9e49902772c78e2975a2d59c18aef97505abc35808c83ce6ce576e473"
+    },
+    {
+      "path": "tft/tft-trait10.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_9_Bilgewater.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_5_Rejuvenator.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_13_HighRoller.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_12_Pyrokinesis.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_11_Storyweaver.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_13_Conqueror.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_10_Pentakill.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_14_NitroForge.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_10_Classical.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_9_Empress.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_16_Demacia.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_16_Heroic.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_12_Bee.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_14_Overlord.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_16_Ixtal.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_StarCrew.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_8_Hacker.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_2_Crystal.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_11_Fated.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Adaptor.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Attuned.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_ApexPredator.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Monolith.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Blossom.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Brawler.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Caustic.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Coven.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Defender.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_BountySeeker.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Eclipse.TFT_Set18.png"
+      ],
+      "sha256": "7e2680d111381fd650e3726ca67951b9a58089fc1a4742c992008f417c1dc389"
+    },
+    {
+      "path": "tft/tft-trait11.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Elderwood.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_OldGod.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_EmeraldAspect.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Executioner.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Fae.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_FloraFatalis.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Greenfather.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Hunter.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Inferno.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Invoker.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Avatar.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Lunar.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_OldGrowth.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Primal.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Rapidfire.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Riftbeast.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Rival.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Juggernaut.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Ravager.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Spellweaver.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Sprykin.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Summoner.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Solar.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_Vanguard.TFT_Set18.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_18_ZyraOrigin.TFT_Set18.png"
+      ],
+      "sha256": "f6804837b67995a9fdb95bdf14a16587d9b33ff7572465ddf0549ffb4e7a2a04"
+    },
+    {
+      "path": "tft/tft-trait2.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-trait2.png",
+      "sha256": "fce987a30f70a8fade93338ee142f931a647fa51334c7211888a89bf3261762f"
+    },
+    {
+      "path": "tft/tft-trait3.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-trait3.png",
+      "sha256": "be54404088844cbad3dc1f129e9da3fbffc2b06b17ac2440c76e11542804ed9f"
+    },
+    {
+      "path": "tft/tft-trait4.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-trait4.png",
+      "sha256": "57edd92c524e438817d2bb640f66517b171e31c34969fb888ccffce66c64cbf5"
+    },
+    {
+      "path": "tft/tft-trait5.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-trait5.png",
+      "sha256": "199839efd7ec495db47a5b93c3587430a037b2ad5b2011ecac250c7c0e9643e6"
+    },
+    {
+      "path": "tft/tft-trait6.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/sprite/tft-trait6.png",
+      "sha256": "219e68a6ad95724cecd656cab7b314229043aa9f4a2c052afa6cc730ecfa93a8"
+    },
+    {
+      "path": "tft/tft-trait7.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png"
+      ],
+      "sha256": "d14d25cbb9256a4a6fb6fb47680484914d3402cf1afeea907045aebf945354aa"
+    },
+    {
+      "path": "tft/tft-trait8.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png"
+      ],
+      "sha256": "d14d25cbb9256a4a6fb6fb47680484914d3402cf1afeea907045aebf945354aa"
+    },
+    {
+      "path": "tft/tft-trait9.png",
+      "sources": [
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_15_SecretTechnique.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_Phantom.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_3_MechPilot.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_2_Glacial.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_8_Mascot.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_4_Wilderness.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_3_Rebel.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_6_Yordle.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_6_YordleLord.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_2_Mountain.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_7_Shimmerscale.png",
+        "https://ddragon.leagueoflegends.com/cdn/16.18.1/img/tft-trait/Trait_Icon_5_Coven.png"
+      ],
+      "sha256": "49267b2e7c17e8528531646673a04819757892cfebc19429b00bdace72743577"
+    },
+    {
+      "path": "tft.svg",
+      "source": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/content_organization_live/99f44365b1293979d094be183adfc57ee1d8f529-24x24.svg?accountingTag=TFT",
+      "sha256": "655dc135cd57e9f04a29c196dcceae961ca301208a1d773abc938e27c026ee5a"
+    },
+    {
+      "path": "league.svg",
+      "source": "../account-icons/league.svg",
+      "sha256": "aa2ab257bf182107369fa3ead9362547870caf6da828dfea69f0709d902ce546"
+    }
+  ]
+}

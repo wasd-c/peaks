@@ -13,7 +13,7 @@ const views = [
   ['player profile', (player: Player) => <PlayerProfileScreen player={player} onBack={noop} onSelectMatch={noop} />],
 ] as const
 
-describe.each(views)('%s rank presentation', (_name, view) => {
+describe.each(views)('%s rank presentation', (name, view) => {
   const render = (player: Player) => renderToStaticMarkup(<LayerProvider>{view(player)}</LayerProvider>)
 
   it('shows every native game rank, exact division, local emblem and rating', () => {
@@ -37,7 +37,8 @@ describe.each(views)('%s rank presentation', (_name, view) => {
     const html = render({...identity, ranks: []})
     expect(html).toContain('Rank unavailable')
     expect(html).not.toContain('Unranked')
-    expect(html).not.toContain('VALORANT')
+    if (name === 'player list') expect(html).not.toContain('VALORANT')
+    else expect(html).toContain('data-profile-game="riot"')
     expect(html).not.toContain('background-image')
     expect(html).not.toMatch(/\b0 (?:LP|RR)\b/)
   })
@@ -46,14 +47,14 @@ describe.each(views)('%s rank presentation', (_name, view) => {
     const html = render({...identity, game: 'VALORANT', currentRank: 'Ascendant 2', peakRank: 'Immortal 1'})
     expect(html).toContain('Ascendant 2')
     expect(html).toContain('Immortal 1')
-    expect(html).not.toContain('Rank unavailable')
+    if (name === 'player list') expect(html).not.toContain('Rank unavailable')
   })
 
   it('distinguishes an explicit unranked result from a missing rating', () => {
     const html = render({...identity, ranks: [{game: 'Teamfight Tactics', tier: 'Unranked'}]})
     expect(html).toContain('Teamfight Tactics')
     expect(html).toContain('Unranked')
-    expect(html).not.toContain('Rank unavailable')
+    if (name === 'player list') expect(html).not.toContain('Rank unavailable')
     expect(html).not.toMatch(/\b0 (?:LP|RR)\b/)
   })
 
@@ -76,15 +77,21 @@ describe('rank labels', () => {
 })
 
 describe('neutral Riot profile', () => {
+  it('resolves the map name in a player’s match context', () => {
+    const html = renderToStaticMarkup(<LayerProvider><PlayerProfileScreen player={{...identity, game: 'VALORANT', context: {label: 'Recent match', map: 'Infinity'}}} onBack={noop} onSelectMatch={noop} /></LayerProvider>)
+    expect(html).toContain('Abyss')
+    expect(html).not.toContain('Infinity')
+  })
   it.each(['VALORANT', 'League of Legends', 'Teamfight Tactics'] as const)('opens activity for a %s entry without adopting its game artwork', game => {
     const html = renderToStaticMarkup(<LayerProvider><PlayerProfileScreen player={{...identity, game, currentRank: 'Gold III', context: {label: 'Live', character: 'Omen', map: 'Ascent'}}} onBack={noop} onSelectMatch={noop} /></LayerProvider>)
     expect(html).toContain('Riot profile')
-    expect(html).toContain('id="profile-activity-panel"')
-    expect(html).not.toContain('id="profile-performance-panel"')
+    expect(html).toContain('data-profile-game="riot"')
+    expect(html).toContain('Activity calendar')
     expect(html).not.toContain('/ PLAYER PROFILE')
     expect(html).not.toContain('background-image')
     expect(html).not.toContain('pd-detail__identity-art')
-    expect(html).not.toContain('Omen')
+    expect(html).toContain('Match performance')
+    expect(html).toContain('Omen')
   })
 
   it('retains cross-game history and shows unknown ranks as unavailable, not unranked', () => {
@@ -93,7 +100,11 @@ describe('neutral Riot profile', () => {
       {id: 'l', game: 'League of Legends', map: 'Howling Abyss', result: 'Loss'},
       {id: 't', game: 'Teamfight Tactics', map: 'Current set', result: 'Top 4'},
     ]}} onBack={noop} onSelectMatch={noop} /></LayerProvider>)
-    for (const map of ['Abyss', 'Howling Abyss', 'Current set']) expect(html).toContain(map)
+    const history = html.match(/<(?:ul|ol)[^>]*pd-match-history[^>]*>[\s\S]*?<\/(?:ul|ol)>/)?.[0] ?? ''
+    expect((history.match(/pd-match-history__row/g) ?? [])).toHaveLength(3)
+    for (const game of ['VALORANT', 'League of Legends', 'Teamfight Tactics']) expect(history).toContain(`alt="${game}"`)
+    for (const map of ['Abyss', 'Howling Abyss', 'Current set']) expect(history).not.toContain(map)
+    expect(history).not.toContain('No recent matches')
     expect(html).toContain('Rank unavailable')
     expect(html).not.toContain('Unranked')
   })

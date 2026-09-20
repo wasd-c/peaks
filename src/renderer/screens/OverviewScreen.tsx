@@ -10,12 +10,12 @@ import {TextInput} from '@astryxdesign/core/TextInput'
 import {VStack} from '@astryxdesign/core/VStack'
 import {Grid2X2, Grid3X3, Plus, Search} from 'lucide-react'
 import {accountRegionLabel} from '../accountRegions'
-import {displayText, t, useLocale} from '../i18n'
+import {t, useLocale} from '../i18n'
 import type {Account, AppState} from '../types'
 import {AccountSelectionTile} from '../components/AccountSelectionTile'
 import type {AccountConnection} from '../accountConnection'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
-import {AuthenticatedScreen, EmptyAccounts, rankLabel, strongestRank, type AuthenticatedView} from './shared'
+import {AuthenticatedScreen, EmptyAccounts, type AuthenticatedView} from './shared'
 
 export interface OverviewScreenProps {
   state: AppState
@@ -35,7 +35,6 @@ export function OverviewScreen({state, view, onView, onSelect, onAdd, onUse, onE
   const visible = state.accounts.filter(account => (
     `${displayName(account.riotId)} ${privacyEnabled ? '' : account.nickname ?? ''} ${accountRegionLabel(account)}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
   ))
-  const highest = strongestRank(state.accounts)
   const compact = view === 'list'
 
   return (
@@ -46,7 +45,6 @@ export function OverviewScreen({state, view, onView, onSelect, onAdd, onUse, onE
         <HStack className="pd-account-toolbar" justify="between" align="center" gap={4} wrap="wrap">
           <HStack gap={2} align="center" wrap="wrap">
             <Text weight="semibold">{t('{{count}} accounts', {count: state.accounts.length})}</Text>
-            {highest && highest.tier.toLowerCase() !== 'unranked' && <Text color="secondary">{t('· Highest rank {{rank}}', {rank: displayText(rankLabel(highest))})}</Text>}
           </HStack>
           <HStack gap={3} align="center" className="pd-account-toolbar__controls">
             <TextInput label={t('Find an account')} isLabelHidden placeholder={t('Find a name or region…')} startIcon={Search} value={query} onChange={setQuery} hasClear size="sm" />

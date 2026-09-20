@@ -13,7 +13,7 @@ import {Switch} from '@astryxdesign/core/Switch'
 import {Text} from '@astryxdesign/core/Text'
 import {TextInput} from '@astryxdesign/core/TextInput'
 import {VStack} from '@astryxdesign/core/VStack'
-import {ArrowUpRight, ClipboardCheck, EyeOff, KeyRound, LockKeyhole, Monitor, Radio, ShieldCheck} from 'lucide-react'
+import {ClipboardCheck, EyeOff, Gamepad2, KeyRound, LockKeyhole, Monitor, Radio, ShieldCheck} from 'lucide-react'
 import type {AppState} from '../types'
 import {DiscordPresenceSettings} from '../components/DiscordPresenceSettings'
 import {TelemetrySettings} from '../components/TelemetrySettings'
@@ -138,9 +138,10 @@ export function SettingsScreen({state, action}: SettingsScreenProps) {
           {[
             {id: 'privacy', label: 'Privacy & security', icon: ShieldCheck},
             {id: 'appearance', label: 'Appearance', icon: Monitor},
+            {id: 'games', label: 'Games', icon: Gamepad2},
             {id: 'data', label: 'Riot data', icon: Radio},
             {id: 'discord', label: 'Discord', icon: Radio},
-          ].map(item => <Button key={item.id} className="pd-settings-index-link" label={t(item.label)} variant="ghost" icon={<Icon icon={item.icon} />} endContent={<Icon icon={ArrowUpRight} size="sm" />} onClick={() => document.getElementById(`pd-settings-${item.id}`)?.scrollIntoView({behavior: settings.reduceMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start'})} />)}
+          ].map(item => <Button key={item.id} className="pd-settings-index-link" label={t(item.label)} variant="ghost" icon={<Icon icon={item.icon} />} onClick={() => document.getElementById(`pd-settings-${item.id}`)?.scrollIntoView({behavior: settings.reduceMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start'})} />)}
         </VStack>
       <VStack className="pd-settings-sections" gap={10}>
         <Section id="pd-settings-privacy" className="pd-settings-group" padding={0} variant="transparent">
@@ -217,11 +218,22 @@ export function SettingsScreen({state, action}: SettingsScreenProps) {
           </List>
         </Section>
 
+        <Section id="pd-settings-games" className="pd-settings-group" padding={0} variant="transparent">
+          <List density="spacious" hasDividers header={<GroupHeading icon={Gamepad2} number="03">{t('Games')}</GroupHeading>}>
+            <ListItem label={t('Launch favorite game on sign-in')}
+              description={t('Launch {{game}} after connecting a Riot account in Peaks.', {game: settings.favoriteGame ?? 'VALORANT'})}
+              startContent={<Icon icon={Gamepad2} color="secondary" />}
+              endContent={<Switch label={t('Launch favorite game on sign-in')} isLabelHidden size="sm"
+                value={Boolean(settings.autoLaunchFavoriteGame)}
+                changeAction={value => action('settings', {autoLaunchFavoriteGame: value}, true)} />} />
+          </List>
+        </Section>
+
         <Section id="pd-settings-data" className="pd-settings-group" padding={0} variant="transparent">
           <List
             density="spacious"
             hasDividers
-            header={<GroupHeading icon={Radio} number="03">{t("Riot data")}</GroupHeading>}>
+            header={<GroupHeading icon={Radio} number="04">{t("Riot data")}</GroupHeading>}>
             <ListItem
               description={<Text color="secondary">{t("Use your signed-in Riot client.")}</Text>}
               endContent={
@@ -256,7 +268,7 @@ export function SettingsScreen({state, action}: SettingsScreenProps) {
         </Section>
 
         <Section id="pd-settings-discord" className="pd-settings-group" padding={0} variant="transparent">
-          <DiscordPresenceSettings header={<GroupHeading icon={Radio} number="04">{t("Discord")}</GroupHeading>} />
+          <DiscordPresenceSettings header={<GroupHeading icon={Radio} number="05">{t("Discord")}</GroupHeading>} />
         </Section>
         <HStack><Button label={t('What’s new in Peaks')} onClick={() => setNotesOpen(true)} variant="ghost" /></HStack>
         <ReleaseNotesDialog isOpen={notesOpen} onClose={() => setNotesOpen(false)} />

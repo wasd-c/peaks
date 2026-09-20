@@ -75,10 +75,10 @@ def test_refresh_of_older_provider_page_keeps_newer_cross_game_matches_first() -
 
     Bridge._merge_account_snapshot(account, snapshot)
 
-    assert len(account["matches"]) == 20
+    assert len(account["matches"]) == 21
     assert account["matches"][0]["id"] == "league-newest"
     assert account["matches"][1]["id"] == "valorant-0"
-    assert account["matches"][-1]["id"] == "valorant-18"
+    assert account["matches"][-1]["id"] == "valorant-19"
 
 
 def test_unknown_dates_retain_stable_provider_order_without_parsing_display_copy() -> None:

@@ -82,6 +82,24 @@ def _unexpected() -> Any:
     raise AssertionError("unexpected dependency call")
 
 
+def test_automatic_local_recognition_does_not_import_sessions_or_open_a_browser() -> None:
+    lockfile = parse_lockfile("Riot Client:314:54321:LOCKFILE-SECRET:https")
+    verified = DiscoveryResult(True, True, lockfile, Path("C:/Riot Games/Riot Client/RiotClientServices.exe"), "verified")
+    client = FakeLocalClient({"subject": "owner", "accessToken": "MEMORY-ONLY"})
+    identity = AuthenticatedRiotIdentity(puuid="owner", game_name="Fixture", tag_line="TEST", league_region="EUW")
+    importer = FakeImporter(identity, minted_token="unused")
+    importer.import_current_session = _unexpected  # type: ignore[attr-defined]
+    service = AccountOnboardingService(
+        process_names_provider=_unexpected, discovery_provider=lambda: verified,
+        local_client_factory=lambda _: client, importer_factory=lambda: importer,
+        browser_login=_unexpected,
+    )
+    result = service.read_local_account()
+    assert result.identity == identity
+    assert result.cookies is None and result.refresh_token is None
+    assert client.closed and importer.closed
+
+
 def test_active_valorant_retries_verified_lockfile_and_binds_entitlement_subject() -> None:
     lockfile = parse_lockfile("Riot Client:314:54321:LOCKFILE-SECRET:https")
     missing = DiscoveryResult(True, True, None, None, "lockfile is still starting")

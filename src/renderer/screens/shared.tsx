@@ -14,11 +14,10 @@ import {ProgressBar} from '@astryxdesign/core/ProgressBar'
 import {StatusDot} from '@astryxdesign/core/StatusDot'
 import {Text} from '@astryxdesign/core/Text'
 import {Thumbnail} from '@astryxdesign/core/Thumbnail'
-import {Token} from '@astryxdesign/core/Token'
 import {VStack} from '@astryxdesign/core/VStack'
-import {ChevronRight, Gamepad2, Star, Trophy} from 'lucide-react'
-import {gameArtwork, hasExactValorantRankAsset, rankAsset, valorantAgentAsset, valorantAgentName, valorantMapName} from '../assets'
-import type {Account, Game, Match, Player, Rank} from '../types'
+import {ChevronRight, Star, Trophy} from 'lucide-react'
+import {hasExactValorantRankAsset, rankAsset} from '../assets'
+import type {Account, Game, Player, Rank} from '../types'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 
 export type AuthenticatedView = 'grid' | 'list'
@@ -94,7 +93,7 @@ export function rankColor(rank?: Rank): TokenColor {
 
 export function resultColor(result: string): TokenColor {
   const normalized = result.trim().toLowerCase()
-  if (normalized === 'win' || normalized === 'victory' || normalized === 'top 4') return 'green'
+  if (normalized === 'win' || normalized === 'victory' || normalized === 'top 4' || normalized === 'top 2') return 'green'
   if (normalized === 'loss' || normalized === 'defeat') return 'red'
   if (normalized === 'draw' || normalized === 'placement') return 'yellow'
   return 'gray'
@@ -335,70 +334,7 @@ export function PlayerList({
   )
 }
 
-export function MatchList({
-  matches,
-  heading = 'Recent matches',
-  onSelect,
-}: {
-  matches: Match[]
-  heading?: string | null
-  onSelect?: (match: Match) => void
-}) {
-  useLocale()
-  if (matches.length === 0) {
-    return (
-      <EmptyState
-        description={t("Match history appears after the next sync.")}
-        icon={<Icon icon={Gamepad2} color="secondary" />}
-        title={t("No recent matches")}
-      />
-    )
-  }
-
-  return (
-    <List
-      className="peaks-dense-list peaks-match-list"
-      density="compact"
-      hasDividers
-      aria-label={displayText(heading ?? 'Recent matches')}
-      header={heading ? <Heading level={2}>{displayText(heading)}</Heading> : undefined}>
-      {matches.map((match, index) => {
-        const agent = match.teams?.flatMap(team => team.players).find(player => player.self)?.agent || match.agent
-        const agentName = match.game === 'VALORANT' ? valorantAgentName(agent) : agent
-        const agentIcon = match.game === 'VALORANT' ? valorantAgentAsset(agent) : undefined
-        const mapName = match.game === 'VALORANT' ? valorantMapName(match.map) : match.map || match.game
-        return (
-        <ListItem
-          description={
-            <HStack align="center" gap={2} wrap="wrap">
-              {agentName ? <HStack align="center" gap={1.5}>{agentIcon ? <Avatar name={agentName} src={agentIcon} size="sm" tooltip={false} /> : null}<Text type="supporting" weight="medium">{agentName}</Text><Text type="supporting" color="secondary">·</Text></HStack> : null}
-              <Text type="supporting" color="secondary">{`${displayText(titleCase(match.mode ?? 'Competitive'))} · ${match.duration ?? '—'}${match.playedAt ? ` · ${displayText(match.playedAt)}` : ''}`}</Text>
-            </HStack>
-          }
-          endContent={
-            <HStack align="center" gap={3}>
-              <VStack align="end" gap={0.5}>
-                <Text hasTabularNumbers weight="semibold">{match.score ?? '—'}</Text>
-                <Text type="supporting">{displayText(match.delta ?? match.performance ?? match.mode ?? 'Competitive')}</Text>
-              </VStack>
-              {onSelect ? <Icon color="secondary" icon={ChevronRight} /> : null}
-            </HStack>
-          }
-          key={match.id ?? `${match.game}-${index}`}
-          label={mapName}
-          onClick={onSelect ? () => onSelect(match) : undefined}
-          startContent={
-            <HStack align="center" gap={2}>
-              <img className="peaks-match-thumbnail" src={gameArtwork(match.game, match.map)} alt="" />
-              <Token color={resultColor(match.result)} label={displayText(match.result)} size="sm" />
-            </HStack>
-          }
-        />
-        )
-      })}
-    </List>
-  )
-}
+export {MatchHistoryList as MatchList} from '../components/MatchHistoryList'
 
 export function EmptyAccounts({onAdd}: {onAdd: () => void}) {
   useLocale()

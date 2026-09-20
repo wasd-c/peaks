@@ -2,26 +2,24 @@
  * Update this content as part of preparing a release, before changing its version.
  */
 export const releaseNotes = {
-  summary: 'A redesigned account picker, unified Riot profiles and clearer live matches, in English, French and Korean.',
+  summary: 'Detailed Riot profiles, local activity history and one-click favorite-game launching.',
   added: [
-    'Personalize accounts with nicknames and VALORANT agent or League champion icons.',
-    'Choose English, French or Korean during onboarding, on the lock screen or in Settings.',
-    'Read the changelog after each update or reopen it from Settings.',
+    'Explore dedicated VALORANT, League of Legends and TFT profiles with statistics from your available match history.',
+    'Track recorded playtime, activity calendars, sessions and rank changes across Riot games.',
+    'Inspect TFT results and recorded compositions, including units, items, traits and augments.',
+    'Choose and launch your favorite game from the top bar, with optional automatic launch after sign-in.',
   ],
   fixed: [
-    'Discord activity keeps its elapsed time when match statistics change.',
-    'Refresh Riot sign-in now opens a fresh sign-in instead of reusing the saved session.',
-    'Account nicknames and chosen icons survive Riot session renewal.',
-    'Account hover transitions are smooth, and Settings is centered in the sidebar.',
+    'Prevent repeated JavaScript error dialogs when the launcher console closes.',
+    'Keep cached profiles available when a background refresh has no active game session.',
+    'Restore immediate passcode typing after switching back to Peaks.',
+    'Keep activity timestamps and TFT Double Up results consistent across profile views.',
   ],
   changed: [
-    'Accounts focus on selection, with compact editing and animated sign-in feedback.',
-    'Profiles bring Riot games together, with neutral profile and current-match headers.',
-    'VALORANT rosters adapt to the window to keep all ten agents visible, with team-colored scores.',
-    'Peaks uses your device language by default, falling back to English.',
-    'Updated dependencies and stricter filtering of technical diagnostics.',
+    'Open the active Riot account profile after a verified account change or successful sign-in.',
+    'Browse compact match rows with game-specific results and recorded ranked rewards.',
   ],
-  removed: ['Account summary tiles and redundant live-match labels.'],
+  removed: [],
   knownIssues: ['Enabling MFA directly from Peaks is not yet functional. Configure MFA through your Riot account for now.'],
 } satisfies {summary: string; added: string[]; fixed: string[]; changed: string[]; removed: string[]; knownIssues: string[]}
 

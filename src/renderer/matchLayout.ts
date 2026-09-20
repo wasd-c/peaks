@@ -53,6 +53,9 @@ function deathmatchMode(value?: string): boolean {
 function modeIsFreeForAll(input: MatchLayoutInput): boolean {
   // A party is a roster of friends, even when the selected queue is solo FFA.
   if (input.phase && ['lobby', 'matchmaking', 'readycheck'].includes(input.phase)) return false
+  // Double Up is resolved first. Every other TFT match is an individual field,
+  // including older saved reports whose bridge supplied a default false flag.
+  if (input.game === 'Teamfight Tactics') return true
   if (input.freeForAll !== undefined) return input.freeForAll
   if (input.game !== 'VALORANT') return false
   // A queue ID is more specific than a display name. In particular, do not

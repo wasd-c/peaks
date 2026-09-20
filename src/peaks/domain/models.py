@@ -104,6 +104,9 @@ class MatchResult(_StringEnum):
     WIN = "win"
     LOSS = "loss"
     DRAW = "draw"
+    TOP_4 = "top_4"
+    TOP_2 = "top_2"
+    PLACEMENT = "placement"
     UNKNOWN = "unknown"
 
     @classmethod
@@ -611,6 +614,8 @@ class Settings:
     streamer_mode: bool = False
     lock_on_blur: bool = True
     reduce_motion: bool = False
+    favorite_game: Game = Game.VALORANT
+    auto_launch_favorite_game: bool = False
 
     def __post_init__(self) -> None:
         if isinstance(self.lock_timeout_seconds, bool) or not isinstance(
@@ -620,6 +625,7 @@ class Settings:
         if self.lock_timeout_seconds < 0:
             raise ValueError("lock_timeout_seconds cannot be negative")
         object.__setattr__(self, "layout", AccountLayout.parse(self.layout))
+        object.__setattr__(self, "favorite_game", Game.parse(self.favorite_game))
 
     @property
     def lock_timeout_minutes(self) -> float:
@@ -632,6 +638,8 @@ class Settings:
             "streamer_mode": self.streamer_mode,
             "lock_on_blur": self.lock_on_blur,
             "reduce_motion": self.reduce_motion,
+            "favorite_game": self.favorite_game.value,
+            "auto_launch_favorite_game": self.auto_launch_favorite_game,
         }
 
     @classmethod
@@ -645,6 +653,8 @@ class Settings:
             streamer_mode=bool(data.get("streamer_mode", False)),
             lock_on_blur=bool(data.get("lock_on_blur", True)),
             reduce_motion=bool(data.get("reduce_motion", False)),
+            favorite_game=Game.parse(data.get("favorite_game", Game.VALORANT)),
+            auto_launch_favorite_game=data.get("auto_launch_favorite_game", False) is True,
         )
 
 
