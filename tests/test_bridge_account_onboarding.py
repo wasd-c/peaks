@@ -318,7 +318,7 @@ def test_activity_command_polls_real_service_and_keeps_puuid_out_of_state() -> N
     assert calls == 1
     assert state["gameDetected"] is True
     assert state["currentMatch"]["game"] == "VALORANT"
-    assert state["riotClient"] == expected_status
+    assert state["riotClient"] == {**expected_status, "sessionState": "unavailable"}
     assert "puuid" not in state["accounts"][0]
     assert "private-provider-puuid" not in repr(state)
 

@@ -1,4 +1,4 @@
-import {useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject} from 'react'
+import {useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject} from 'react'
 import {Button} from '@astryxdesign/core/Button'
 import {Heading} from '@astryxdesign/core/Heading'
 import {HStack} from '@astryxdesign/core/HStack'
@@ -9,7 +9,9 @@ import {Selector} from '@astryxdesign/core/Selector'
 import {Text} from '@astryxdesign/core/Text'
 import {Tooltip} from '@astryxdesign/core/Tooltip'
 import {VStack} from '@astryxdesign/core/VStack'
-import {analyzeActivity, dayDate, dayKey, GAME_COLORS, nextDay} from '../activityAnalytics'
+import {useGridFocus} from '@astryxdesign/core/hooks'
+import {analyzeActivity, dayDate, dayKey, GAME_COLORS} from '../activityAnalytics'
+import {activityCalendarCells, calendarFocusTarget, isCalendarDayAvailable} from '../activityCalendarKeyboard'
 import {shiftTimeline, TIMELINE_HOUR, TIMELINE_HOURS, timelineMarkers, timelineMatchDetails, timelineMatches, timelineStart} from '../activityTimeline'
 import {displayText, localeTags, t, useLocale} from '../i18n'
 import {gameProfileIcon} from '../profileAssets'
@@ -55,8 +57,9 @@ export function TimelineMarkers({start, now, viewport}: {start: number; now: num
   </VStack>
 }
 
-export function DayTimeline({date, matches, onSelectMatch, onClose}: {
+export function DayTimeline({date, matches, onSelectMatch, onClose, id, headingRef}: {
   date: string; matches: Match[]; onSelectMatch: (match: Match) => void; onClose: () => void
+  id?: string; headingRef?: RefObject<HTMLHeadingElement | null>
 }) {
   const language = useLocale()
   const [offsetHours, setOffsetHours] = useState(0)
@@ -104,9 +107,11 @@ export function DayTimeline({date, matches, onSelectMatch, onClose}: {
     }
   }
 
-  return <VStack className="pd-day-timeline" gap={3}>
+  return <VStack id={id} className="pd-day-timeline" gap={3} onKeyDown={event => {
+    if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); onClose() }
+  }}>
     <HStack justify="between" align="center" wrap="wrap" gap={3}>
-      <VStack gap={0}><Heading level={4}>{new Intl.DateTimeFormat(localeTags[language], {dateStyle: 'full'}).format(dayDate(date))}</Heading>
+      <VStack gap={0}><Heading ref={headingRef} className="pd-focus-destination" level={4} tabIndex={-1}>{new Intl.DateTimeFormat(localeTags[language], {dateStyle: 'full'}).format(dayDate(date))}</Heading>
         <Text type="supporting" color="secondary" aria-live="polite">{dateAndTime.format(start)} – {dateAndTime.format(end)}</Text></VStack>
       <HStack gap={1}>
         <IconButton size="sm" variant="ghost" icon={<Icon icon="chevronLeft" />} label={t('Previous 6 hours')} tooltip={t('Previous 6 hours')} onClick={() => shift(-1)} />
@@ -161,27 +166,79 @@ export function ActivityCalendar({activity, onSelectMatch}: {activity: ProfileAc
   const {days, matches} = useMemo(() => analyzeActivity(activity), [activity])
   const [selected, setSelected] = useState<string>()
   const [year, setYear] = useState(String(new Date().getFullYear()))
+  const [focused, setFocused] = useState(() => dayKey(new Date()))
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const updateClock = () => setNow(Date.now())
+    const timer = window.setInterval(updateClock, 60_000)
+    const onVisibility = () => { if (document.visibilityState === 'visible') updateClock() }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', onVisibility) }
+  }, [])
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const focusTimeline = useRef(false)
+  const timelineId = useId(), instructionsId = useId()
+  const {gridRef, focusCell} = useGridFocus<HTMLDivElement>({
+    columns: 7,
+    cellSelector: '.pd-activity-calendar__day',
+    isCellFocusable: cell => !cell.hasAttribute('disabled'),
+    hasRovingTabIndex: true,
+  })
   const years = [...new Set([String(new Date().getFullYear()), ...[...days.keys()].map(key => key.slice(0, 4))])].sort().reverse()
-  const january = new Date(Number(year), 0, 1), first = nextDay(january, -((january.getDay() + 6) % 7))
-  const cells = Array.from({length: 371}, (_, i) => nextDay(first, i)).filter(date => date < new Date(Number(year) + 1, 0, 8))
+  const cells = activityCalendarCells(Number(year))
+  const available = cells.filter(date => isCalendarDayAvailable(date, Number(year), now))
+  const lastAvailable = available.at(-1)
+  const tabStop = available.some(date => dayKey(date) === focused) ? focused : lastAvailable && dayKey(lastAvailable)
   const max = Math.max(1, ...[...days.values()].map(day => day.matches.length))
   const formatter = new Intl.DateTimeFormat(localeTags[language], {dateStyle: 'full'})
+  useLayoutEffect(() => {
+    if (focusTimeline.current && selected) {
+      headingRef.current?.focus()
+      focusTimeline.current = false
+    }
+  }, [selected])
+  const closeTimeline = () => {
+    setSelected(undefined)
+    focusTimeline.current = false
+    const index = cells.findIndex(date => dayKey(date) === selected)
+    if (index >= 0) focusCell(index)
+  }
   return <Section className="pd-activity-panel pd-activity-calendar-panel" padding={5} variant="transparent"><VStack gap={3}>
     <HStack justify="between" align="center" gap={3}>
       <Heading level={3}>{t('Activity calendar')}</Heading>
-      <Selector label={t('Year')} value={year} onChange={value => { setYear(value); setSelected(undefined) }} options={years.map(value => ({value, label: value}))} />
+      <Selector label={t('Year')} value={year} onChange={value => {
+        setYear(value); setSelected(undefined); focusTimeline.current = false
+        // Keep focus on the year control; the next Tab enters the new year's last available day.
+        setFocused('')
+      }} options={years.map(value => ({value, label: value}))} />
     </HStack>
+    <Text id={instructionsId} className="pd-activity-calendar__instructions" type="supporting" color="secondary">{t('Use arrow keys to move by day or week, Home and End within a week, and Enter to open the timeline.')}</Text>
     <HStack className="pd-activity-calendar__months" gap={1} aria-hidden>{Array.from({length: 12}, (_, month) => <Text key={month} type="supporting" color="secondary" style={{gridColumn: `${Math.floor(cells.findIndex(date => date.getFullYear() === Number(year) && date.getMonth() === month && date.getDate() === 1) / 7) + 1} / span 3`}}>{new Intl.DateTimeFormat(localeTags[language], {month: 'short'}).format(new Date(Number(year), month, 1))}</Text>)}</HStack>
-    <HStack className="pd-activity-calendar" gap={1}>
-      {cells.map(date => {
-        const key = dayKey(date), count = days.get(key)?.matches.length ?? 0, outside = date.getFullYear() !== Number(year)
+    <HStack ref={gridRef} className="pd-activity-calendar" gap={1} role="group" aria-label={t('Activity calendar')} aria-describedby={instructionsId}>
+      {cells.map((date, index) => {
+        const key = dayKey(date), count = days.get(key)?.matches.length ?? 0
+        const disabled = !isCalendarDayAvailable(date, Number(year), now)
         const label = t('{{count}} matches played · {{date}}', {count, date: formatter.format(date)})
-        return <Tooltip key={key} content={label} hasHoverIndication={false}><Button className="pd-activity-calendar__day" label={label} aria-label={label} size="sm" variant="ghost" aria-pressed={selected === key} isDisabled={outside || date > new Date()}
-          style={{'--pd-heat': count ? 0.24 + 0.76 * Math.sqrt(count / max) : 0} as CSSProperties} onClick={() => setSelected(key)} />
+        return <Tooltip key={key} content={label} hasHoverIndication={false}><Button className="pd-activity-calendar__day" label={label} aria-label={label} size="sm" variant="ghost" aria-pressed={selected === key} isDisabled={disabled}
+          tabIndex={!disabled && key === tabStop ? 0 : -1} aria-controls={selected === key ? timelineId : undefined} aria-describedby={instructionsId}
+          onFocus={() => { setFocused(key); focusCell(index) }}
+          onKeyDown={event => {
+            if (event.altKey || event.shiftKey) return
+            const target = calendarFocusTarget(cells, index, event.key, Number(year), now, event.ctrlKey || event.metaKey)
+            if (target !== undefined) { event.preventDefault(); event.stopPropagation(); focusCell(target) }
+          }}
+          style={{'--pd-heat': count ? 0.24 + 0.76 * Math.sqrt(count / max) : 0} as CSSProperties} onClick={event => {
+            setFocused(key)
+            if (event.detail === 0) {
+              if (selected === key) headingRef.current?.focus()
+              else focusTimeline.current = true
+            }
+            setSelected(key)
+          }} />
         </Tooltip>
       })}
     </HStack>
     <HStack justify="end" gap={2} align="center"><Text type="supporting" color="secondary">{t('Less')}</Text>{[0, 0.25, 0.5, 0.75, 1].map(value => <HStack key={value} className="pd-activity-calendar__key" gap={0} style={{'--pd-heat': value} as CSSProperties} />)}<Text type="supporting" color="secondary">{t('More')}</Text></HStack>
-    {selected ? <DayTimeline key={selected} date={selected} matches={matches} onSelectMatch={onSelectMatch} onClose={() => setSelected(undefined)} /> : null}
+    {selected ? <DayTimeline key={selected} id={timelineId} headingRef={headingRef} date={selected} matches={matches} onSelectMatch={onSelectMatch} onClose={closeTimeline} /> : null}
   </VStack></Section>
 }

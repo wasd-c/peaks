@@ -1,11 +1,13 @@
 import {useMemo, useState} from 'react'
 import {Avatar} from '@astryxdesign/core/Avatar'
 import {Button} from '@astryxdesign/core/Button'
+import {Collapsible} from '@astryxdesign/core/Collapsible'
 import {EmptyState} from '@astryxdesign/core/EmptyState'
 import {Grid} from '@astryxdesign/core/Grid'
 import {Heading} from '@astryxdesign/core/Heading'
 import {HStack} from '@astryxdesign/core/HStack'
 import {Icon} from '@astryxdesign/core/Icon'
+import {IconButton} from '@astryxdesign/core/IconButton'
 import {ProgressBar} from '@astryxdesign/core/ProgressBar'
 import {Section} from '@astryxdesign/core/Section'
 import {Selector} from '@astryxdesign/core/Selector'
@@ -15,7 +17,7 @@ import {Text} from '@astryxdesign/core/Text'
 import {Token} from '@astryxdesign/core/Token'
 import {Tooltip} from '@astryxdesign/core/Tooltip'
 import {VStack} from '@astryxdesign/core/VStack'
-import {ArrowUpRight} from 'lucide-react'
+import {ArrowUpRight, Info} from 'lucide-react'
 import {aggregateProfile, filterProfileMatches, profileAgent, profileBreakdown, profileMatches, profileMode, type ProfileFilters} from '../accountProfile'
 import {valorantAgentAsset, valorantMapName} from '../assets'
 import {HitAccuracy} from '../components/HitAccuracy'
@@ -33,9 +35,15 @@ const number = (value?: number, digits = 1) => value == null ? '—' : formatNum
 const percent = (value?: number) => value == null ? '—' : `${number(value)}%`
 const evidence = (count: number) => t('{{count}} matches', {count})
 
-export function ProfileMetric({label, value, detail, prominent = false}: {label: string; value: string; detail?: string; prominent?: boolean}) {
+export function ProfileMetric({label, value, detail, help, prominent = false}: {label: string; value: string; detail?: string; help?: string; prominent?: boolean}) {
+  const explanation = [help, !prominent ? detail : undefined].filter(Boolean).join(' ')
   return <VStack gap={1} padding={4}>
-    <Tooltip content={detail} isEnabled={Boolean(detail)}><Text color="secondary" type="supporting">{label}</Text></Tooltip>
+    <HStack gap={1} align="center" className="pd-profile-metric-heading">
+      <Text color="secondary" type="supporting">{label}</Text>
+      {explanation ? <Tooltip content={explanation} focusTrigger="always" touchTrigger="tap" hasHoverIndication={false}>
+        <IconButton label={t('About {{metric}}', {metric: label})} icon={<Icon icon={Info} />} variant="ghost" size="sm" />
+      </Tooltip> : null}
+    </HStack>
     <Text className={prominent ? 'pd-profile-metric' : undefined} weight="semibold" hasTabularNumbers>{value}</Text>
     {prominent && detail ? <Text type="supporting" color="secondary">{detail}</Text> : null}
   </VStack>
@@ -63,9 +71,10 @@ function History({matches, riotId, onSelect}: {matches: Match[]; riotId: string;
   return <Table aria-label={t('VALORANT match history')} data={rows} idKey="id" density="balanced" hasHover columns={[
     {key: 'match', header: t('Match'), width: proportional(2), renderCell: row => <HStack gap={2} align="center">
       <Avatar name={profileAgent(row.match, riotId)} src={valorantAgentAsset(profileAgent(row.match, riotId))} size="md" shape="rounded" tooltip={false} />
-      <VStack gap={0}>
-        <Button label={valorantMapName(row.match.map)} size="sm" variant="ghost" onClick={() => onSelect(row.match)} />
+      <VStack gap={1} align="start">
+        <Text weight="semibold">{valorantMapName(row.match.map)}</Text>
         <Text type="supporting" color="secondary">{displayText(row.match.playedAt)} · {displayText(row.match.mode)}</Text>
+        <Button label={t('View match')} aria-label={t('View match: {{name}} · {{playedAt}} · {{result}}', {name: valorantMapName(row.match.map), playedAt: displayText(row.match.playedAt), result: displayText(row.match.result)})} size="sm" variant="ghost" onClick={() => onSelect(row.match)} />
       </VStack>
     </HStack>},
     {key: 'wins', header: t('Result'), width: proportional(1), renderCell: row => <VStack gap={1} align="start">
@@ -114,7 +123,10 @@ export function ValorantAccountProfile({account, isSynchronizing = false, onSele
         <Selector label={t('Agent')} value={filters.agent} onChange={value => selectFilter('agent', value)} options={options(all.map(match => profileAgent(match, account.riotId)), 'All agents')} />
         <Selector label={t('Map')} value={filters.map} onChange={value => selectFilter('map', value)} options={options(all.map(match => valorantMapName(match.map)), 'All maps')} />
       </Grid>
-      <Text color="secondary" type="supporting" role="status">{t('Detailed statistics · {{detailed}} / {{count}} matches', {detailed: stats.detailed, count: stats.matches})}</Text>
+      <VStack gap={1}>
+        <Text color="secondary" type="supporting" role="status">{t('Detailed statistics · {{detailed}} / {{count}} matches', {detailed: stats.detailed, count: stats.matches})}</Text>
+        {matches.length ? <Text color="secondary" type="supporting">{t('Each metric uses the available match details. — means unavailable.')}</Text> : null}
+      </VStack>
       {isSynchronizing ? <ProgressBar label={t('Synchronizing match details…')} isIndeterminate variant="neutral" />
         : matches.some(match => match.enrichmentPending) ? <Text type="supporting" color="secondary">{t('Some match details are unavailable. Refresh to retry.')}</Text> : null}
 
@@ -123,33 +135,39 @@ export function ValorantAccountProfile({account, isSynchronizing = false, onSele
           actions={<Button label={t('Clear filters')} onClick={() => setFilters({mode: 'all', season: 'all', agent: 'all', map: 'all'})} />} /> : <>
           {section === 'overview' ? <>
             <Section padding={0} variant="muted">
-              <Grid columns={4}>
+              <Grid className="pd-profile-kpis">
                 <ProfileMetric prominent label={t('Damage / round')} value={number(stats.adr)} detail={evidence(stats.coverage.adr)} />
                 <ProfileMetric prominent label="K/D" value={number(stats.kd, 2)} detail={evidence(stats.detailed)} />
                 <ProfileMetric prominent label={t('Headshot %')} value={percent(stats.headshotRate)} detail={evidence(stats.coverage.shots)} />
                 <ProfileMetric prominent label={t('Win rate')} value={percent(stats.winRate)} detail={t('{{wins}} W · {{losses}} L · {{draws}} D', stats)} />
               </Grid>
             </Section>
-            <Grid className="pd-profile-metrics" gap={2}>
-              <ProfileMetric label="ACS" value={number(stats.acs)} detail={evidence(stats.coverage.acs)} />
-              <ProfileMetric label="KAST" value={percent(stats.kast)} detail={t('Rounds with a kill, assist, survival or a trade within 5 seconds. {{coverage}}', {coverage: evidence(stats.coverage.kast)})} />
-              <ProfileMetric label={t('DDA / round')} value={number(stats.damageDelta)} detail={evidence(stats.coverage.damageDelta)} />
-              <ProfileMetric label={t('Round win %')} value={percent(stats.roundWinRate)} detail={evidence(stats.coverage.rounds)} />
-              <ProfileMetric label={t('Kills')} value={number(stats.kills, 0)} detail={evidence(stats.detailed)} />
-              <ProfileMetric label={t('Deaths')} value={number(stats.deaths, 0)} detail={evidence(stats.detailed)} />
-              <ProfileMetric label={t('Assists')} value={number(stats.assists, 0)} detail={evidence(stats.detailed)} />
-              <ProfileMetric label="(K + A) / D" value={number(stats.kad, 2)} />
-              <ProfileMetric label={t('Kills / round')} value={number(stats.killsPerRound, 2)} />
-              <ProfileMetric label={t('First kills')} value={number(stats.firstKills, 0)} detail={evidence(stats.coverage.firstKills)} />
-              <ProfileMetric label={t('First deaths')} value={number(stats.firstDeaths, 0)} detail={evidence(stats.coverage.firstDeaths)} />
-              <ProfileMetric label={t('Flawless rounds')} value={number(stats.flawless, 0)} detail={evidence(stats.coverage.flawless)} />
-              <ProfileMetric label={t('Aces')} value={number(stats.aces, 0)} detail={evidence(stats.coverage.aces)} />
-              <ProfileMetric label={t('Playtime')} value={stats.seconds != null ? `${number(stats.seconds / 3600)} h` : '—'} detail={evidence(stats.coverage.duration)} />
-            </Grid>
-            <HitAccuracy head={stats.headshots} body={stats.bodyshots} legs={stats.legshots} />
+            <VStack gap={3}>
+              <HStack justify="between" align="center" gap={3} wrap="wrap"><Heading level={3}>{t('Recent matches')}</Heading><Button label={t('All matches')} icon={<Icon icon={ArrowUpRight} />} onClick={() => setSection('matches')} variant="ghost" size="sm" /></HStack>
+              <History matches={matches.slice(0, 5)} riotId={account.riotId} onSelect={onSelectMatch} />
+            </VStack>
+            <Collapsible defaultIsOpen={false} trigger={<Text weight="semibold">{t('Advanced statistics')}</Text>}>
+              <VStack gap={5} paddingBlockStart={3}>
+                <Grid className="pd-profile-metrics" gap={2}>
+                  <ProfileMetric label="ACS" value={number(stats.acs)} help={t('Average combat score per round.')} detail={evidence(stats.coverage.acs)} />
+                  <ProfileMetric label="KAST" value={percent(stats.kast)} detail={t('Rounds with a kill, assist, survival or a trade within 5 seconds. {{coverage}}', {coverage: evidence(stats.coverage.kast)})} />
+                  <ProfileMetric label={t('DDA / round')} value={number(stats.damageDelta)} help={t('Damage dealt minus damage received, per round.')} detail={evidence(stats.coverage.damageDelta)} />
+                  <ProfileMetric label={t('Round win %')} value={percent(stats.roundWinRate)} detail={evidence(stats.coverage.rounds)} />
+                  <ProfileMetric label={t('Kills')} value={number(stats.kills, 0)} detail={evidence(stats.detailed)} />
+                  <ProfileMetric label={t('Deaths')} value={number(stats.deaths, 0)} detail={evidence(stats.detailed)} />
+                  <ProfileMetric label={t('Assists')} value={number(stats.assists, 0)} detail={evidence(stats.detailed)} />
+                  <ProfileMetric label="(K + A) / D" value={number(stats.kad, 2)} />
+                  <ProfileMetric label={t('Kills / round')} value={number(stats.killsPerRound, 2)} />
+                  <ProfileMetric label={t('First kills')} value={number(stats.firstKills, 0)} detail={evidence(stats.coverage.firstKills)} />
+                  <ProfileMetric label={t('First deaths')} value={number(stats.firstDeaths, 0)} detail={evidence(stats.coverage.firstDeaths)} />
+                  <ProfileMetric label={t('Flawless rounds')} value={number(stats.flawless, 0)} detail={evidence(stats.coverage.flawless)} />
+                  <ProfileMetric label={t('Aces')} value={number(stats.aces, 0)} detail={evidence(stats.coverage.aces)} />
+                  <ProfileMetric label={t('Playtime')} value={stats.seconds != null ? `${number(stats.seconds / 3600)} h` : '—'} detail={evidence(stats.coverage.duration)} />
+                </Grid>
+                <HitAccuracy head={stats.headshots} body={stats.bodyshots} legs={stats.legshots} />
+              </VStack>
+            </Collapsible>
             <VStack gap={3}><Heading level={3}>{t('Top agents')}</Heading><Breakdown matches={matches} riotId={account.riotId} by="agent" limit={3} /></VStack>
-            <HStack justify="between" align="center"><Heading level={3}>{t('Recent matches')}</Heading><Button label={t('All matches')} icon={<Icon icon={ArrowUpRight} />} onClick={() => setSection('matches')} variant="ghost" size="sm" /></HStack>
-            <History matches={matches.slice(0, 5)} riotId={account.riotId} onSelect={onSelectMatch} />
           </> : null}
           {section === 'matches' ? <History matches={matches} riotId={account.riotId} onSelect={onSelectMatch} /> : null}
           {section === 'agents' || section === 'maps' || section === 'roles' ? <Breakdown matches={matches} riotId={account.riotId} by={section === 'agents' ? 'agent' : section === 'maps' ? 'map' : 'role'} /> : null}

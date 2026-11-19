@@ -19,11 +19,12 @@ from contextlib import suppress
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
-from time import monotonic
+from time import monotonic, sleep
 from typing import Any
 
 from platformdirs import user_data_path
 
+from peaks.adapters.riot.qr import QRLoginPayload
 from peaks.adapters.riot.tft_composition import composition_view
 from peaks.application.demo_data import (
     DEMO_PIN,
@@ -42,6 +43,11 @@ LOGGER = logging.getLogger("peaks.bridge")
 RESET_APPLICATION_CONFIRMATION = "clear-encrypted-data"
 SESSION_REFRESH_INTERVAL_SECONDS = 6 * 60 * 60
 SESSION_REFRESH_RETRY_SECONDS = 5 * 60
+QR_GAME_LAUNCH_DELAY_SECONDS = 3.0
+
+
+class ConnectionCancelled(RuntimeError):
+    """The user stopped an in-progress account connection."""
 
 # Riot IDs are global and do not identify a League platform shard. Accounts
 # authenticated through Riot SSO therefore start at ``GLOBAL`` until an
@@ -510,6 +516,7 @@ class Bridge:
         self._next_owned_account_refresh_at = 0.0
         self._session_refresh_due_at: dict[str, float] = {}
         self._session_import_in_progress = False
+        self._connection_cancel_event: threading.Event | None = None
         self._observed_live_match: tuple[str, str, str] | None = None
         self._post_match_refresh: dict[str, Any] | None = None
         self._next_tft_local_history_at = 0.0
@@ -786,6 +793,11 @@ class Bridge:
                     }
                 )
             self.accounts = loaded
+            latest_connections = getattr(self._repository, "latest_connections", None)
+            if callable(latest_connections):
+                connections = latest_connections()
+                for account in self.accounts:
+                    account["lastConnectedAt"] = connections.get(account["id"])
             list_followed = getattr(self._repository, "list_followed", None)
             if callable(list_followed):
                 self.followed = [
@@ -859,12 +871,22 @@ class Bridge:
                 update_setting(persisted)
         self.settings.update(updates)
 
-    def _launch_favorite_game(self) -> str:
+    def _launch_favorite_game(self, *, after_qr_account_id: str | None = None) -> str:
         if self.demo:
             return "Game launch is unavailable in preview mode."
         from peaks.adapters.riot.launcher import launch_game
 
-        launch_game(str(self.settings["favoriteGame"]))
+        game = str(self.settings["favoriteGame"])
+        if after_qr_account_id is None:
+            launch_game(game)
+        else:
+            account = next((item for item in self.accounts if str(item.get("id", "")) == after_qr_account_id), None)
+            puuid = str(account.get("puuid") or "").strip() if account else ""
+            if not puuid:
+                raise ValueError("The selected account identity is incomplete")
+            # Approval is acknowledged before Riot's desktop QR polling catches up.
+            sleep(QR_GAME_LAUNCH_DELAY_SECONDS)
+            launch_game(game, expected_puuid=puuid)
         return "Launch request sent to Riot Client."
 
     def _refresh_account_secret_flags(self) -> None:
@@ -1191,6 +1213,7 @@ class Bridge:
         account.update(regions)
 
     def _persist_authenticated_account(self, result: Any) -> None:
+        self._check_connection_cancelled()
         identity = getattr(result, "identity", None)
         puuid = str(getattr(identity, "puuid", "") or "").strip()
         game_name = str(getattr(identity, "game_name", "") or "").strip()
@@ -1244,6 +1267,7 @@ class Bridge:
             )
 
         try:
+            self._check_connection_cancelled()
             if not self._repository:
                 raise RuntimeError("Local account database is unavailable")
             from peaks.domain.models import Account
@@ -1306,6 +1330,7 @@ class Bridge:
         )
 
     def _add_authenticated_account(self) -> dict[str, Any]:
+        self._check_connection_cancelled()
         if self.demo:
             account_id = f"demo-connected-{uuid.uuid4()}"
             account: dict[str, Any] = {
@@ -1329,8 +1354,9 @@ class Bridge:
             from peaks.application.account_onboarding import AccountOnboardingService
 
             factory = AccountOnboardingService
-        service = factory()
+        service = factory(browser_login=self._login_for_reusable_session) if self._account_onboarding_factory is None else factory()
         result = service.add_account()
+        self._check_connection_cancelled()
         self._persist_authenticated_account(result)
         identity = getattr(result, "identity", None)
         puuid = str(getattr(identity, "puuid", "") or "")
@@ -1406,6 +1432,7 @@ class Bridge:
                 "detected": bool(status.get("detected")),
                 "label": label,
                 "game": game,
+                "sessionState": getattr(service, "riot_session_state", "active" if active_subject else "unavailable"),
             }
             self._logger.info(
                 "bridge.activity.complete client_detected=%s match_detected=%s game=%s",
@@ -1421,6 +1448,7 @@ class Bridge:
                 "detected": False,
                 "label": "Riot Client status unavailable",
                 "game": "",
+                "sessionState": "unavailable",
             }
             self._logger.warning("bridge.activity.failed error_type=%s", type(exc).__name__)
 
@@ -2087,6 +2115,7 @@ class Bridge:
     def _connect_riot_client(
         self, account_id: str, captures: object, capture_state: object
     ) -> None:
+        self._check_connection_cancelled()
         account_id = account_id.strip()
         account = next(
             (item for item in self.accounts if str(item.get("id", "")) == account_id),
@@ -2117,6 +2146,157 @@ class Bridge:
             saved_cookies, require_ssid=not getattr(secret, "refresh_token", None),
         )
 
+        qr = None if capture_state == "automatic" else self._captured_riot_qr(captures, capture_state)
+
+        approver = self._new_qr_approver()
+        importer = self._new_session_importer()
+        access_token = ""
+        try:
+            from peaks.application.riot_connect import (
+                AccountBindingError,
+                OwnedAccountCredentials,
+            )
+
+            self._logger.info("bridge.riot_qr.session.mint_start")
+            from peaks.adapters.riot.session_import import SessionReauthenticationRequired
+
+            try:
+                access_token, refreshed_cookies, identity, refresh_token = self._refresh_bound_session(
+                    importer, account, secret,
+                )
+                self._check_connection_cancelled()
+                self._save_rotated_session_cookies(
+                    account_id,
+                    secret,
+                    refreshed_cookies,
+                    refresh_token=refresh_token,
+                )
+                self._persist_identity_regions(account, identity)
+            except _SessionIdentityMismatchError:
+                self._logger.warning("bridge.riot_qr.session.identity_mismatch")
+                raise
+            except SessionReauthenticationRequired:
+                self._mark_session_reauthentication_required(account)
+                raise RuntimeError(
+                    "Riot requires sign-in again for this account. Choose Sign in to Riot "
+                    "again, finish sign-in in the temporary browser, then retry a fresh QR."
+                ) from None
+            except Exception as exc:
+                self._logger.warning(
+                    "bridge.riot_qr.session.mint_failed error_type=%s",
+                    type(exc).__name__,
+                )
+                raise RuntimeError(
+                    "Riot session renewal is temporarily unavailable. Try again shortly; "
+                    "peaks.log contains the failed stage."
+                ) from None
+            self._logger.info("bridge.riot_qr.session.identity_bound")
+            from peaks.adapters.riot.qr_session import (
+                LocalQRSessionReplaced,
+                start_local_qr,
+                wait_for_local_sign_in,
+            )
+
+            for attempt in range(2):
+                self._check_connection_cancelled()
+                if qr is None:
+                    # Validate reusable credentials before opening or switching Riot.
+                    # The challenge comes directly from the verified local client,
+                    # never from renderer-controlled pixels or a supplied URL.
+                    qr_options: dict[str, Any] = {
+                        "language": str(self.settings.get("language", "en")),
+                        "restart_existing_client": attempt == 0,
+                    }
+                    if getattr(self, "_connection_cancel_event", None) is not None:
+                        qr_options["cancelled"] = self._is_connection_cancelled
+                    qr = start_local_qr(puuid, **qr_options)
+                    self._check_connection_cancelled()
+                    if qr is None:
+                        account["connected"] = True
+                        account["lastUpdated"] = "Riot Client connected just now"
+                        return
+                try:
+                    approver.session_info(
+                        qr,
+                        access_token=access_token,
+                        selected_account_puuid=puuid,
+                    )
+                except Exception as exc:
+                    status = getattr(exc, "status_code", None)
+                    self._logger.warning(
+                        "bridge.riot_qr.session.details_failed error_type=%s status=%s",
+                        type(exc).__name__,
+                        status if isinstance(status, int) else "unknown",
+                    )
+                    suffix = f" (HTTP {status})" if isinstance(status, int) else ""
+                    raise RuntimeError(
+                        "Riot could not verify the pending QR session"
+                        f"{suffix}. Refresh the QR in Riot Client and try again."
+                    ) from None
+                self._logger.info("bridge.riot_qr.session.details_verified")
+                self._check_connection_cancelled()
+                credentials = OwnedAccountCredentials(
+                    puuid=puuid,
+                    access_token=access_token,
+                )
+
+                try:
+                    result = approver.approve(
+                        qr,
+                        credentials,
+                        # Clicking Connect, selecting, dropping, or pasting the
+                        # QR is the explicit approval action in this flow.
+                        user_approved=True,
+                    )
+                except AccountBindingError:
+                    self._logger.warning("bridge.riot_qr.approval.session_binding_changed")
+                    raise ValueError(
+                        "The selected Riot session changed while connecting. Refresh the QR "
+                        "and try again."
+                    ) from None
+                except Exception as exc:
+                    status = getattr(exc, "status_code", None)
+                    self._logger.warning(
+                        "bridge.riot_qr.approval.failed error_type=%s status=%s",
+                        type(exc).__name__,
+                        status if isinstance(status, int) else "unknown",
+                    )
+                    suffix = f" (HTTP {status})" if isinstance(status, int) else ""
+                    raise RuntimeError(
+                        "Riot Client sign-in was not approved"
+                        f"{suffix}. Refresh the QR and try again."
+                    ) from None
+                self._logger.info(
+                    "bridge.riot_qr.approval.complete method=%s",
+                    str(getattr(result, "method", "unknown")),
+                )
+                if capture_state == "automatic":
+                    try:
+                        if getattr(self, "_connection_cancel_event", None) is None:
+                            wait_for_local_sign_in(puuid, qr)
+                        else:
+                            wait_for_local_sign_in(puuid, qr, cancelled=self._is_connection_cancelled)
+                        self._check_connection_cancelled()
+                    except LocalQRSessionReplaced:
+                        if attempt:
+                            raise RuntimeError("Riot Client could not finish signing in. Try Connect again shortly.") from None
+                        # Riot's login form may mount late after account switch.
+                        # One retry obtains a new local challenge and verifies
+                        # its details again before approving the same identity.
+                        qr = None
+                        continue
+                break
+            account["connected"] = True
+            account["lastUpdated"] = "Riot Client connected just now"
+        finally:
+            access_token = ""
+            for service in (approver, importer):
+                close = getattr(service, "close", None)
+                if callable(close):
+                    with suppress(Exception):
+                        close()
+
+    def _captured_riot_qr(self, captures: object, capture_state: object) -> QRLoginPayload:
         capture_state_text = str(capture_state or "invalid")
         capture_count = len(captures) if isinstance(captures, list) else 0
         self._logger.info(
@@ -2163,119 +2343,27 @@ class Bridge:
             raise ValueError("The detected code is not a valid Riot sign-in QR") from None
         self._logger.info("bridge.riot_qr.capture.decode_complete")
 
-        approver = self._new_qr_approver()
-        importer = self._new_session_importer()
-        access_token = ""
-        try:
-            from peaks.application.riot_connect import (
-                AccountBindingError,
-                OwnedAccountCredentials,
-            )
-
-            self._logger.info("bridge.riot_qr.session.mint_start")
-            from peaks.adapters.riot.session_import import SessionReauthenticationRequired
-
-            try:
-                access_token, refreshed_cookies, identity, refresh_token = self._refresh_bound_session(
-                    importer, account, secret,
-                )
-                self._save_rotated_session_cookies(
-                    account_id,
-                    secret,
-                    refreshed_cookies,
-                    refresh_token=refresh_token,
-                )
-                self._persist_identity_regions(account, identity)
-            except _SessionIdentityMismatchError:
-                self._logger.warning("bridge.riot_qr.session.identity_mismatch")
-                raise
-            except SessionReauthenticationRequired:
-                self._mark_session_reauthentication_required(account)
-                raise RuntimeError(
-                    "Riot requires sign-in again for this account. Choose Sign in to Riot "
-                    "again, finish sign-in in the temporary browser, then retry a fresh QR."
-                ) from None
-            except Exception as exc:
-                self._logger.warning(
-                    "bridge.riot_qr.session.mint_failed error_type=%s",
-                    type(exc).__name__,
-                )
-                raise RuntimeError(
-                    "Riot session renewal is temporarily unavailable. Try again shortly; "
-                    "peaks.log contains the failed stage."
-                ) from None
-            self._logger.info("bridge.riot_qr.session.identity_bound")
-            try:
-                approver.session_info(
-                    qr,
-                    access_token=access_token,
-                    selected_account_puuid=puuid,
-                )
-            except Exception as exc:
-                status = getattr(exc, "status_code", None)
-                self._logger.warning(
-                    "bridge.riot_qr.session.details_failed error_type=%s status=%s",
-                    type(exc).__name__,
-                    status if isinstance(status, int) else "unknown",
-                )
-                suffix = f" (HTTP {status})" if isinstance(status, int) else ""
-                raise RuntimeError(
-                    "Riot could not verify the pending QR session"
-                    f"{suffix}. Refresh the QR in Riot Client and try again."
-                ) from None
-            self._logger.info("bridge.riot_qr.session.details_verified")
-            credentials = OwnedAccountCredentials(
-                puuid=puuid,
-                access_token=access_token,
-            )
-
-            try:
-                result = approver.approve(
-                    qr,
-                    credentials,
-                    # Clicking Connect, selecting, dropping, or pasting the
-                    # QR is the explicit approval action in this flow.
-                    user_approved=True,
-                )
-            except AccountBindingError:
-                self._logger.warning("bridge.riot_qr.approval.session_binding_changed")
-                raise ValueError(
-                    "The selected Riot session changed while connecting. Refresh the QR "
-                    "and try again."
-                ) from None
-            except Exception as exc:
-                status = getattr(exc, "status_code", None)
-                self._logger.warning(
-                    "bridge.riot_qr.approval.failed error_type=%s status=%s",
-                    type(exc).__name__,
-                    status if isinstance(status, int) else "unknown",
-                )
-                suffix = f" (HTTP {status})" if isinstance(status, int) else ""
-                raise RuntimeError(
-                    "Riot Client sign-in was not approved"
-                    f"{suffix}. Refresh the QR and try again."
-                ) from None
-            self._logger.info(
-                "bridge.riot_qr.approval.complete method=%s",
-                str(getattr(result, "method", "unknown")),
-            )
-            account["connected"] = True
-            account["lastUpdated"] = "Riot Client connected just now"
-        finally:
-            access_token = ""
-            for service in (approver, importer):
-                close = getattr(service, "close", None)
-                if callable(close):
-                    with suppress(Exception):
-                        close()
+        return qr
 
     def _login_for_reusable_session(self) -> Mapping[str, str] | None:
+        self._check_connection_cancelled()
         login = getattr(self, "_riot_browser_login", None)
         if login is None:
             from peaks.adapters.riot.browser_login import login_riot_account
 
-            login = login_riot_account
-        return login()
+            result = login_riot_account(cancelled=self._is_connection_cancelled)
+        else:
+            result = login()
+        self._check_connection_cancelled()
+        return result
+
+    def _is_connection_cancelled(self) -> bool:
+        event = getattr(self, "_connection_cancel_event", None)
+        return event is not None and event.is_set()
+
+    def _check_connection_cancelled(self) -> None:
+        if self._is_connection_cancelled():
+            raise ConnectionCancelled("Connection cancelled")
 
     @staticmethod
     def _split_riot_id(riot_id: str) -> tuple[str, str]:
@@ -2358,6 +2446,7 @@ class Bridge:
     def _capture_browser_session(self, importer: Any) -> tuple[dict[str, str], Any]:
         self._logger.info("bridge.session_import.browser.start")
         browser_cookies = self._login_for_reusable_session()
+        self._check_connection_cancelled()
         if browser_cookies is None:
             self._logger.info("bridge.session_import.browser.cancelled")
             raise ValueError("Riot browser sign-in was cancelled, closed, or timed out")
@@ -2369,6 +2458,7 @@ class Bridge:
         try:
             access_token, cookies, refresh_token = self._refresh_session_authorization(importer, cookies)
             identity = importer.fetch_identity(access_token)
+            self._check_connection_cancelled()
         finally:
             access_token = ""
         session_puuid = str(cookies.get("sub") or getattr(identity, "puuid", "") or "")
@@ -2384,6 +2474,7 @@ class Bridge:
         source: str,
         refresh_token: str | None = None,
     ) -> None:
+        self._check_connection_cancelled()
         if not self._vault:
             raise RuntimeError("Secure vault is unavailable")
         if not self._repository:
@@ -2414,6 +2505,7 @@ class Bridge:
             )
         )
         try:
+            self._check_connection_cancelled()
             stored = self._repository.get_account(account_id)
             regions = self._identity_regions(identity, account)
             stored_name, stored_tag = self._split_riot_id(str(account.get("riotId", "")))
@@ -2465,6 +2557,7 @@ class Bridge:
         )
 
     def _import_riot_session(self, account_id: str, *, force_sign_in: bool = False) -> None:
+        self._check_connection_cancelled()
         account_id = account_id.strip()
         account = next(
             (item for item in self.accounts if str(item.get("id", "")) == account_id),
@@ -2501,6 +2594,7 @@ class Bridge:
                 self._validate_session_binding(
                     account, session_puuid=session_puuid, identity=identity,
                 )
+                self._check_connection_cancelled()
                 self._save_imported_session(
                     account, cookies=cookies, identity=identity, source="browser",
                     refresh_token=refresh_token,
@@ -2513,7 +2607,7 @@ class Bridge:
                         raise SessionReauthenticationRequired("auth")
                     try:
                         _, cookies, identity, refresh_token = self._refresh_bound_session(importer, account, saved)
-                    except (SessionReauthenticationRequired, SessionSettingsError, _SessionIdentityMismatchError):
+                    except (ConnectionCancelled, SessionReauthenticationRequired, SessionSettingsError, _SessionIdentityMismatchError):
                         raise
                     except Exception:
                         raise RuntimeError(
@@ -2558,7 +2652,7 @@ class Bridge:
                         session_puuid=session_puuid,
                         identity=identity,
                     )
-                except _SessionIdentityMismatchError:
+                except (ConnectionCancelled, _SessionIdentityMismatchError):
                     self._logger.warning("bridge.session_import.browser.identity_mismatch")
                     raise
                 except ValueError:
@@ -2571,6 +2665,7 @@ class Bridge:
                     raise RuntimeError(
                         "Riot browser sign-in could not create a reusable session"
                     ) from None
+            self._check_connection_cancelled()
             self._save_imported_session(
                 account,
                 cookies=cookies,
@@ -2578,7 +2673,7 @@ class Bridge:
                 source=source,
                 refresh_token=refresh_token,
             )
-        except _SessionIdentityMismatchError:
+        except (ConnectionCancelled, _SessionIdentityMismatchError):
             raise
         except ValueError:
             raise
@@ -2871,10 +2966,17 @@ class Bridge:
     def state(self) -> dict[str, Any]:
         visible = not self._locked
         active_account = getattr(self, "_active_account_id", None)
-        if visible and not self.demo and active_account and any(account.get("id") == active_account for account in self.accounts):
+        if visible and not self.demo and active_account and active_account != getattr(self, "_observed_connection_id", None) and any(account.get("id") == active_account for account in self.accounts):
             observe = getattr(self._repository, "observe_profile", None)
             if callable(observe):
-                observe(active_account, "connection", {})
+                now = datetime.now(UTC)
+                observe(active_account, "connection", {}, now=now)
+                for account in self.accounts:
+                    if account.get("id") == active_account:
+                        account["lastConnectedAt"] = now.timestamp() * 1000
+                self._observed_connection_id = active_account
+        elif not active_account and getattr(self, "_riot_client_status", {}).get("sessionState") == "signed_out":
+            self._observed_connection_id = None
         visible_accounts: list[dict[str, Any]] = []
         if visible:
             for account in self.accounts:
@@ -2974,11 +3076,13 @@ class Bridge:
         if command == "state":
             return self.state()
         if command == "activity":
+            # The lock hides account data and locks secrets, but local match
+            # capture continues while Peaks is running in the tray.
+            self._poll_activity()
+            self._refresh_local_tft_history_if_due()
+            self._refresh_completed_match_if_due()
+            self._refresh_owned_accounts_if_due()
             if not self._locked:
-                self._poll_activity()
-                self._refresh_local_tft_history_if_due()
-                self._refresh_completed_match_if_due()
-                self._refresh_owned_accounts_if_due()
                 self._refresh_saved_sessions_if_due()
             return self.state()
         if command == "pin":
@@ -3155,8 +3259,9 @@ class Bridge:
             result["openedAccountId"] = str(payload.get("accountId", ""))
             return result
         elif command in {"connect_riot_client", "connect_riot_qr_image"}:
+            account_id = self._internal_account_id(str(payload.get("accountId", "")))
             self._connect_riot_client(
-                self._internal_account_id(str(payload.get("accountId", ""))),
+                account_id,
                 payload.get("qrCaptures"),
                 payload.get("qrCaptureState"),
             )
@@ -3170,7 +3275,7 @@ class Bridge:
             )
             if self.settings.get("autoLaunchFavoriteGame") is True:
                 try:
-                    result["operationNotice"] += " · " + self._launch_favorite_game()
+                    result["operationNotice"] += " · " + self._launch_favorite_game(after_qr_account_id=account_id)
                 except Exception as exc:
                     # A launcher failure must not turn an approved sign-in into
                     # a failed connection or cause a second QR approval.
@@ -3284,6 +3389,7 @@ _DIAGNOSTIC_BRIDGE_COMMANDS = frozenset(
         "account_activity",
         "account_match",
         "add_account",
+        "cancel_connection",
         "api_key",
         "copy_totp",
         "cancel_totp_setup",
@@ -3309,6 +3415,7 @@ _DIAGNOSTIC_BRIDGE_COMMANDS = frozenset(
         "toggle_watchlist",
     }
 )
+_CONNECTION_COMMANDS = frozenset({"add_account", "import_session", "connect_riot_client", "connect_riot_qr_image"})
 _COMMANDS_DURING_SESSION_IMPORT = frozenset({"activity", "copy_totp", "lock", "state"})
 
 
@@ -3340,7 +3447,7 @@ def _execute_bridge_request(bridge: Bridge, request: object) -> dict[str, Any]:
 
 
 class _BridgeRequestDispatcher:
-    """Keep TOTP copy responsive while headed Riot sign-in is in progress."""
+    """Run account connections without blocking cancellation or TOTP copy."""
 
     def __init__(
         self,
@@ -3352,6 +3459,8 @@ class _BridgeRequestDispatcher:
         self._output_lock = threading.Lock()
         self._state_lock = threading.Lock()
         self._session_import_active = False
+        self._active_connection_command = ""
+        self._connection_cancel_event: threading.Event | None = None
         self._workers: set[threading.Thread] = set()
 
     @staticmethod
@@ -3365,36 +3474,54 @@ class _BridgeRequestDispatcher:
     def write_protocol_error(self, error: Exception) -> None:
         self._write({"id": None, "error": str(error) or type(error).__name__})
 
-    def _run_session_import(self, request: object) -> None:
+    def _run_session_import(self, request: object, cancel_event: threading.Event) -> None:
         try:
-            self._write(_execute_bridge_request(self._bridge, request))
+            response = _execute_bridge_request(self._bridge, request)
+            if cancel_event.is_set():
+                response = {"id": response["id"], "error": "Connection cancelled"}
+            self._write(response)
         finally:
             worker = threading.current_thread()
             with self._state_lock:
                 self._session_import_active = False
+                self._active_connection_command = ""
                 self._bridge._session_import_in_progress = False
+                self._connection_cancel_event = None
+                self._bridge._connection_cancel_event = None
                 self._workers.discard(worker)
 
     def dispatch(self, request: object) -> None:
         command = _bridge_request_command(request)
         request_id = request.get("id") if isinstance(request, Mapping) else None
-        if command == "import_session":
+        if command == "cancel_connection":
+            with self._state_lock:
+                event = self._connection_cancel_event
+                if event is not None:
+                    event.set()
+            self._write({"id": request_id, "result": {"cancelled": event is not None}})
+            return
+
+        if command in _CONNECTION_COMMANDS:
             with self._state_lock:
                 if self._session_import_active:
                     self._write(
                         {
                             "id": request_id,
-                            "error": "A Riot session refresh is already in progress",
+                            "error": "An account connection is already in progress",
                         }
                     )
                     return
+                cancel_event = threading.Event()
                 self._session_import_active = True
+                self._active_connection_command = command
                 self._bridge._session_import_in_progress = True
+                self._connection_cancel_event = cancel_event
+                self._bridge._connection_cancel_event = cancel_event
                 worker = threading.Thread(
                     target=self._run_session_import,
-                    args=(request,),
+                    args=(request, cancel_event),
                     daemon=True,
-                    name="peaks-riot-session-import",
+                    name="peaks-account-connection",
                 )
                 self._workers.add(worker)
             worker.start()
@@ -3402,7 +3529,9 @@ class _BridgeRequestDispatcher:
 
         with self._state_lock:
             import_active = self._session_import_active
-        if import_active and command not in _COMMANDS_DURING_SESSION_IMPORT:
+            active_command = self._active_connection_command
+        allowed = _COMMANDS_DURING_SESSION_IMPORT if active_command == "import_session" else {"copy_totp", "lock", "state"}
+        if import_active and command not in allowed:
             self._write(
                 {
                     "id": request_id,

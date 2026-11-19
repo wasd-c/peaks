@@ -106,6 +106,32 @@ def test_bridge_keeps_totp_copy_responsive_during_session_import() -> None:
     assert bridge._session_import_in_progress is False  # type: ignore[attr-defined]
 
 
+def test_cancel_connection_interrupts_a_running_account_request() -> None:
+    class BlockingBridge:
+        def __init__(self) -> None:
+            self.started = threading.Event()
+
+        def handle(self, command: str, _payload: object) -> dict[str, str]:
+            assert command == "add_account"
+            self.started.set()
+            assert self._connection_cancel_event.wait(timeout=1)
+            return {"status": "should not be reported as connected"}
+
+    bridge = BlockingBridge()
+    responses: list[Mapping[str, Any]] = []
+    dispatcher = _BridgeRequestDispatcher(bridge, responses.append)  # type: ignore[arg-type]
+
+    dispatcher.dispatch({"id": 1, "command": "add_account", "payload": {}})
+    assert bridge.started.wait(timeout=1)
+    dispatcher.dispatch({"id": 2, "command": "cancel_connection", "payload": {}})
+    dispatcher.wait_for_workers()
+
+    assert {response["id"] for response in responses} == {1, 2}
+    assert next(response for response in responses if response["id"] == 2)["result"] == {"cancelled": True}
+    assert next(response for response in responses if response["id"] == 1)["error"] == "Connection cancelled"
+    assert bridge._connection_cancel_event is None  # type: ignore[attr-defined]
+
+
 def test_bridge_entrypoint_errors_reach_the_redacted_log(tmp_path: Path) -> None:
     from peaks.diagnostics import configure_diagnostics
 

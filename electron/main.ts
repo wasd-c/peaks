@@ -1,4 +1,4 @@
-import {app, BrowserWindow, clipboard, desktopCapturer, ipcMain, nativeImage, nativeTheme, shell, type IpcMainInvokeEvent} from 'electron'
+import {app, BrowserWindow, clipboard, ipcMain, Menu, nativeImage, nativeTheme, shell, Tray, type IpcMainInvokeEvent} from 'electron'
 import {spawn, type ChildProcessWithoutNullStreams} from 'node:child_process'
 import {existsSync, writeFileSync} from 'node:fs'
 import path from 'node:path'
@@ -11,7 +11,7 @@ import {
   decodeMatchImagePayload,
   isAllowedRendererUrl,
   isBackendCommand,
-  isRiotClientWindowTitle,
+  localRiotConnectPayload,
 } from './security'
 import {rejectPendingBackendRequests, resolveBackendLaunch} from './runtime'
 import {createSensitiveClipboard} from './sensitiveClipboard'
@@ -22,10 +22,17 @@ import {CancellationToken, NsisUpdater} from 'electron-updater'
 import {PEAKS_RELEASE_PROVIDER, PeaksUpdater} from './appUpdater'
 import {ReleaseHistory} from './releaseHistory'
 import {protectStdio} from './stdio'
+import {readWindowBehavior, writeWindowBehavior} from './windowBehavior'
 
 protectStdio()
 
 let window: BrowserWindow | null = null
+let tray: Tray | null = null
+let quitting = false
+let minimizeOnClose = true
+let windowBehaviorFile = ''
+const quitSwitch = '--quit-peaks'
+const singleInstance = app.requestSingleInstanceLock()
 let backend: ChildProcessWithoutNullStreams | null = null
 let serial = 0
 let discordPresence: DiscordPresence | null = null
@@ -117,13 +124,6 @@ interface QrWindowCapture {
   width: number
 }
 
-type QrCaptureState = 'ready' | 'window_not_found' | 'window_capture_failed' | 'capture_error'
-
-interface QrCaptureResult {
-  captures: QrWindowCapture[]
-  state: QrCaptureState
-}
-
 function capturePastedQrImage(value: unknown): QrWindowCapture {
   const encodedImage = decodePastedQrImagePayload(value)
   try {
@@ -159,37 +159,6 @@ function capturePastedQrImage(value: unknown): QrWindowCapture {
   }
 }
 
-async function captureRiotClientWindows(): Promise<QrCaptureResult> {
-  const sources = await desktopCapturer.getSources({
-    types: ['window'],
-    fetchWindowIcons: false,
-    thumbnailSize: {width: 1920, height: 1200},
-  })
-  const riotSources = sources.filter(source => isRiotClientWindowTitle(source.name)).slice(0, 3)
-  console.info(`[riot-qr] capture.discovery sources=${sources.length} matches=${riotSources.length}`)
-  if (riotSources.length === 0) {
-    return {captures: [], state: 'window_not_found'}
-  }
-
-  const captures = riotSources.flatMap<QrWindowCapture>(source => {
-    if (source.thumbnail.isEmpty()) return []
-    const {width, height} = source.thumbnail.getSize()
-    const pixels = source.thumbnail.toBitmap()
-    if (width <= 0 || height <= 0 || pixels.length !== width * height * 4) return []
-    return [{
-      encoding: 'bgra-base64',
-      height,
-      pixels: pixels.toString('base64'),
-      width,
-    }]
-  })
-  console.info(`[riot-qr] capture.complete usable=${captures.length}`)
-  if (captures.length === 0) {
-    return {captures: [], state: 'window_capture_failed'}
-  }
-  return {captures, state: 'ready'}
-}
-
 function packagedRendererUrl() {
   return pathToFileURL(path.join(app.getAppPath(), 'dist', 'index.html')).href
 }
@@ -218,6 +187,16 @@ function createWindow() {
     : path.join(app.getAppPath(), 'src', 'renderer', 'assets', 'peaks-mark.png')
   window = new BrowserWindow({width: 1440, height: 900, minWidth: 1080, minHeight: 680, icon, backgroundColor: '#090909', titleBarStyle: 'hiddenInset', show: false, webPreferences: {preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true}})
   window.once('ready-to-show', () => window?.show())
+  window.on('close', event => {
+    if (quitting) return
+    if (minimizeOnClose) {
+      event.preventDefault()
+      window?.hide()
+      return
+    }
+    quitting = true
+    app.quit()
+  })
   window.once('closed', () => { discordPresence?.clear(); window = null })
   window.webContents.on('render-process-gone', () => { discordPresence?.clear(); telemetry?.track('renderer.failed') })
   window.webContents.session.setPermissionCheckHandler(() => false)
@@ -242,8 +221,46 @@ function createWindow() {
   }, 1200))
 }
 
+function showWindow() {
+  if (!window || window.isDestroyed()) { createWindow(); return }
+  if (window.isMinimized()) window.restore()
+  window.show()
+  window.focus()
+}
+
+function nativeWindowLabels() {
+  const locale = app.getLocale().toLowerCase()
+  if (locale.startsWith('fr')) return {open: 'Ouvrir Peaks', quit: 'Quitter Peaks', quitDescription: 'Fermer complètement Peaks'}
+  if (locale.startsWith('ko')) return {open: 'Peaks 열기', quit: 'Peaks 종료', quitDescription: 'Peaks 완전히 종료'}
+  return {open: 'Open Peaks', quit: 'Quit Peaks', quitDescription: 'Close Peaks completely'}
+}
+
+function createTray() {
+  const labels = nativeWindowLabels()
+  const image = process.platform === 'win32' ? 'peaks-mark.ico' : 'peaks-mark.png'
+  const icon = app.isPackaged
+    ? path.join(process.resourcesPath, 'brand', image)
+    : path.join(app.getAppPath(), 'src', 'renderer', 'assets', image)
+  tray = new Tray(icon)
+  tray.setToolTip('Peaks')
+  tray.setContextMenu(Menu.buildFromTemplate([
+    {label: labels.open, click: showWindow},
+    {type: 'separator'},
+    {label: labels.quit, click: () => { quitting = true; app.quit() }},
+  ]))
+  tray.on('click', showWindow)
+}
+
+app.on('second-instance', (_event, commandLine) => {
+  if (commandLine.includes(quitSwitch)) { quitting = true; app.quit(); return }
+  showWindow()
+})
+
 app.whenReady().then(() => {
+  if (!singleInstance || process.argv.includes(quitSwitch)) { app.quit(); return }
   const userData = app.getPath('userData')
+  windowBehaviorFile = path.join(userData, 'window-behavior.json')
+  minimizeOnClose = readWindowBehavior(windowBehaviorFile).minimizeOnClose
   // Detect upgrades from builds that predate release-history.json before any
   // services or renderer create preferences. Inspect file existence only.
   const existingInstallation = ['discord-presence.json', 'telemetry.json', path.join('Local Storage', 'leveldb', 'CURRENT')]
@@ -253,16 +270,34 @@ app.whenReady().then(() => {
   appUpdater = new PeaksUpdater(app.isPackaged && process.platform === 'win32' ? new NsisUpdater(PEAKS_RELEASE_PROVIDER) : null, app.getVersion(), () => new CancellationToken(), phase => telemetry?.track('update.state', {state: phase === 'ready' ? 'downloaded' : phase}))
   appUpdater.start()
   discordPresence = new DiscordPresence(path.join(app.getPath('userData'), 'discord-presence.json'), process.env.PEAKS_DEMO === '1', process.env.PEAKS_DISCORD_APPLICATION_ID)
-  // Keep Chromium's background animation throttling. Only the existing native
-  // activity command needs a heartbeat when renderer timers fall behind.
+  createTray()
+  if (process.platform === 'win32' && app.isPackaged) {
+    const labels = nativeWindowLabels()
+    app.setAppUserModelId('local.peaks.desktop')
+    app.setUserTasks([{
+      program: process.execPath,
+      arguments: quitSwitch,
+      iconPath: process.execPath,
+      iconIndex: 0,
+      title: labels.quit,
+      description: labels.quitDescription,
+    }])
+  }
+  // Keep match capture running when the renderer is throttled in the tray.
   discordHeartbeat = new DiscordActivityHeartbeat({
-    canRefresh: () => Boolean(window && !window.isDestroyed() && backend && discordPresence?.canRefreshActivity()),
+    canRefresh: () => Boolean(window && !window.isDestroyed() && (!window.isVisible() || (backend && discordPresence?.canRefreshActivity()))),
     isBusy: () => pending.size > 0,
     refresh: () => telemetry!.runCommand('activity', () => callBackend('activity', {}, discordPresence?.captureSnapshotEpoch())),
   })
   startBackend(); ipcMain.handle('peaks:invoke', async (event, command: unknown, payload: unknown) => {
   if (!isTrustedSender(event)) {
     throw new Error('Peaks rejected an untrusted renderer request')
+  }
+  if (command === 'window_behavior') {
+    if (payload && typeof payload === 'object' && 'minimizeOnClose' in payload) {
+      minimizeOnClose = writeWindowBehavior(windowBehaviorFile, payload).minimizeOnClose
+    }
+    return {minimizeOnClose}
   }
   if (command === 'telemetry_settings') return telemetry!.handle(payload ?? {})
   return telemetry!.runCommand(command, async () => {
@@ -291,21 +326,9 @@ app.whenReady().then(() => {
   const presenceEpoch = discordPresence?.captureSnapshotEpoch()
   let backendPayload = payload
   if (command === 'connect_riot_client') {
-    const safePayload = payload && typeof payload === 'object' && !Array.isArray(payload)
-      ? {...payload as Record<string, unknown>}
-      : {}
-    // Renderer input can never choose the pixels. The trusted main process
-    // overwrites this private field with fresh native Riot window captures.
-    let capture: QrCaptureResult
-    try {
-      capture = await captureRiotClientWindows()
-    } catch {
-      console.error('[riot-qr] capture.error')
-      capture = {captures: [], state: 'capture_error'}
-    }
-    safePayload.qrCaptures = capture.captures
-    safePayload.qrCaptureState = capture.state
-    backendPayload = safePayload
+    // The Python service obtains Riot's own local challenge after validating
+    // the chosen identity. The renderer cannot supply a challenge or endpoint.
+    backendPayload = localRiotConnectPayload(payload)
   } else if (command === 'connect_riot_qr_image') {
     const safePayload = payload && typeof payload === 'object' && !Array.isArray(payload)
       ? payload as Record<string, unknown>
@@ -324,9 +347,12 @@ app.whenReady().then(() => {
   }
   return result
   })
-}); createWindow(); app.on('activate', () => BrowserWindow.getAllWindows().length === 0 && createWindow()) })
+}); createWindow(); app.on('activate', showWindow) })
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
 app.on('before-quit', () => {
+  quitting = true
+  tray?.destroy()
+  tray = null
   telemetry?.dispose()
   appUpdater?.dispose()
   discordHeartbeat?.dispose()

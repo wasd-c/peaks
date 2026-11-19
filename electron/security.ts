@@ -5,6 +5,7 @@ export const BACKEND_COMMANDS = new Set([
   'account_match',
   'activity',
   'add_account',
+  'cancel_connection',
   'api_key',
   'cancel_totp_setup',
   'change_pin',
@@ -30,6 +31,12 @@ export const BACKEND_COMMANDS = new Set([
 ])
 
 export const MAX_PASTED_QR_IMAGE_BYTES = 8 * 1024 * 1024
+
+export function localRiotConnectPayload(value: unknown): {accountId: string; qrCaptureState: 'automatic'} {
+  const candidate = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown> : {}
+  return {accountId: typeof candidate.accountId === 'string' ? candidate.accountId : '', qrCaptureState: 'automatic'}
+}
 
 /** Match posters accept bounded PNGs only, validated before native decoding. */
 export function decodeMatchImagePayload(value: unknown): Buffer {

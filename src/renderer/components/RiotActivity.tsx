@@ -1,4 +1,4 @@
-import {useMemo, type CSSProperties, type ReactNode} from 'react'
+import {useId, useMemo, type CSSProperties, type ReactNode} from 'react'
 import {Grid} from '@astryxdesign/core/Grid'
 import {Heading} from '@astryxdesign/core/Heading'
 import {HStack} from '@astryxdesign/core/HStack'
@@ -6,6 +6,7 @@ import {Section} from '@astryxdesign/core/Section'
 import {Text} from '@astryxdesign/core/Text'
 import {Tooltip} from '@astryxdesign/core/Tooltip'
 import {VStack} from '@astryxdesign/core/VStack'
+import {useGridFocus} from '@astryxdesign/core/hooks'
 import {analyzeActivity, elapsedLabel, GAME_COLORS, recentGameMix} from '../activityAnalytics'
 import {formatNumber, localeTags, t, useLocale} from '../i18n'
 import {gameProfileIcon} from '../profileAssets'
@@ -78,10 +79,15 @@ function WeeklyArea({weeks}: {weeks: Map<string, Record<string, number>>}) {
 
 export function RiotActivity({activity}: {activity: ProfileActivity}) {
   const language = useLocale(), {displayName} = usePlayerPrivacy()
+  const hoursHintId = useId(), sessionDescriptionId = useId()
+  const {gridRef, handleKeyDown, handleFocus, focusCell} = useGridFocus<HTMLDivElement>({
+    columns: 24, cellSelector: '[role="gridcell"]', hasRovingTabIndex: true,
+  })
   const stats = useMemo(() => analyzeActivity(activity), [activity])
   const maxHour = Math.max(1, ...stats.hours.flat()), maxSession = Math.max(1, ...stats.histogram)
   const weekdays = Array.from({length: 7}, (_, i) => new Intl.DateTimeFormat(localeTags[language], {weekday: 'short'}).format(new Date(2026, 0, 5 + i)))
   const sessionLabels = ['< 1h', '1–2h', '2–3h', '3–4h', '4–5h', '5–6h', '6h+']
+  const sessionDescription = stats.histogram.map((count, i) => `${sessionLabels[i]} · ${t('Sessions: {{count}}', {count})}`).join('; ')
   return <VStack gap={5} className="pd-riot-activity">
     <Grid className="pd-activity-columns" columns={2} gap={5}>
       <ChartSection title={t('Game mix')} detail={t('{{count}} Riot games played', {count: stats.gamesPlayed})}><Mix mix={stats.mix} donut /></ChartSection>
@@ -89,15 +95,32 @@ export function RiotActivity({activity}: {activity: ProfileActivity}) {
     </Grid>
     <Grid className="pd-activity-columns" columns={2} gap={5}>
       <ChartSection title={t('When you play')} detail={t('Day × hour')}>
-        <VStack gap={1}>{stats.hours.map((row, weekday) => <HStack key={weekday} gap={1} align="center" className="pd-play-hours">
-          <Text type="supporting" className="pd-play-hours__day">{weekdays[weekday]}</Text>
-          {row.map((seconds, hour) => <Tooltip key={hour} content={`${weekdays[weekday]} · ${hour}:00–${hour + 1}:00 · ${elapsedLabel(seconds)}`}><HStack className="pd-play-hours__cell" gap={0} role="img" aria-label={`${weekdays[weekday]} ${hour}:00 · ${elapsedLabel(seconds)}`} style={{'--pd-heat': seconds ? 0.2 + seconds / maxHour * 0.8 : 0} as CSSProperties} /></Tooltip>)}
-        </HStack>)}</VStack><HStack justify="between"><Text type="supporting">00h</Text><Text type="supporting">06h</Text><Text type="supporting">12h</Text><Text type="supporting">18h</Text><Text type="supporting">23h</Text></HStack>
+        <VStack ref={gridRef} gap={1} role="grid" aria-label={t('When you play')} aria-describedby={hoursHintId} aria-readonly
+          onKeyDown={handleKeyDown} onFocus={handleFocus}>
+          {stats.hours.map((row, weekday) => <HStack key={weekday} gap={1} align="center" className="pd-play-hours" role="row">
+            <Text type="supporting" className="pd-play-hours__day" aria-hidden>{weekdays[weekday]}</Text>
+            {row.map((seconds, hour) => {
+              const label = `${weekdays[weekday]} · ${hour}:00–${hour + 1}:00 · ${elapsedLabel(seconds)}`
+              return <Tooltip key={hour} content={label} focusTrigger="always" delay={0} hasHoverIndication={false}>
+                <HStack className="pd-play-hours__cell" gap={0} role="gridcell" aria-label={label}
+                  tabIndex={weekday === 0 && hour === 0 ? 0 : -1} onFocus={() => focusCell(weekday * 24 + hour)}
+                  style={{'--pd-heat': seconds ? 0.2 + seconds / maxHour * 0.8 : 0} as CSSProperties} />
+              </Tooltip>
+            })}
+          </HStack>)}
+        </VStack>
+        <HStack justify="between" aria-hidden><Text type="supporting">00h</Text><Text type="supporting">06h</Text><Text type="supporting">12h</Text><Text type="supporting">18h</Text><Text type="supporting">23h</Text></HStack>
+        <Text id={hoursHintId} type="supporting" color="secondary">{t('Use arrow keys to explore hours. Home and End move within a day.')}</Text>
       </ChartSection>
       <ChartSection title={t('Play sessions')}>
         <HStack gap={6} wrap="wrap">{[[t('Average session'), stats.average], [t('Longest session'), stats.longest]].map(([label, value]) => <VStack key={label} gap={1}><Text type="supporting" color="secondary">{label}</Text><Text className="pd-activity-number" weight="semibold">{stats.sessions.length ? elapsedLabel(Number(value)) : '—'}</Text></VStack>)}</HStack>
-        <svg className="pd-activity-histogram" viewBox="0 0 350 110" role="img" aria-label={t('Session duration distribution')}>{stats.histogram.map((count, i) => <rect className="pd-chart-bar" key={i} x={i * 50 + 5} width="36" y={100 - count / maxSession * 95} height={count / maxSession * 95} fill="var(--color-activity-heat)"><title>{`${sessionLabels[i]} · ${count}`}</title></rect>)}</svg>
-        <HStack justify="between">{sessionLabels.map(label => <Text key={label} type="supporting">{label}</Text>)}</HStack>
+        <svg className="pd-activity-histogram" viewBox="0 0 350 110" role="img" aria-label={t('Session duration distribution')} aria-describedby={sessionDescriptionId}>
+          <desc id={sessionDescriptionId}>{sessionDescription}</desc>
+          {stats.histogram.map((count, i) => <rect className="pd-chart-bar" key={i} x={i * 50 + 5} width="36" y={100 - count / maxSession * 95} height={count / maxSession * 95} fill="var(--color-activity-heat)"><title>{`${sessionLabels[i]} · ${formatNumber(count)}`}</title></rect>)}
+        </svg>
+        <Grid columns={7} gap={1} aria-hidden>{sessionLabels.map((label, i) => <VStack key={label} gap={1} align="center">
+          <Text type="supporting">{label}</Text><Text type="supporting" color="primary" hasTabularNumbers>{formatNumber(stats.histogram[i])}</Text>
+        </VStack>)}</Grid>
       </ChartSection>
     </Grid>
     <Grid className="pd-activity-columns" columns={2} gap={5}>

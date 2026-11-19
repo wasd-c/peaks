@@ -497,15 +497,28 @@ class Database(AbstractContextManager["Database"]):
             self.observe_profile(account_id, "rank", {"game": rank.game.value, "tier": str(tier), "division": rank.division, "rating": rank.rating})
         return rank
 
-    def observe_profile(self, account_id: str, kind: str, value: dict[str, Any]) -> None:
+    def observe_profile(
+        self,
+        account_id: str,
+        kind: str,
+        value: dict[str, Any],
+        *,
+        now: datetime | None = None,
+    ) -> None:
         from .profile_history import observe_profile
 
-        observe_profile(self, account_id, kind, value)
+        observe_profile(self, account_id, kind, value, now=now)
 
     def profile_activity(self, account_id: str) -> dict[str, Any]:
         from .profile_history import profile_activity
 
         return profile_activity(self, account_id)
+
+    def latest_connections(self) -> dict[str, float]:
+        rows = self._execute(
+            "SELECT account_id, MAX(observed_at) AS connected_at FROM profile_observations WHERE kind='connection' GROUP BY account_id"
+        ).fetchall()
+        return {row['account_id']: row['connected_at'] for row in rows}
 
     def get_account_match(self, account_id: str, match_id: str) -> MatchRecord | None:
         row = self._execute("SELECT * FROM matches WHERE account_id=? AND match_id=?", (account_id, match_id)).fetchone()

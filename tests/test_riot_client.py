@@ -131,12 +131,17 @@ def test_local_response_is_closed_and_bounded_before_json_parsing() -> None:
     assert fake.response.closed is True
 
 
-def test_local_http_error_exposes_only_status_and_allowlisted_detail() -> None:
+@pytest.mark.parametrize(("message", "detail"), [
+    ("Entitlements token is not ready yet", "entitlements_not_ready"),
+    ("No client authorization", "authorization_missing"),
+    ("private diagnostic", None),
+])
+def test_local_http_error_exposes_only_status_and_allowlisted_detail(message: str, detail: str | None) -> None:
     fake = FakeSession()
     fake.response = FakeResponse(
         {
             "errorCode": "RPC_ERROR",
-            "message": "Entitlements token is not ready yet",
+            "message": message,
         },
         status_code=400,
     )
@@ -149,9 +154,9 @@ def test_local_http_error_exposes_only_status_and_allowlisted_detail() -> None:
         client.get_json("/entitlements/v1/token")
 
     assert raised.value.status_code == 400
-    assert raised.value.detail_code == "entitlements_not_ready"
+    assert raised.value.detail_code == detail
     assert str(raised.value) == "Riot local endpoint returned HTTP 400"
-    assert "Entitlements token" not in str(raised.value)
+    assert message not in str(raised.value)
     assert fake.response.closed is True
 
 

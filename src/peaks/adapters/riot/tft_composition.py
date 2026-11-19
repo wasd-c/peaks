@@ -22,6 +22,12 @@ def composition_view(value: object) -> dict[str, Any]:
     if not isinstance(value, Mapping):
         return {}
     result: dict[str, Any] = {}
+    set_number = _integer(value.get("setNumber", value.get("tft_set_number")), 1, 1000)
+    if set_number is not None:
+        result["setNumber"] = set_number
+    set_variant = _identifier(value.get("setVariant", value.get("tft_set_core_name")))
+    if set_variant and not set_variant.isdigit():
+        result["setVariant"] = set_variant
     raw_units = value.get("units")
     if isinstance(raw_units, list) and len(raw_units) <= 32:
         units = []

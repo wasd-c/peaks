@@ -1,4 +1,5 @@
 import {accountRegionLabel} from '../accountRegions'
+import {accountConnectionError} from '../accountConnection'
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {useCallback, useEffect, useRef, useState} from 'react'
@@ -23,6 +24,7 @@ interface AddAccountDialogProps {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
   onConnect: () => Promise<void>
+  onCancel: () => Promise<void>
 }
 
 type AccountConnectionState = 'connecting' | 'error'
@@ -33,13 +35,28 @@ const userFacingError = (error: unknown, fallback: string) => (
     : fallback
 )
 
-export function AddAccountDialog({isOpen, onOpenChange, onConnect}: AddAccountDialogProps) {
+export function AddAccountDialog({isOpen, onOpenChange, onConnect, onCancel}: AddAccountDialogProps) {
   useLocale()
   const {redact} = usePlayerPrivacy()
   const [connectionState, setConnectionState] = useState<AccountConnectionState>('connecting')
   const [errorMessage, setErrorMessage] = useState('')
   const attemptId = useRef(0)
   const startedForOpen = useRef(false)
+  const [cancelling, setCancelling] = useState(false)
+
+  const cancel = async () => {
+    attemptId.current += 1
+    setCancelling(true)
+    try {
+      await onCancel()
+      onOpenChange(false)
+    } catch {
+      setErrorMessage(t('Could not cancel the connection. Try again.'))
+      setConnectionState('error')
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   const connect = useCallback(async () => {
     const currentAttempt = ++attemptId.current
@@ -134,7 +151,11 @@ export function AddAccountDialog({isOpen, onOpenChange, onConnect}: AddAccountDi
               <Button label={t("Try again")} variant="primary" endContent={<Icon icon={ArrowUpRight} />} clickAction={connect} />
             </HStack>
           </LayoutFooter>
-        ) : undefined}
+        ) : (
+          <LayoutFooter hasDivider padding={6}>
+            <HStack justify="end"><Button label={t('Cancel')} variant="ghost" isLoading={cancelling} onClick={() => { void cancel() }} /></HStack>
+          </LayoutFooter>
+        )}
       />
     </Dialog>
   )
@@ -147,6 +168,7 @@ interface ConnectDialogProps {
   onConnectQr: (account: Account) => Promise<void>
   onCopyTotp: (account: Account) => Promise<void>
   onAction: (command: 'import_session', account: Account) => Promise<void>
+  onCancel: () => Promise<void>
   onEnableMfa: (account: Account) => Promise<TotpSetupResult>
 }
 
@@ -157,6 +179,7 @@ export function ConnectDialog({
   onConnectQr,
   onCopyTotp,
   onAction,
+  onCancel,
   onEnableMfa,
 }: ConnectDialogProps) {
   useLocale()
@@ -166,6 +189,8 @@ export function ConnectDialog({
   const [totpError, setTotpError] = useState('')
   const [totpWarning, setTotpWarning] = useState('')
   const [connectionKind, setConnectionKind] = useState<'qr' | 'session' | null>(null)
+  const connectionAttempt = useRef(0)
+  const [cancelling, setCancelling] = useState(false)
   const canConnectQr = account?.canConnectQr ?? account?.connected ?? false
   const canSaveRiotSession = account?.canSaveRiotSession ?? Boolean(account?.owned)
   const canSetupMfa = account?.canSetupMfa ?? (Boolean(account?.connected) && !account?.hasTotp)
@@ -176,17 +201,34 @@ export function ConnectDialog({
     setTotpError('')
     setTotpState('connecting')
     setConnectionKind('qr')
+    const attempt = ++connectionAttempt.current
     try {
       await onConnectQr(account)
-      onOpenChange(false)
+      if (attempt === connectionAttempt.current) onOpenChange(false)
     } catch (error) {
-      setTotpError(userFacingError(error, 'Riot Client QR connection failed'))
+      if (attempt !== connectionAttempt.current) return
+      setTotpError(accountConnectionError(error))
       setTotpState('choices')
       setConnectionKind(null)
     } finally {
       busyRef.current = false
     }
   }, [account, onConnectQr, onOpenChange])
+
+  const cancelConnection = async () => {
+    connectionAttempt.current += 1
+    setCancelling(true)
+    try {
+      await onCancel()
+      onOpenChange(false)
+    } catch {
+      setTotpError(t('Could not cancel the connection. Try again.'))
+      setTotpState('choices')
+    } finally {
+      busyRef.current = false
+      setCancelling(false)
+    }
+  }
 
   useEffect(() => {
     if (isOpen) return
@@ -202,10 +244,12 @@ export function ConnectDialog({
     setTotpError('')
     setTotpState('connecting')
     setConnectionKind('session')
+    const attempt = ++connectionAttempt.current
     try {
       await onAction('import_session', account)
-      onOpenChange(false)
+      if (attempt === connectionAttempt.current) onOpenChange(false)
     } catch (error) {
+      if (attempt !== connectionAttempt.current) return
       setTotpError(userFacingError(error, 'Riot connection could not be completed'))
       setTotpState('choices')
       setConnectionKind(null)
@@ -308,14 +352,14 @@ export function ConnectDialog({
                           ? t('Enabling MFA…')
                           : connectionKind === 'session'
                             ? t("Waiting for Riot sign-in…")
-                            : t("Scanning the Riot Client sign-in QR…")}
+                            : t("Opening Riot Client and connecting…")}
                       </Text>
                       <Text color="secondary" role="status">
                         {totpState === 'enabling'
                           ? t('Keep Peaks open while Riot activates your authenticator.')
                           : connectionKind === 'session'
                             ? t("Finish signing in through the Riot window opened by Peaks. Use the selected account shown above.")
-                            : t("Keep Riot Client open on its QR sign-in screen. Peaks will connect the account shown above.")}
+                            : t("Peaks opens Riot Client and connects the account shown above automatically.")}
                       </Text>
                     </VStack>
                   </HStack>
@@ -360,8 +404,8 @@ export function ConnectDialog({
                     header={<Text className="pd-dialog__eyebrow" type="supporting">{t("CONNECTION OPTIONS")}</Text>}>
                     {canConnectQr ? (
                       <ListItem
-                        label={t("Scan Riot Client QR")}
-                        description={<Text color="secondary">{t("Connect using the QR shown in Riot Client.")}</Text>}
+                        label={t("Connect to Riot Client")}
+                        description={<Text color="secondary">{t("Open Riot Client and connect this account automatically.")}</Text>}
                         startContent={<Icon icon={QrCode} color="primary" />}
                         endContent={<Icon icon={ChevronRight} size="sm" color="secondary" />}
                         onClick={() => void connectQr()}
@@ -404,7 +448,11 @@ export function ConnectDialog({
             </VStack>
           </LayoutContent>
         }
-        footer={totpState === 'partial' ? (
+        footer={totpState === 'connecting' ? (
+          <LayoutFooter hasDivider padding={6}>
+            <HStack justify="end"><Button label={t('Cancel')} variant="ghost" isLoading={cancelling} onClick={() => { void cancelConnection() }} /></HStack>
+          </LayoutFooter>
+        ) : totpState === 'partial' ? (
           <LayoutFooter hasDivider padding={6}>
             <HStack justify="end">
               <Button label={t("Done")} variant="primary" onClick={() => onOpenChange(false)} />

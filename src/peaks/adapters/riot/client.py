@@ -77,6 +77,8 @@ def _allowlisted_error_detail(response: Any) -> str | None:
         return None
     if not isinstance(payload, Mapping):
         return None
+    if payload.get("errorCode") == "RPC_ERROR" and payload.get("message") == "No client authorization":
+        return "authorization_missing"
     if (
         payload.get("errorCode") == "RPC_ERROR"
         and payload.get("message") == "Entitlements token is not ready yet"

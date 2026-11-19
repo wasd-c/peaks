@@ -33,11 +33,13 @@ def observe_profile(database: Any, account_id: str, kind: str, value: dict[str, 
     encoded = json.dumps(clean, ensure_ascii=False, sort_keys=True)
     with database._lock:
         previous = database._execute(
-            "SELECT value_json, day FROM profile_observations WHERE account_id=? AND kind=? AND game=? ORDER BY event_id DESC LIMIT 1",
+            "SELECT event_id, value_json, day FROM profile_observations WHERE account_id=? AND kind=? AND game=? ORDER BY event_id DESC LIMIT 1",
             (account_id, kind, game),
         ).fetchone()
         day = observed.date().isoformat()
         if previous is not None and (previous['day'] == day if kind == 'connection' else previous['value_json'] == encoded):
+            if kind == 'connection':
+                database._execute("UPDATE profile_observations SET observed_at=? WHERE event_id=?", (observed.timestamp() * 1000, previous['event_id']))
             return
         database._execute(
             "INSERT INTO profile_observations(account_id, kind, game, observed_at, day, value_json) VALUES (?, ?, ?, ?, ?, ?)",
@@ -47,8 +49,8 @@ def observe_profile(database: Any, account_id: str, kind: str, value: dict[str, 
 
 def profile_activity(database: Any, account_id: str) -> dict[str, Any]:
     rows = database._execute(
-        "SELECT match_id, game, played_at, result, queue, map_name, duration_seconds, rank_delta FROM matches WHERE account_id=? ORDER BY played_at DESC LIMIT ?",
-        (account_id, HISTORY_LIMIT),
+        "SELECT match_id, game, played_at, result, queue, map_name, duration_seconds, rank_delta FROM matches WHERE account_id=? ORDER BY played_at DESC",
+        (account_id,),
     ).fetchall()
     total = database._execute("SELECT COUNT(*) FROM matches WHERE account_id=?", (account_id,)).fetchone()[0]
     matches = []
@@ -67,7 +69,7 @@ def profile_activity(database: Any, account_id: str) -> dict[str, Any]:
         (account_id, HISTORY_LIMIT),
     ).fetchall()
     return {
-        "matches": matches, "totalStoredMatches": total, "historyLimit": HISTORY_LIMIT,
+        "matches": matches, "totalStoredMatches": total,
         "connectionDays": sorted({row['day'] for row in events if row['kind'] == 'connection'}),
         "identities": [{**json.loads(row['value_json']), "observedAt": row['observed_at']} for row in reversed(events) if row['kind'] == 'identity'],
         "ranks": [{**json.loads(row['value_json']), "observedAt": row['observed_at']} for row in reversed(events) if row['kind'] == 'rank'],

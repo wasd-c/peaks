@@ -9,19 +9,7 @@ import {formatNumber, localeTags, t, useLocale} from '../i18n'
 import {gameMode} from '../riotProfile'
 import {tftRecentResults} from '../tftRecentResults'
 import type {Account, Match} from '../types'
-
-function StreakFlame() {
-  return <svg className="pd-tft-streak__effect pd-tft-streak__flame" viewBox="0 0 100 120" aria-hidden focusable="false">
-    <path className="pd-tft-streak__flame-outer" d="M50 113C24 113 10 98 14 78C17 63 26 56 25 42C35 46 36 56 37 64C48 49 43 27 57 8C55 30 72 39 68 60C73 56 77 49 76 41C95 67 96 87 83 101C74 111 62 114 50 113Z" />
-    <path className="pd-tft-streak__flame-middle" d="M51 112C32 110 26 100 29 85C31 76 39 70 40 59C49 67 48 75 49 79C58 69 64 54 60 40C81 63 85 88 73 103C67 110 60 112 51 112Z" />
-    <path className="pd-tft-streak__flame-core" d="M51 111C41 109 37 102 40 94C43 86 52 81 54 71C66 85 69 98 61 107C58 110 55 111 51 111Z" />
-    <g className="pd-tft-streak__sparks">
-      <circle className="pd-tft-streak__spark" cx="26" cy="57" r="2" />
-      <circle className="pd-tft-streak__spark" cx="73" cy="47" r="1.5" />
-      <circle className="pd-tft-streak__spark" cx="48" cy="34" r="1.5" />
-    </g>
-  </svg>
-}
+import {StreakFlame} from './StreakFlame'
 
 function StreakFrost() {
   return <svg className="pd-tft-streak__effect pd-tft-streak__frost" viewBox="0 0 100 120" aria-hidden focusable="false">
@@ -42,7 +30,10 @@ export function TftRecentResults({account, mode = 'all', onSelectMatch}: {accoun
   const streakLabel = `${t('Current streak')} · ${streak == null ? '—' : `${t(streak > 0 ? 'Win' : 'Loss')} · ${formatNumber(Math.abs(streak))}`}`
   if (!rows.length) return null
   return <VStack gap={3}>
-    <Heading level={3}>{t('Last 20 games')}</Heading>
+    <HStack justify="between" align="center" gap={2} wrap="wrap">
+      <Heading level={3}>{t('Recent matches')}{mode === 'all' ? ` · ${t('All modes')}` : ''}</Heading>
+      <Text type="supporting">{t('{{count}} of up to 20 matches', {count: rows.length})}</Text>
+    </HStack>
     <HStack className="pd-tft-recent" gap={4} align="center">
       <Tooltip content={streakLabel}>
         <VStack className="pd-tft-streak" data-effect={effect} align="center" gap={0} role="img" aria-label={streakLabel}>

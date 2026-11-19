@@ -18,6 +18,23 @@ const state: AppState = {
 const noop = () => undefined
 
 describe('account and watched-player collections', () => {
+  it('renders a real table, defaults to recent connections and keeps icon and actions unsortable', () => {
+    const tableState = {...state, accounts: state.accounts.map((account, index) => ({...account, nickname: index === 1 ? 'My account' : undefined, lastConnectedAt: index === 1 ? Date.UTC(2026, 8, 21) : undefined}))}
+    const html = renderToStaticMarkup(<LayerProvider><PlayerPrivacyProvider state={tableState}>
+      <OverviewScreen state={tableState} view="list" onView={noop} onSelect={noop} onAdd={noop} onUse={noop} onEdit={noop} />
+    </PlayerPrivacyProvider></LayerProvider>)
+    expect(html).toContain('<table')
+    const headers = html.match(/<thead[\s\S]*?<\/thead>/)?.[0] ?? ''
+    expect(headers).toContain('Name')
+    expect(headers).toContain('Last connection date')
+    expect(headers.match(/<button/g)).toHaveLength(2)
+    expect(headers).not.toContain('Icon')
+    const body = html.match(/<tbody[\s\S]*?<\/tbody>/)?.[0] ?? ''
+    expect(body.indexOf('My account')).toBeLessThan(body.indexOf('Account0'))
+    expect(body).toContain('Not recorded')
+    expect(body).toContain('Use')
+    expect(body).toContain('Edit')
+  })
   it('shows accounts from every game without a game selector', () => {
     const html = renderToStaticMarkup(<LayerProvider><PlayerPrivacyProvider state={state}>
       <OverviewScreen state={state} view="grid" onView={noop} onSelect={noop} onAdd={noop} onUse={noop} onEdit={noop} />

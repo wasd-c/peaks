@@ -12,6 +12,8 @@ import pytest
 import requests
 
 from peaks.adapters.persistence import InMemoryPepperProvider, SecretVault
+from peaks.adapters.riot import qr_session
+from peaks.adapters.riot.qr import QRLoginPayload
 from peaks.adapters.riot.session_import import (
     AuthenticatedRiotIdentity,
     RiotSessionImporter,
@@ -115,6 +117,78 @@ class FakeQrApprover:
 
     def close(self) -> None:
         self.closed = True
+
+
+def test_automatic_qr_is_prepared_only_after_credentials_are_identity_bound(monkeypatch: pytest.MonkeyPatch) -> None:
+    importer = FakeImporter()
+    bridge, _, vault, log = _bridge(importer)
+    vault.put_entry(SecretEntry("owned-puuid", cookies={"ssid": "SAVED-COOKIE"}))
+    approver = FakeQrApprover()
+    bridge._qr_approval_factory = lambda: approver
+    challenge = QRLoginPayload("local-qr-secret", "eu")
+    def prepare(expected: str, *, language: str, restart_existing_client: bool) -> QRLoginPayload:
+        assert expected == "owned-puuid"
+        assert importer.identity_tokens == ["BROWSER-TOKEN-SECRET"]
+        assert restart_existing_client is True
+        return challenge
+    monkeypatch.setattr(qr_session, "start_local_qr", prepare)
+    monkeypatch.setattr(qr_session, "wait_for_local_sign_in", lambda *_args: None)
+    bridge._qr_decoder = lambda _capture: pytest.fail("Automatic QR must not use renderer pixels")
+    result = bridge.handle("connect_riot_client", {"accountId": "owned-puuid", "qrCaptureState": "automatic", "qrCaptures": ["injected"]})
+    assert approver.session_info_calls == [(challenge, "BROWSER-TOKEN-SECRET", "owned-puuid")]
+    assert approver.approval_calls[0][0] == challenge
+    assert approver.approval_calls[0][2] is True
+    assert approver.closed and importer.closed
+    assert "local-qr-secret" not in repr(result) + log.getvalue()
+
+
+@pytest.mark.parametrize("replaced_twice", [False, True])
+def test_automatic_qr_retries_a_replaced_prompt_once_and_verifies_every_challenge(
+    monkeypatch: pytest.MonkeyPatch, replaced_twice: bool,
+) -> None:
+    from unittest.mock import Mock, call
+
+    bridge, _, vault, _ = _bridge(FakeImporter())
+    vault.put_entry(SecretEntry("owned-puuid", cookies={"ssid": "SAVED-COOKIE"}))
+    approver = FakeQrApprover()
+    bridge._qr_approval_factory = lambda: approver
+    challenges = [QRLoginPayload("first-local-qr", "eu"), QRLoginPayload("second-local-qr", "eu")]
+    prepare = Mock(side_effect=challenges)
+    monkeypatch.setattr(qr_session, "start_local_qr", prepare)
+    verify = Mock(side_effect=[qr_session.LocalQRSessionReplaced(), qr_session.LocalQRSessionReplaced() if replaced_twice else None])
+    monkeypatch.setattr(qr_session, "wait_for_local_sign_in", verify)
+    if replaced_twice:
+        with pytest.raises(RuntimeError, match="could not finish signing in"):
+            bridge.handle("connect_riot_client", {"accountId": "owned-puuid", "qrCaptureState": "automatic"})
+    else:
+        bridge.handle("connect_riot_client", {"accountId": "owned-puuid", "qrCaptureState": "automatic"})
+    assert [entry[0] for entry in approver.session_info_calls] == challenges
+    assert [entry[0] for entry in approver.approval_calls] == challenges
+    assert verify.call_args_list == [call("owned-puuid", qr) for qr in challenges]
+    assert [entry.kwargs["restart_existing_client"] for entry in prepare.call_args_list] == [True, False]
+    assert approver.closed
+
+
+def test_bad_saved_identity_never_opens_or_switches_local_riot(monkeypatch: pytest.MonkeyPatch) -> None:
+    bridge, _, vault, _ = _bridge(FakeImporter(puuid="different-account"))
+    vault.put_entry(SecretEntry("owned-puuid", cookies={"ssid": "SAVED-COOKIE"}))
+    bridge._qr_approval_factory = FakeQrApprover
+    monkeypatch.setattr(qr_session, "start_local_qr", lambda *_args, **_kwargs: pytest.fail("Do not touch the local client before identity verification"))
+    with pytest.raises(ValueError, match="different account"):
+        bridge.handle("connect_riot_client", {"accountId": "owned-puuid", "qrCaptureState": "automatic"})
+
+
+def test_automatic_connect_reuses_current_selected_local_session(monkeypatch: pytest.MonkeyPatch) -> None:
+    importer = FakeImporter()
+    bridge, _, vault, _ = _bridge(importer)
+    vault.put_entry(SecretEntry("owned-puuid", cookies={"ssid": "SAVED-COOKIE"}))
+    approver = FakeQrApprover()
+    bridge._qr_approval_factory = lambda: approver
+    monkeypatch.setattr(qr_session, "start_local_qr", lambda *_args, **_kwargs: None)
+    bridge.handle("connect_riot_client", {"accountId": "owned-puuid", "qrCaptureState": "automatic"})
+    assert not approver.session_info_calls and not approver.approval_calls
+    assert bridge.accounts[0]["connected"] is True
+    assert importer.closed and approver.closed
 
 
 def _bridge(importer: FakeImporter) -> tuple[Bridge, FakeRepository, FakeVault, io.StringIO]:

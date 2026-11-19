@@ -57,6 +57,25 @@ describe('account connection approval lifecycle', () => {
     connection.dispose()
   })
 
+  it('cancels an in-flight approval and ignores its late result', async () => {
+    const approval = deferred()
+    const cancel = vi.fn().mockResolvedValue(undefined)
+    const onChange = vi.fn()
+    const onError = vi.fn()
+    const controller = createAccountConnectionController({
+      approve: vi.fn().mockReturnValue(approval.promise), cancel, onChange, onError,
+    })
+    const request = controller.connect('selected-account')
+    await controller.cancel()
+    expect(cancel).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenLastCalledWith(null)
+    approval.resolve()
+    await request
+    await vi.runAllTimersAsync()
+    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(onError).not.toHaveBeenCalled()
+  })
+
   it('ignores additional Use actions until approval and the completion animation are finished', async () => {
     const approval = deferred()
     const connection = setup(vi.fn().mockReturnValueOnce(approval.promise).mockResolvedValue(undefined))

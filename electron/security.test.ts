@@ -7,6 +7,7 @@ import {
   isAllowedRendererUrl,
   isBackendCommand,
   isRiotClientWindowTitle,
+  localRiotConnectPayload,
 } from './security'
 
 describe('Electron privilege boundary', () => {
@@ -19,6 +20,7 @@ describe('Electron privilege boundary', () => {
     expect(isBackendCommand('enable_riot_mfa')).toBe(true)
     expect(isBackendCommand('connect_riot_client')).toBe(true)
     expect(isBackendCommand('connect_riot_qr_image')).toBe(true)
+    expect(isBackendCommand('cancel_connection')).toBe(true)
     expect(isBackendCommand('reset_application')).toBe(true)
     expect(isBackendCommand('toggle_watchlist')).toBe(true)
     expect(isBackendCommand('toggle_follow')).toBe(true)
@@ -47,6 +49,16 @@ describe('Electron privilege boundary', () => {
       mimeType: 'image/png',
       bytes: 'not base64',
     })).toThrow(/invalid/)
+  })
+
+  it('takes automatic QR challenges only from the local service', () => {
+    expect(localRiotConnectPayload({accountId: 'selected', qrCaptureState: 'ready', qrCaptures: ['injected'],
+      qr: 'https://other.example', executable: 'arbitrary.exe', language: 'arbitrary'})).toEqual({
+      accountId: 'selected', qrCaptureState: 'automatic',
+    })
+    for (const value of [null, [], 'account', {accountId: 2}]) {
+      expect(localRiotConnectPayload(value)).toEqual({accountId: '', qrCaptureState: 'automatic'})
+    }
   })
 
   it('targets only native Riot Client sign-in windows for QR capture', () => {

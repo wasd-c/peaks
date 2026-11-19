@@ -143,6 +143,34 @@ def test_local_identity_read_uses_only_verified_lockfile_and_closes_transport(mo
     assert called == ["/entitlements/v1/token", "close"]
 
 
+def test_local_signout_is_distinct_from_a_temporary_identity_read_failure(monkeypatch):
+    from peaks.adapters.riot import client, discovery
+    from peaks.application import runtime
+
+    monkeypatch.setattr(runtime.platform, "system", lambda: "Windows")
+    monkeypatch.setattr(discovery, "discover_riot_client", lambda: SimpleNamespace(lockfile="verified-fixture"))
+    result = {"subject": "owned-subject"}
+    class Local:
+        def __init__(self, lockfile):
+            pass
+        def get_json(self, path):
+            if isinstance(result, Exception):
+                raise result
+            return result
+        def close(self):
+            pass
+    monkeypatch.setattr(client, "RiotClientHTTP", Local)
+    service = CurrentGameService()
+    assert service.active_riot_subject() == 'owned-subject'
+    assert service.riot_session_state == 'active'
+    for result in (TimeoutError(), client.RiotClientError('Temporary', status_code=500), client.RiotClientError('Stale lockfile', status_code=401)):
+        assert service.active_riot_subject() is None
+        assert service.riot_session_state == 'unavailable'
+    for result in ({}, client.RiotClientError('No session', status_code=404)):
+        assert service.active_riot_subject() is None
+        assert service.riot_session_state == 'signed_out'
+
+
 def test_public_act_fallback_binds_parent_ids_and_never_guesses_unknown_act_labels():
     rows = [
         {"uuid": "year", "displayName": "V26", "startTime": "2026-06-24T00:00:00Z", "endTime": "2027-01-06T00:00:00Z"},

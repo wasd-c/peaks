@@ -8,8 +8,20 @@ const noQr = 'No QR code found. Display the Riot Client sign-in QR and try again
 const expired = 'Sign in to Riot again from this account’s profile, then retry.'
 const rejected = 'Riot could not approve the connection. Refresh the QR code and try again.'
 const fallback = 'Connection failed. Please try again.'
+const switchBlocked = 'Riot cannot switch accounts right now. Finish the current game or sign out, then retry.'
+const notInstalled = 'Install Riot Client, then try Connect again.'
+const notReady = 'Riot Client is not ready. Wait a moment and try Connect again.'
 
 describe('account connection notifications', () => {
+  it.each([
+    ['Riot Client could not switch accounts. private-detail', switchBlocked],
+    ['Riot Client was not found. Install it, then try again.', notInstalled],
+    ['Riot Client is taking too long to open.', notReady],
+    ['Riot Client could not prepare QR sign-in.', notReady],
+    ['Riot Client has not finished signing out.', notReady],
+  ])('explains automatic connection failures safely: %s', (message, expected) => {
+    expect(accountConnectionError(new Error(message))).toBe(expected)
+  })
   it.each([
     'No readable Riot sign-in QR was found',
     'Riot Client window was not found. Open Riot Client, show its QR code',
@@ -46,7 +58,7 @@ describe('account connection notifications', () => {
   })
 
   it('has a complete translated notification for each outcome', () => {
-    for (const message of [noQr, expired, rejected, fallback]) {
+    for (const message of [noQr, expired, rejected, fallback, switchBlocked, notInstalled, notReady]) {
       for (const catalog of [en, fr, ko]) {
         expect(catalog[message as keyof typeof en]?.trim()).toBeTruthy()
       }

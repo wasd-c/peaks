@@ -41,6 +41,79 @@ def test_activity_survives_restart_without_counting_imported_matches_as_logins(t
         assert database.profile_activity('one')['identities'] == []
 
 
+def test_new_matches_accumulate_without_replacing_older_results():
+    with Database(':memory:') as database:
+        database.add_account(Account('one', 'Owner', 'TEST', 'EUW', 'subject'))
+        for index in range(30):
+            database.add_match(MatchRecord.from_dict({
+                'match_id': f'match-{index}', 'account_id': 'one', 'game': 'valorant',
+                'played_at': f'2026-08-{index + 1:02d}T12:00:00+00:00', 'result': 'win',
+            }))
+        activity = database.profile_activity('one')
+        assert activity['totalStoredMatches'] == 30
+        assert len(activity['matches']) == 30
+        assert database.get_account_match('one', 'match-0') is not None
+
+
+def test_locked_activity_keeps_recording_without_exposing_account_data(monkeypatch):
+    monkeypatch.setenv('PEAKS_DEMO', '1')
+    bridge = Bridge()
+    bridge.demo = False
+    bridge._locked = True
+    called = []
+    for method in ('_poll_activity', '_refresh_local_tft_history_if_due', '_refresh_completed_match_if_due', '_refresh_owned_accounts_if_due'):
+        monkeypatch.setattr(bridge, method, lambda method=method: called.append(method))
+    monkeypatch.setattr(bridge, '_refresh_saved_sessions_if_due', lambda: called.append('secret refresh'))
+
+    state = bridge.handle('activity', {})
+
+    assert len(called) == 4
+    assert 'secret refresh' not in called
+    assert state['accounts'] == []
+
+
+def test_latest_connection_persists_same_day_reconnect_without_stats_refresh(tmp_path):
+    filename = tmp_path / 'connections.sqlite'
+    later = datetime(2026, 9, 21, 17, tzinfo=UTC)
+    with Database(filename) as database:
+        database.add_account(Account('one', 'Owner', 'TEST', 'EUW', 'subject'))
+        database.observe_profile('one', 'connection', {}, now=datetime(2026, 9, 21, 10, tzinfo=UTC))
+        database.observe_profile('one', 'connection', {}, now=later)
+        database.observe_profile('one', 'rank', {'game': 'VALORANT', 'tier': 'gold', 'rating': 20}, now=datetime(2026, 9, 22, tzinfo=UTC))
+    with Database(filename) as database:
+        assert database.latest_connections() == {'one': later.timestamp() * 1000}
+        assert len(database.profile_activity('one')['connectionDays']) == 1
+
+
+def test_activity_returns_detected_client_when_recording_connection(monkeypatch):
+    monkeypatch.setenv('PEAKS_DEMO', '1')
+    service = SimpleNamespace(
+        detect=lambda: None,
+        active_riot_subject=lambda: 'subject',
+        client_status={'detected': True, 'label': 'Verified Riot lockfile found', 'game': ''},
+        detection_available=True,
+        riot_session_state='active',
+    )
+    bridge = Bridge(current_game_factory=lambda: service)
+    bridge.demo = False
+    bridge._locked = False
+    bridge.accounts = [{'id': 'one', 'puuid': 'subject', 'riotId': 'Owner#TEST', 'owned': True}]
+    bridge._next_owned_account_refresh_at = float('inf')
+    bridge._next_tft_local_history_at = float('inf')
+    with Database() as database:
+        database.add_account(Account('one', 'Owner', 'TEST', 'EUW', 'subject'))
+        bridge._repository = database
+
+        state = bridge.handle('activity', {})
+
+        assert state['riotClient']['detected'] is True
+        assert state['activeAccountId'] == state['accounts'][0]['id']
+        connected_at = state['accounts'][0]['lastConnectedAt']
+        assert database.latest_connections() == {'one': connected_at}
+        assert bridge.handle('activity', {})['accounts'][0]['lastConnectedAt'] == connected_at
+        assert len(database.profile_activity('one')['connectionDays']) == 1
+
+
 def test_new_history_reads_require_unlock_and_an_owned_account(monkeypatch):
     monkeypatch.setenv('PEAKS_DEMO', '1')
     bridge = Bridge()

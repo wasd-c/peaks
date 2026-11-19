@@ -233,6 +233,8 @@ const accounts: Account[] = [
   },
 ]
 
+// Synthetic connection times are never used by the native bridge.
+accounts.forEach((account, index) => { account.lastConnectedAt = Date.now() - index * 24 * 3600_000 })
 // Synthetic cross-game profile fixtures for the browser preview only.
 accounts[0].matches?.push(...['Ahri', 'Ahri', 'Jinx'].map((champion, index) => ({
   id: `lol-profile-${index}`, game: 'League of Legends' as const, result: index === 2 ? 'Defeat' : 'Win',
@@ -272,6 +274,7 @@ const webPostMatchPreview = typeof window !== 'undefined'
   && new URLSearchParams(window.location?.search ?? '').get('postMatch') === '1'
 let webPendingPin: string | null = null
 let webPin = '2580'
+let webMinimizeOnClose = true
 
 let webState: AppState = {
   locked: true,
@@ -495,6 +498,10 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
   }
   if (command === 'lock') webState = {...webState, locked: true}
   if (command === 'settings') webState = {...webState, settings: {...webState.settings, ...payload}}
+  if (command === 'window_behavior') {
+    if (typeof payload.minimizeOnClose === 'boolean') webMinimizeOnClose = payload.minimizeOnClose
+    return {minimizeOnClose: webMinimizeOnClose} as T
+  }
   if (command === 'launch_favorite_game') return {...clone(webState), operationNotice: 'Game launch is unavailable in preview mode.'} as T
   if (command === 'api_key') {
     if (!String(payload.key ?? '').trim()) throw new Error('Enter an API key')

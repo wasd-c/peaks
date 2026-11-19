@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import type {AccountConnection} from './accountConnection'
 import {createAccountConnectionController} from './accountConnectionController'
+import {invoke} from './bridge'
 
 /** Keep approval alive across overview navigation; serialize identity-bound QR requests. */
 export function useAccountConnection({approve, onError}: {
@@ -16,6 +17,7 @@ export function useAccountConnection({approve, onError}: {
   useEffect(() => {
     const current = createAccountConnectionController({
       approve: accountId => callbacks.current.approve(accountId),
+      cancel: async () => { await invoke('cancel_connection') },
       onError: error => callbacks.current.onError(error),
       onChange: setConnection,
     })
@@ -29,5 +31,8 @@ export function useAccountConnection({approve, onError}: {
   const connect = useCallback((accountId: string): Promise<void> => (
     controller.current?.connect(accountId) ?? Promise.resolve()
   ), [])
-  return {connection, connect}
+  const cancel = useCallback((): Promise<void> => (
+    controller.current?.cancel() ?? Promise.resolve()
+  ), [])
+  return {connection, connect, cancel}
 }

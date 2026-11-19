@@ -455,6 +455,8 @@ class RiotSearchService:
         *,
         puuid: str,
         duos: bool = False,
+        set_number: object = None,
+        set_variant: object = None,
     ) -> list[dict[str, Any]]:
         if not isinstance(participants, list):
             return []
@@ -512,6 +514,14 @@ class RiotSearchService:
                 }
                 character = "TFT tactician"
                 score = f"#{placement}" if isinstance(placement, int) else None
+            composition = {}
+            if game == "TFT":
+                recorded_board = dict(participant)
+                if set_number is not None:
+                    recorded_board["setNumber"] = set_number
+                if set_variant is not None:
+                    recorded_board["setVariant"] = set_variant
+                composition = composition_view(recorded_board)
             grouped[team_id].append(
                 {
                     "name": riot_id or f"Player {index}",
@@ -526,7 +536,7 @@ class RiotSearchService:
                     "self": is_self,
                     "hidden": riot_id is None and not is_self,
                     **({"role": participant["teamPosition"]} if game == "League" and participant.get("teamPosition") in {"TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"} else {}),
-                    **({"composition": composition_view(participant)} if game == "TFT" else {}),
+                    **({"composition": composition} if game == "TFT" else {}),
                 }
             )
         views: list[dict[str, Any]] = []
@@ -622,6 +632,8 @@ class RiotSearchService:
             participants,
             puuid=puuid,
             duos=duos,
+            set_number=detail.get("tft_set_number", detail.get("tftSetNumber")),
+            set_variant=detail.get("tft_set_core_name", detail.get("tftSetCoreName")),
         )
         return {
             "id": match_id,
@@ -1034,6 +1046,7 @@ class CurrentGameService:
 
     def active_riot_subject(self) -> str | None:
         """Read the verified local session, even when no game is running."""
+        self.riot_session_state = "unavailable"
         if platform.system() != "Windows":
             return None
         from peaks.adapters.riot.client import RiotClientHTTP
@@ -1041,13 +1054,22 @@ class CurrentGameService:
 
         discovery = discover_riot_client()
         if discovery.lockfile is None:
+            if not getattr(discovery, "process_running", False):
+                self.riot_session_state = "signed_out"
             return None
         local = RiotClientHTTP(discovery.lockfile)
         try:
             payload = local.get_json("/entitlements/v1/token")
             subject = payload.get("subject") if isinstance(payload, Mapping) else None
-            return str(subject) if self._valid_owned_puuid(subject) else None
+            if self._valid_owned_puuid(subject):
+                self.riot_session_state = "active"
+                return str(subject)
+            if isinstance(payload, Mapping) and not subject:
+                self.riot_session_state = "signed_out"
+            return None
         except Exception as exc:
+            if getattr(exc, "status_code", None) == 404:
+                self.riot_session_state = "signed_out"
             LOGGER.info("current_game.identity.unavailable error_type=%s", type(exc).__name__)
             return None
         finally:

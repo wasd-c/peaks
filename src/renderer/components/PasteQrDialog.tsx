@@ -1,17 +1,19 @@
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {useCallback, useEffect, useRef, useState} from 'react'
+import {Button} from '@astryxdesign/core/Button'
 import {Dialog, DialogHeader} from '@astryxdesign/core/Dialog'
 import {FileInput} from '@astryxdesign/core/FileInput'
 import {Heading} from '@astryxdesign/core/Heading'
 import {HStack} from '@astryxdesign/core/HStack'
 import {Icon} from '@astryxdesign/core/Icon'
-import {Layout, LayoutContent} from '@astryxdesign/core/Layout'
+import {Layout, LayoutContent, LayoutFooter} from '@astryxdesign/core/Layout'
 import {Section} from '@astryxdesign/core/Section'
 import {Spinner} from '@astryxdesign/core/Spinner'
 import {Text} from '@astryxdesign/core/Text'
 import {VStack} from '@astryxdesign/core/VStack'
 import {ClipboardPaste, Fingerprint, QrCode} from 'lucide-react'
+import {invoke} from '../bridge'
 import {
   encodeQrImage,
   QR_IMAGE_ACCEPT,
@@ -45,6 +47,8 @@ export function PasteQrDialog({
   const [errorMessage, setErrorMessage] = useState('')
   const [isConnecting, setConnecting] = useState(false)
   const connectingRef = useRef(false)
+  const attemptId = useRef(0)
+  const [cancelling, setCancelling] = useState(false)
 
   const selectFile = useCallback((next: File | File[] | null) => {
     const selected = next instanceof File ? next : null
@@ -61,17 +65,37 @@ export function PasteQrDialog({
     if (!selected || error) return
 
     connectingRef.current = true
+    const attempt = ++attemptId.current
     setConnecting(true)
     try {
-      await onConnect(await encodeQrImage(selected))
-      onOpenChange(false)
+      const payload = await encodeQrImage(selected)
+      if (attempt !== attemptId.current) return
+      await onConnect(payload)
+      if (attempt === attemptId.current) onOpenChange(false)
     } catch (connectError) {
-      setErrorMessage(userFacingError(connectError))
+      if (attempt === attemptId.current) setErrorMessage(userFacingError(connectError))
     } finally {
-      connectingRef.current = false
-      setConnecting(false)
+      if (attempt === attemptId.current) {
+        connectingRef.current = false
+        setConnecting(false)
+      }
     }
   }, [onConnect, onOpenChange])
+
+  const cancelConnection = async () => {
+    attemptId.current += 1
+    setCancelling(true)
+    try {
+      await invoke('cancel_connection')
+      connectingRef.current = false
+      setConnecting(false)
+      onOpenChange(false)
+    } catch {
+      setErrorMessage(t('Could not cancel the connection. Try again.'))
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   useEffect(() => {
     if (!isOpen) {
@@ -191,6 +215,9 @@ export function PasteQrDialog({
             </VStack>
           </LayoutContent>
         }
+        footer={isConnecting ? <LayoutFooter hasDivider padding={6}>
+          <HStack justify="end"><Button label={t('Cancel')} variant="ghost" isLoading={cancelling} onClick={() => { void cancelConnection() }} /></HStack>
+        </LayoutFooter> : undefined}
       />
     </Dialog>
   )

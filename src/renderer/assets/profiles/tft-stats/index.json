@@ -1,0 +1,235 @@
+{
+  "source": "Riot Games spell-text glyphs, extracted by CommunityDragon",
+  "documentation": "https://communitydragon.org/documentation/assets",
+  "fontDefinitions": {
+    "url": "https://raw.communitydragon.org/latest/game/ux/fonts.cdtb.bin.json",
+    "sha256": "7d11063c4eeedb8004392c17a866d6f6e3fdc8c5f8de3f1de562eade2f5fa8e9"
+  },
+  "atlasMapping": {
+    "url": "https://raw.communitydragon.org/latest/game/ux/fonts/css/stylesheet.cdtb.json",
+    "sha256": "d9660675a3b25c91afcf2af36e139d784958df5517dfffe781981bb7d2eecdaf"
+  },
+  "transformation": "Exact atlas crop; original RGBA pixels, no redraw, tint or resampling",
+  "icons": {
+    "ap": {
+      "path": "tft-stats/ap.png",
+      "token": "scaleAP",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scaleap.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1290,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "6e17770c0111cad11ff77e5fb9d5604b207af722b847fc17159848845dfea1c9"
+    },
+    "ad": {
+      "path": "tft-stats/ad.png",
+      "token": "scaleAD",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalead.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1218,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "8bf1d94668c07d8d7059b628c69e4254264f1e1a5fb61f740d2f1c637ca8e1c8"
+    },
+    "armor": {
+      "path": "tft-stats/armor.png",
+      "token": "scaleArmor",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalearmor.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1338,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "6e2ead0186ad4dd40ed05317bd3684c414aed786580916f5ddb0ebd18047cbd6"
+    },
+    "mr": {
+      "path": "tft-stats/mr.png",
+      "token": "scaleMR",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalemr.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1698,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "9b4e150cad09716443412323b0b99607d0b9ef523eb3f17c95a3ecdb95d79d7e"
+    },
+    "health": {
+      "path": "tft-stats/health.png",
+      "token": "scaleHealth",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalehealth.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1530,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "5d979460f2df614784016db4419a809b1467f9bfdde9e6a0d7cef73d37e1600e"
+    },
+    "mana": {
+      "path": "tft-stats/mana.png",
+      "token": "scaleMana",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalemana.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1626,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "1391a7ad20333bb333450f8b9a7827dc570842a98a756ec6d371071bfade0d00"
+    },
+    "attack-speed": {
+      "path": "tft-stats/attack-speed.png",
+      "token": "scaleAS",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scaleas.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1362,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "34f09309c324b366b4bce488cb7fb98ac3092001fa11feae92d4b11003bf695d"
+    },
+    "range": {
+      "path": "tft-stats/range.png",
+      "token": "scaleRange",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalerange.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1746,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "b94b3a9c16a3c6be0db088c6c11fd610ce5cad36342322b145c9b827d8133be7"
+    },
+    "crit": {
+      "path": "tft-stats/crit.png",
+      "token": "scaleCrit",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalecrit.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1458,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "24c7381401fe418edf5ede2014843152507d755a82ad322a32cf98fb245235da"
+    },
+    "crit-multiplier": {
+      "path": "tft-stats/crit-multiplier.png",
+      "token": "scaleCritMult",
+      "texture": "assets/ux/fonts/texticons/lol/statsicon/scalecritmult.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        1482,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "ecc15d20e751efc7d686509c24894191aa2f93212e8f352fd4e7011f8cc97d64"
+    },
+    "gold": {
+      "path": "tft-stats/gold.png",
+      "token": "goldCoins",
+      "texture": "assets/ux/fonts/texticons/lol/gameplay/goldcoins.png",
+      "source": "https://raw.communitydragon.org/latest/game/uiautoatlas/ux/fonts/css/stylesheet/atlas_0.png",
+      "sourceSha256": "1e5d07416c5c39c8f0c62ecb3002180a15c5aedca25597d82cf06f06f46229be",
+      "atlasSize": [
+        2048,
+        256
+      ],
+      "crop": [
+        690,
+        2,
+        20,
+        20
+      ],
+      "width": 20,
+      "height": 20,
+      "sha256": "2462bc7d1263b12a816e09c8cca5f35450abc7f0d1a6511fddacd4abeb6052c8"
+    }
+  }
+}

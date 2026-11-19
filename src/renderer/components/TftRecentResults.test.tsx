@@ -19,7 +19,7 @@ describe('TFT result strip', () => {
   ] as const)('starts the correct effect at the two-game threshold for %s', (placements, effect) => {
     const markup = render([...placements])
     expect(markup).toContain(`data-effect="${effect}"`)
-    expect(markup.includes('pd-tft-streak__flame-outer')).toBe(effect === 'fire')
+    expect(markup.includes('pd-tft-streak__canvas')).toBe(effect === 'fire')
     expect(markup.includes('pd-tft-streak__effect pd-tft-streak__frost')).toBe(effect === 'frost')
   })
 

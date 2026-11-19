@@ -59,6 +59,8 @@ export interface PlayerStats {
 }
 
 export interface TftComposition {
+  setNumber?: number
+  setVariant?: string
   units?: Array<{id: string; stars: number; items?: string[]}>
   traits?: Array<{id: string; count: number; tier: number}>
   augments?: string[]
@@ -182,6 +184,8 @@ export interface Account {
   avatar?: string
   accountIcon?: AccountIconSelection
   nickname?: string
+  /** Last observed Riot connection, in Unix milliseconds. Never a stats refresh. */
+  lastConnectedAt?: number | null
   ranks: Rank[]
   peakRanks?: Rank[]
   matches?: Match[]
@@ -251,7 +255,7 @@ export interface AppState {
   currentMatch: CurrentMatch
   gameDetected: boolean
   settings: Settings
-  riotClient: {detected: boolean; label: string; game?: string}
+  riotClient: {detected: boolean; label: string; game?: string; sessionState?: 'active' | 'signed_out' | 'unavailable'}
   operationNotice?: string
   operationWarning?: string
   /** Opaque local handle bound to the verified Riot Client identity. */

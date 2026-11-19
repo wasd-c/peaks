@@ -188,6 +188,17 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
   useEffect(() => {
     const active = profileAccount(state, state.activeAccountId)
     const awaiting = awaitingActiveAccount.current
+    if (!active && state.riotClient.sessionState === 'signed_out' && (!awaiting || Date.now() >= awaiting.until)) {
+      seenActiveAccount.current = null
+      awaitingActiveAccount.current = null
+      setProfileAccountId(null)
+      if (page === 'account') {
+        setSelectedAccountId(null)
+        navigate({type: 'reset'})
+        setPage('overview')
+      }
+      return
+    }
     if (active && awaiting) {
       if (active.id === awaiting.id || Date.now() < awaiting.until) {
         seenActiveAccount.current = active.id
@@ -202,7 +213,7 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
       seenActiveAccount.current = active.id
       openAccountProfile(active, true)
     }
-  }, [state, openAccountProfile])
+  }, [state, openAccountProfile, page])
   const currentProfile = profileAccount(state, profileAccountId)
   const [isAddOpen, setAddOpen] = useState(false)
   const [connectAccountId, setConnectAccountId] = useState<string | null>(null)
@@ -530,7 +541,7 @@ function Workspace({
           setState(await invoke<AppState>('state'))
         }
         const message = redact(displayText(error instanceof Error ? error.message : 'That action could not be completed'))
-        if (!quiet) showToast({body: message, type: 'error', isAutoHide: true, uniqueID: `error-${command}`})
+        if (!quiet && !/Connection cancelled/i.test(message)) showToast({body: message, type: 'error', isAutoHide: true, uniqueID: `error-${command}`})
         if (propagateError) {
           throw error instanceof Error ? error : new Error(message)
         }
@@ -544,7 +555,7 @@ function Workspace({
     await execute()
   }, [onRequestLock, onOpenAccountProfile, redact, runWithAutoLockPaused, setState, showToast])
 
-  const {connection, connect} = useAccountConnection({
+  const {connection, connect, cancel: cancelAccountConnection} = useAccountConnection({
     approve: accountId => action('connect_riot_client', {accountId}, true, true),
     onError: error => showToast({body: t(accountConnectionError(error)), type: 'error', uniqueID: 'account-connection', isAutoHide: true}),
   })
@@ -684,6 +695,7 @@ function Workspace({
       onAdd={() => onAddOpen(true)}
       onSelect={onSelectAccount}
       onUse={account => void connect(account.id)}
+      onCancel={() => { void cancelAccountConnection() }}
       onEdit={account => setEditingAccountId(account.id)}
       connection={connection}
       onView={onView}
@@ -711,6 +723,7 @@ function Workspace({
         isOpen={isAddOpen}
         onOpenChange={onAddOpen}
         onConnect={() => action('add_account', {}, true)}
+        onCancel={async () => { await invoke('cancel_connection') }}
       />
       {editingAccount && <EditAccountDialog key={editingAccount.id} account={editingAccount}
         onClose={() => setEditingAccountId(null)}
@@ -722,6 +735,7 @@ function Workspace({
         onConnectQr={account => action('connect_riot_client', {accountId: account.id}, true)}
         onCopyTotp={account => action('copy_totp', {accountId: account.id})}
         onAction={(command, account) => action(command, {accountId: account.id, forceSignIn: true}, true)}
+        onCancel={async () => { await invoke('cancel_connection') }}
         onEnableMfa={enableRiotMfa}
         onOpenChange={isOpen => !isOpen && onConnectAccount(null)}
       />
