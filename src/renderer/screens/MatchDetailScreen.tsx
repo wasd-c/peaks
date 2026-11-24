@@ -1,8 +1,10 @@
+import {Button as AntButton, Flex, Segmented, Tag, Tooltip, Typography} from 'antd'
+import {gameProfileIcon} from '../profileAssets'
 import {t, useLocale, displayText} from '../i18n'
 import {useState} from 'react'
-import {Button, EmptyState, Heading, HStack, Icon, Section, Tab, TabList, Text, Token, VStack} from '../ui'
-import {ArrowLeft, BarChart3, Clock3, Share2, UsersRound} from 'lucide-react'
-import {gameArtwork, valorantMapName} from '../assets'
+import {EmptyState, Icon, VStack} from '../ui'
+import {ArrowLeft, BarChart3, CalendarDays, Clock3, Share2, UsersRound} from 'lucide-react'
+import {valorantMapName} from '../assets'
 import {ShareMatchDialog} from '../components/ShareMatchDialog'
 import {MatchInsights} from '../components/MatchInsights'
 import {PlayerMatchCards} from '../components/PlayerMatchCards'
@@ -32,36 +34,31 @@ export function MatchDetailScreen({match, region, onBack, onSelectPlayer}: Match
   const teams = match.teams ?? []
   const fitRoster = activeTab === 'scoreboard' && fitsValorantRoster({...match, teams})
 
+  const tagColor = {green: 'success', red: 'error', yellow: 'gold'}[resultColor(match.result) as string]
   return <>
     <AuthenticatedScreen
       fitContent={fitRoster}
-      actions={<HStack align="center" gap={3}>{fitRoster ? <><Token color={resultColor(match.result)} label={displayText(match.result)} /><Text hasTabularNumbers weight="bold">{match.score ?? '—'}</Text><Button icon={<Icon icon={ArrowLeft} />} label={t("Back")} onClick={onBack} size="sm" variant="ghost" /></> : null}<Button icon={<Icon icon={Share2} />} label={t("Share match")} onClick={() => setShareOpen(true)} /></HStack>}
-      description={`${displayText(mode)} · ${displayText(match.playedAt ?? 'Time unavailable')}`}
-      eyebrow={t("MATCH REPORT")}
       screen="match-detail"
-      title={fitRoster ? displayText(map) : t("Match report")}>
-      <VStack className="pd-detail pmc-match-screen" height={fitRoster ? '100%' : undefined} gap={fitRoster ? 2 : 5}>
-        {!fitRoster ? <HStack align="center" justify="between" gap={3} wrap="wrap">
-          <Button icon={<Icon icon={ArrowLeft} />} label={t("Back")} onClick={onBack} size="sm" variant="ghost" />
-        </HStack> : null}
-
-        {!fitRoster ? <Section className="pmc-match-banner" padding={5} variant="transparent" style={{backgroundImage: `url("${gameArtwork(match.game, match.map)}")`}}>
-          <HStack align="center" justify="between" gap={5} wrap="wrap">
-            <VStack gap={1}><Text className="pd-detail__eyebrow" type="supporting">{match.game} · {displayText(mode)}</Text><Heading className="pmc-match-banner__title" level={2}>{displayText(map)}</Heading></VStack>
-            <HStack align="center" gap={4}><Token color={resultColor(match.result)} label={displayText(match.result)} /><Text className="pmc-match-banner__score" hasTabularNumbers weight="bold">{match.score ?? '—'}</Text></HStack>
-            <VStack align="end" gap={1}><HStack align="center" gap={2}><Icon icon={Clock3} color="secondary" /><Text hasTabularNumbers>{duration}</Text></HStack><Text type="supporting">{displayText(match.playedAt ?? 'Recent match')}</Text></VStack>
-          </HStack>
-        </Section> : null}
-
-        <HStack className="pmc-match-toolbar" align="center" justify="between" gap={4}>
-          <TabList className="pd-detail__tabs" aria-label={t("Match report views")} hasDivider onChange={setTab} role="tablist" value={activeTab}>
-            <Tab icon={<Icon icon={UsersRound} />} label={t("Scoreboard")} panelId="match-scoreboard-panel" value="scoreboard" />
-            {match.game === 'VALORANT' ? <Tab icon={<Icon icon={BarChart3} />} label={t("Performance")} panelId="match-performance-panel" value="performance" /> : null}
-          </TabList>
-          <HStack className="pmc-legend" align="center" gap={2} wrap="wrap"><Token className="pmc-tag pmc-tag--past" label={t("Past games")} size="sm" /><Token className="pmc-tag pmc-tag--match" label={t("This match")} size="sm" /></HStack>
-        </HStack>
-
-        {activeTab === 'performance' ? <Section className="pd-detail__panel" aria-label={t("Performance")} id="match-performance-panel" role="tabpanel" padding={0} variant="transparent"><MatchInsights match={match} /></Section> : <VStack className="pd-detail__panel" aria-label={t("Scoreboard")} gap={5} id="match-scoreboard-panel" role="tabpanel">
+      title={displayText(map)}
+      heading={<Flex gap={12} align="center" wrap>
+        <Tooltip title={t("Back")}><AntButton type="text" icon={<ArrowLeft size={18} />} aria-label={t("Back")} onClick={onBack} /></Tooltip>
+        <img className="pd-riot-game-icon pd-riot-game-icon--heading" src={gameProfileIcon(match.game)} alt={match.game} />
+        <Typography.Title level={3} className="peaks-screen__title">{displayText(map)}</Typography.Title>
+        <Tag>{displayText(mode)}</Tag>
+        <Tag color={tagColor}>{displayText(match.result)}</Tag>
+      </Flex>}
+      actions={<>
+        {match.score ? <Typography.Text strong className="pmc-match-banner__score">{match.score}</Typography.Text> : null}
+        <Tooltip title={t('Duration')}><Typography.Text className="pd-live-stat"><Clock3 size={14} aria-hidden /> {duration}</Typography.Text></Tooltip>
+        {match.playedAt ? <Tooltip title={t('Played')}><Typography.Text className="pd-live-stat"><CalendarDays size={14} aria-hidden /> {displayText(match.playedAt)}</Typography.Text></Tooltip> : null}
+        {match.game === 'VALORANT' ? <Segmented value={activeTab} onChange={value => setTab(value as typeof tab)} aria-label={t("Match report views")} options={[
+          {value: 'scoreboard', icon: <UsersRound size={16} aria-hidden />, title: t("Scoreboard")},
+          {value: 'performance', icon: <BarChart3 size={16} aria-hidden />, title: t("Performance")},
+        ]} /> : null}
+        <Tooltip title={t("Share match")}><AntButton icon={<Share2 size={16} />} aria-label={t("Share match")} onClick={() => setShareOpen(true)} /></Tooltip>
+      </>}>
+      <VStack className="pd-detail pmc-match-screen" height={fitRoster ? '100%' : undefined} gap={fitRoster ? 2 : 4}>
+        {activeTab === 'performance' ? <section className="pd-detail__panel" aria-label={t("Performance")} id="match-performance-panel"><MatchInsights match={match} /></section> : <VStack className="pd-detail__panel" aria-label={t("Scoreboard")} gap={5} id="match-scoreboard-panel">
           {teams.length > 0 ? <PlayerMatchCards teams={teams} game={match.game} mode={match.mode} map={match.map} matchId={match.id} result={match.result} label={displayText(match.playedAt ?? 'Recent match')} freeForAll={match.freeForAll} teamMode={match.teamMode} region={region} completed fitToHeight={fitRoster} onSelectPlayer={onSelectPlayer} /> : <EmptyState description={t("Refresh the account to try again.")} icon={<Icon color="secondary" icon={UsersRound} />} title={t("Players unavailable")} />}
         </VStack>}
       </VStack>
