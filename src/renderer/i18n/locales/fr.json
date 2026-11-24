@@ -1083,5 +1083,12 @@
   "Table view": "Vue en tableau",
   "Last connection date": "Date de dernière connexion",
   "Not recorded": "Non enregistrée",
-  "Name": "Nom"
+  "Name": "Nom",
+  "Final score": "Score final",
+  "{{count}} d": "{{count}} j",
+  "All": "Tout",
+  "Synced": "Synchronisé",
+  "Loaded matches": "Parties chargées",
+  "Elapsed time": "Temps écoulé",
+  "Played": "Jouée"
 }

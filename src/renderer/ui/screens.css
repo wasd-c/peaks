@@ -32,7 +32,7 @@
 /* Game hero: artwork behind ratings. */
 .pd-riot-hero { position: relative; overflow: hidden; min-height: 220px; padding: var(--spacing-6); border-radius: var(--radius-container); border: var(--border-width) solid var(--color-border); background: var(--color-background-card); }
 .pd-riot-hero__art { position: absolute; inset: 0 0 0 auto; height: 100%; width: 60%; object-fit: cover; object-position: top center; opacity: var(--peaks-artwork-opacity); mask-image: linear-gradient(to left, #000 30%, transparent); pointer-events: none; }
-.pd-riot-hero__body { position: relative; }
+.pd-riot-hero__body { position: relative; z-index: 1; }
 .pd-riot-hero__meta.ant-tag { margin: 0; display: inline-flex; align-items: center; gap: var(--spacing-1); }
 
 /* Activity panels */

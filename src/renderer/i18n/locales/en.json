@@ -1083,5 +1083,12 @@
   "Table view": "Table view",
   "Last connection date": "Last connection date",
   "Not recorded": "Not recorded",
-  "Name": "Name"
+  "Name": "Name",
+  "Final score": "Final score",
+  "{{count}} d": "{{count}} d",
+  "All": "All",
+  "Synced": "Synced",
+  "Loaded matches": "Loaded matches",
+  "Elapsed time": "Elapsed time",
+  "Played": "Played"
 }

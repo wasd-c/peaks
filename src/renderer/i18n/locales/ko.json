@@ -1083,5 +1083,12 @@
   "Table view": "표 보기",
   "Last connection date": "마지막 접속 일시",
   "Not recorded": "기록 없음",
-  "Name": "이름"
+  "Name": "이름",
+  "Final score": "최종 점수",
+  "{{count}} d": "{{count}}일",
+  "All": "전체",
+  "Synced": "동기화됨",
+  "Loaded matches": "불러온 경기",
+  "Elapsed time": "경과 시간",
+  "Played": "플레이"
 }
