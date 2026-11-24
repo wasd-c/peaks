@@ -2,7 +2,7 @@ import {accountRegionLabel} from '../accountRegions'
 import {t, useLocale, displayText} from '../i18n'
 import type {ReactNode} from 'react'
 import {Avatar, Button, Card, EmptyState, Heading, HStack, Icon, List, ListItem, ProgressBar, StatusDot, Text, Thumbnail, VStack} from '../ui'
-import {Space, Tooltip, Typography} from 'antd'
+import {Card as AntCard, Space, Tooltip, Typography} from 'antd'
 import {gameProfileIcon} from '../profileAssets'
 import {ChevronRight, Star, Trophy} from 'lucide-react'
 import {hasExactValorantRankAsset, rankAsset} from '../assets'
@@ -288,21 +288,14 @@ export function PlayerList({
 }: {
   players: Player[]
   action: ActionCallback
-  heading: string
+  heading?: string
   onSelect?: (player: Player) => void
 }) {
   useLocale()
-  return (
-    <List
-      className="peaks-dense-list peaks-player-list"
-      density="balanced"
-      hasDividers
-      header={<Heading level={2}>{displayText(heading)}</Heading>}>
-      {players.map(player => (
-        <PlayerListItem action={action} key={player.id} onSelect={onSelect} player={player} />
-      ))}
-    </List>
-  )
+  const list = <List className="peaks-dense-list peaks-player-list" density="balanced" hasDividers>
+    {players.map(player => <PlayerListItem action={action} key={player.id} onSelect={onSelect} player={player} />)}
+  </List>
+  return <AntCard size="small" title={heading ? displayText(heading) : undefined} styles={{body: {padding: 4}}}>{list}</AntCard>
 }
 
 export {MatchHistoryList as MatchList} from '../components/MatchHistoryList'

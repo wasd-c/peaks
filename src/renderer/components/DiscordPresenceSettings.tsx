@@ -1,3 +1,5 @@
+import {Card} from 'antd'
+import {MessageCircle} from 'lucide-react'
 import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState, type ReactNode} from 'react'
 import {HStack, List, ListItem, Switch, Text} from '../ui'
@@ -7,7 +9,7 @@ interface DiscordPresenceState {
   enabled: boolean
 }
 
-export function DiscordPresenceSettings({header}: {header: ReactNode}) {
+export function DiscordPresenceSettings({header}: {header?: ReactNode}) {
   useLocale()
   const [connection, setConnection] = useState<DiscordPresenceState | null>(null)
   const [busy, setBusy] = useState(false)
@@ -69,11 +71,11 @@ export function DiscordPresenceSettings({header}: {header: ReactNode}) {
 
   return (
     <>
-      <List density="spacious" hasDividers header={header}>
+      <Card size="small" title={header} styles={{body: {padding: 4}}}><List density="spacious" hasDividers>
         <ListItem
+          startContent={<MessageCircle size={16} aria-hidden color="var(--color-text-secondary)" />}
           label={t('Share Discord activity')}
           endContent={<HStack gap={3} align="center">
-            <Text type="supporting">{connection ? connection.enabled ? t('Yes') : t('No') : '…'}</Text>
             <Switch
               label={t('Share Discord activity')}
               isLabelHidden
@@ -85,7 +87,7 @@ export function DiscordPresenceSettings({header}: {header: ReactNode}) {
             />
           </HStack>}
         />
-      </List>
+      </List></Card>
       {error || pollError ? <Text role="alert">{displayText(error || pollError)}</Text> : null}
     </>
   )

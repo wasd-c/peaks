@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {Button, HStack, Icon, Table, proportional, pixel, useTableSortable, Text} from '../ui'
-import {Check, UserRound} from 'lucide-react'
+import {Check, LogIn, Pencil, UserRound} from 'lucide-react'
 import {resolveAccountIcon} from '../accountIcons'
 import type {AccountConnection} from '../accountConnection'
 import {localeTags, t, useLocale} from '../i18n'
@@ -50,9 +50,9 @@ export function AccountTable({accounts, connection, onSelect, onUse, onEdit}: {
         return <HStack gap={2} justify="end" align="center">
           <Button label={t(phase === 'pending' ? 'Connecting…' : phase === 'approved' ? 'Approved by Riot' : 'Use')}
             aria-label={phase ? undefined : t('Use {{name}}', {name: row.identity})} size="sm" variant="secondary"
-            isLoading={phase === 'pending'} icon={phase === 'approved' ? <Icon icon={Check} /> : undefined}
+            isLoading={phase === 'pending'} icon={phase === 'approved' ? <Icon icon={Check} /> : <Icon icon={LogIn} />}
             isDisabled={Boolean(connection)} onClick={() => onUse(row.account)} />
-          <Button label={t('Edit')} aria-label={t('Edit {{name}}', {name: row.identity})} size="sm" variant="ghost"
+          <Button label={t('Edit {{name}}', {name: row.identity})} tooltip={t('Edit')} icon={<Icon icon={Pencil} />} isIconOnly size="sm" variant="ghost"
             isDisabled={Boolean(connection)} onClick={() => onEdit(row.account)} />
         </HStack>
       }},

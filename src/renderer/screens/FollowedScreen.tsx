@@ -1,7 +1,7 @@
 import {t, useLocale} from '../i18n'
 import {useState} from 'react'
-import {Button, EmptyState, HStack, Icon, Text, TextInput, VStack} from '../ui'
-import {Search, Star, UsersRound} from 'lucide-react'
+import {Badge, Button, Empty, Flex, Input, Typography} from 'antd'
+import {Search, Star} from 'lucide-react'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 import type {AppState, Player} from '../types'
 import {AuthenticatedScreen, PlayerList, type ActionCallback} from './shared'
@@ -19,39 +19,20 @@ export function WatchlistScreen({state, action, onSelectPlayer}: WatchlistScreen
   const players = state.followed.filter(player => (
     displayName(player.riotId).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
   ))
+  const count = state.followed.length
   return (
-    <AuthenticatedScreen
-      screen="watchlist"
-      title={t("Watchlist")}>
-      <VStack className="pd-watch" gap={6}>
-      <HStack className="pd-watch-summary" gap={6} align="center" justify="between">
-        <HStack align="center" gap={4}>
-          <Icon icon={UsersRound} size="lg" />
-          <VStack gap={1}><Text className="pd-watch-count" weight="semibold">{state.followed.length}</Text><Text color="secondary" type="supporting">{t("Watched players")}</Text></VStack>
-        </HStack>
-      </HStack>
-      {state.followed.length > 0 ? (
-        <VStack gap={5}>
-          <HStack className="pd-watch-toolbar" align="end" gap={3}>
-            <TextInput label={t("Filter watched players")} isLabelHidden placeholder={t("Find a watched player")} startIcon={Search} hasClear value={query} onChange={setQuery} />
-          </HStack>
-          {players.length ? (
-        <PlayerList
-          action={action}
-          heading={t('{{count}} watched players', {count: players.length})}
-          onSelect={onSelectPlayer}
-          players={players.map(player => ({...player, followed: true}))}
-        />
-          ) : <EmptyState title={t("No players found")} description={t("Try another name.")} icon={<Icon icon={Search} />} actions={<Button label={t("Clear search")} onClick={() => setQuery('')} />} />}
-        </VStack>
-      ) : (
-        <EmptyState
-          description={t("Find a player in Search, then select Watch to add them here.")}
-          icon={<Icon color="secondary" icon={Star} />}
-          title={t("No watched players yet")}
-        />
-      )}
-      </VStack>
+    <AuthenticatedScreen screen="watchlist" title={t("Watchlist")}
+      heading={<Flex gap={12} align="center">
+        <Typography.Title level={3} className="peaks-screen__title">{t("Watchlist")}</Typography.Title>
+        {count ? <Badge count={count} color="var(--color-background-muted)" style={{color: 'var(--color-text-secondary)', boxShadow: 'none'}} /> : null}
+      </Flex>}
+      actions={count ? <Input allowClear prefix={<Search size={14} aria-hidden />} placeholder={t("Find a watched player")} aria-label={t("Filter watched players")}
+        value={query} onChange={event => setQuery(event.target.value)} style={{width: 240}} /> : null}>
+      <Flex vertical gap={16} className="pd-watch">
+        {count === 0 ? <Empty image={<Star size={40} aria-hidden />} description={t("Find a player in Search, then select Watch to add them here.")} />
+          : players.length ? <PlayerList action={action} onSelect={onSelectPlayer} players={players.map(player => ({...player, followed: true}))} />
+          : <Empty image={<Search size={40} aria-hidden />} description={t("No players found")}><Button onClick={() => setQuery('')}>{t("Clear search")}</Button></Empty>}
+      </Flex>
     </AuthenticatedScreen>
   )
 }

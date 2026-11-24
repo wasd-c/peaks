@@ -1,3 +1,4 @@
+import {BarChart3} from 'lucide-react'
 import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState} from 'react'
 import {HStack, ListItem, Switch, Text} from '../ui'
@@ -42,10 +43,10 @@ export function TelemetrySettings() {
     }
   }
   return <ListItem
+    startContent={<BarChart3 size={16} aria-hidden color="var(--color-text-secondary)" />}
     label={t("Share app diagnostics")}
     description={<Text color="secondary">{displayText(error) || t("Help improve Peaks with performance and error counts. No account or match data is sent.")}</Text>}
     endContent={<HStack gap={3} align="center">
-      <Text type="supporting">{status ? status.enabled ? t("On") : t("Off") : '…'}</Text>
       <Switch label={t("Share app diagnostics")} isLabelHidden size="sm" value={status?.enabled ?? false}
         isDisabled={!status || busy || !status.available} isLoading={busy || (!status && !error)} changeAction={update} />
     </HStack>}

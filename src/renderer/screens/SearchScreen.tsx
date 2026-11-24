@@ -1,8 +1,9 @@
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 import {useRef, useState} from 'react'
-import {Button, EmptyState, Heading, HStack, Icon, List, ListItem, Section, Text, TextInput, VStack} from '../ui'
-import {ArrowUpRight, ChevronRight, Clock3, Search as SearchIcon} from 'lucide-react'
+import {Button, EmptyState, HStack, Icon, List, ListItem, Text, TextInput} from '../ui'
+import {Card, Flex} from 'antd'
+import {ArrowRight, ChevronRight, Clock3, Search as SearchIcon} from 'lucide-react'
 import {playerIsWatched} from '../playerProfiles'
 import type {AppState, Player} from '../types'
 import {
@@ -61,21 +62,15 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
   }
 
   return (
-    <AuthenticatedScreen
-      eyebrow={t("PLAYERS")}
-      screen="search"
-      title={t("Player search")}>
-      <VStack className="pd-search" gap={8}>
-        <Section className="pd-search-hero pd-riot-surface" padding={0} variant="transparent">
-          <VStack className="pd-search-form" gap={6}>
-            <VStack gap={3}>
-              <Heading level={2} type="display-3">{t("Find a player")}</Heading>
-              <Text color="secondary">{t("Enter their Riot ID to see their profile and ranks.")}</Text>
-            </VStack>
-            <VStack gap={4}>
+    <AuthenticatedScreen screen="search" title={t("Player search")}>
+      <Flex vertical gap={16} className="pd-search">
+        <Card className="pd-search-card">
+          <Flex vertical gap={8}>
             <HStack align="end" className="pd-search-query" gap={2}>
               <TextInput
                 hasClear
+                hasAutoFocus
+                isLabelHidden
                 label="Riot ID"
                 type={enabled ? 'password' : 'text'}
                 onChange={setQuery}
@@ -86,7 +81,8 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
                 value={query}
               />
               <Button
-                endContent={<Icon icon={ArrowUpRight} />}
+                icon={<Icon icon={ArrowRight} />}
+                isIconOnly
                 isDisabled={!canSearch && !isSearching}
                 isLoading={isSearching}
                 label={t("Search")}
@@ -95,34 +91,21 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
                 variant="primary"
               />
             </HStack>
-            </VStack>
-            {message ? <Text color="secondary" display="block" role="alert">{displayText(message)}</Text> : null}
-          </VStack>
-        </Section>
+            {message ? <Text color="error" display="block" role="alert">{displayText(message)}</Text> : null}
+          </Flex>
+        </Card>
 
         {visibleResults.length > 0 ? (
           <PlayerList action={action} heading={t("Search results")} onSelect={onSelectPlayer} players={visibleResults} />
         ) : null}
 
         {hasSearched && results.length === 0 && !message ? (
-          <EmptyState
-            description={t("Check the name and #tag, then try again.")}
-            icon={<Icon color="secondary" icon={SearchIcon} />}
-            title={t("No matching players")}
-          />
+          <EmptyState icon={<SearchIcon size={40} aria-hidden />} title={t("No matching players")} />
         ) : null}
 
-        <Section className="pd-search-history" padding={0} variant="transparent">
-          {state.searchHistory.length > 0 ? (
-            <List
-              className="peaks-dense-list"
-              density="compact"
-              hasDividers
-              header={
-                <HStack align="center" justify="between" gap={3}>
-                  <Heading level={2}>{t("Recent searches")}</Heading>
-                </HStack>
-              }>
+        {state.searchHistory.length > 0 ? (
+          <Card size="small" title={<Flex gap={8} align="center"><Clock3 size={16} aria-hidden />{t("Recent searches")}</Flex>} styles={{body: {padding: 4}}}>
+            <List className="peaks-dense-list pd-search-history" density="compact">
               {state.searchHistory.map(entry => (
                 <ListItem
                   endContent={<Icon color="secondary" icon={ChevronRight} />}
@@ -130,19 +113,12 @@ export function SearchScreen({state, invoke, action, onSelectPlayer}: SearchScre
                   label={displayName(entry)}
                   isDisabled={isSearching}
                   onClick={() => { void search(entry) }}
-                  startContent={<Icon color="secondary" icon={Clock3} />}
                 />
               ))}
             </List>
-          ) : (
-            <HStack className="pd-search-history-empty" gap={4} align="center">
-              <Icon color="secondary" icon={Clock3} size="lg" />
-              <VStack gap={1}><Heading level={2}>{t("Recent searches")}</Heading><Text color="secondary">{t("Your searches will appear here.")}</Text></VStack>
-            </HStack>
-          )}
-        </Section>
-
-      </VStack>
+          </Card>
+        ) : null}
+      </Flex>
     </AuthenticatedScreen>
   )
 }

@@ -1,5 +1,5 @@
 import {Button, HStack, Icon, Spinner, Text, VStack} from '../ui'
-import {Check, UserRound} from 'lucide-react'
+import {Check, LogIn, Pencil, UserRound} from 'lucide-react'
 import type {Account} from '../types'
 import {resolveAccountIcon} from '../accountIcons'
 import {accountRegionForGame} from '../accountRegions'
@@ -33,10 +33,10 @@ export function AccountSelectionTile({account, phase, isBusy, onUse, onEdit, onS
           {region && <Text className="pd-account-tile__region" type="supporting">{region}</Text>}
         </HStack>
       </VStack>
-      <VStack className="pd-account-tile__actions" gap={2} width="100%">
-        <Button className="pd-account-tile__use" variant="primary" label={t('Use')} aria-label={t('Use {{name}}', {name: identity})} onClick={onUse} isDisabled={isBusy} width="100%" />
-        <Button variant="secondary" label={t('Edit')} aria-label={t('Edit {{name}}', {name: identity})} onClick={onEdit} isDisabled={isBusy} width="100%" />
-      </VStack>
+      <HStack className="pd-account-tile__actions" gap={2} width="100%">
+        <Button className="pd-account-tile__use" variant="primary" icon={<Icon icon={LogIn} />} label={t('Use')} aria-label={t('Use {{name}}', {name: identity})} onClick={onUse} isDisabled={isBusy} style={{flex: 1}} />
+        <Button variant="secondary" icon={<Icon icon={Pencil} />} isIconOnly label={t('Edit {{name}}', {name: identity})} tooltip={t('Edit')} onClick={onEdit} isDisabled={isBusy} />
+      </HStack>
     </VStack>
     {phase && <VStack className="pd-account-tile__status" align="center" justify="center" gap={3} role="status" aria-live="polite"
       aria-label={phase === 'pending' ? t('Waiting for Riot approval') : t('Approved by Riot')}>
