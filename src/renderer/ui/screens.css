@@ -46,3 +46,21 @@
 .pd-play-hours__scale { padding-inline-start: 39px; }
 .pd-histogram-labels { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; }
 .pd-activity-donut { width: 140px; height: 140px; flex-shrink: 0; }
+
+/* Top bar */
+.pd-client-indicator img { width: 20px; height: 20px; object-fit: contain; filter: grayscale(1); opacity: .45; display: block; }
+.pd-client-indicator img[data-online] { filter: none; opacity: .9; }
+
+/* Live match standby */
+.pd-live-standby { padding-block: var(--spacing-12); }
+.pd-live-standby__icon { color: var(--color-text-secondary); animation: pd-standby-pulse 2.4s var(--ease-standard) infinite; }
+.pd-riot-game-icon--standby { width: 28px; height: 28px; object-fit: contain; opacity: .75; }
+@keyframes pd-standby-pulse { 50% { opacity: .45; } }
+.reduce-motion .pd-live-standby__icon { animation: none; }
+
+/* Live match header */
+.pd-riot-game-icon--heading { width: 24px; height: 24px; object-fit: contain; }
+.pd-live-mode.ant-tag { margin: 0; }
+.pd-live-stat { display: inline-flex; align-items: center; gap: var(--spacing-1-5); font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
+.pd-live-status .ant-badge-status-text { font-weight: var(--font-weight-semibold); }
+.peaks-screen__actions .pmc-match-banner__score { font-size: var(--font-size-xl); }

@@ -25,11 +25,11 @@ describe('Current match session stages', () => {
   it.each([true, false])('never uses a game artwork banner, detected=%s', detected => {
     const html = render({game: 'VALORANT', map: 'Ascent', teams: []}, detected)
     expect(html).not.toContain('background-image')
-    expect(html).toContain('pd-riot-surface')
+    expect(html).toContain('peaks-screen--current-match')
   })
   it.each(stages)('labels %s %s accurately', (game, phase, label) => {
     const html = render({game, phase, teams: []})
-    expect(html).toContain(label.toUpperCase())
+    expect(html).toContain(label)
     expect(html).not.toContain('Unknown map')
     if (game === 'Teamfight Tactics') expect(html).not.toContain('Deathmatch')
     if (phase !== 'live') expect(html).not.toContain('This match')
@@ -96,7 +96,7 @@ describe('Current match session stages', () => {
 
   it('does not enable card movement while a roster is stale', () => {
     const html = render({game: 'League of Legends', phase: 'pregame', isStale: true, teams: [{name: 'Blue', players: [{name: 'You#EUW'}, {name: 'Other#EUW'}]}]})
-    expect(html).toContain('AWAITING UPDATE')
+    expect(html).toContain('Awaiting update')
     expect(html).not.toContain('Reorder You#EUW')
   })
 

@@ -1,5 +1,9 @@
+import {Alert, Badge, Flex, Result, Tag, Tooltip, Typography} from 'antd'
+import {Radar} from 'lucide-react'
+import {gameProfileIcon} from '../profileAssets'
+import {PROFILE_GAMES} from '../riotProfile'
 import {t, useLocale, displayText} from '../i18n'
-import {EmptyState, Heading, HStack, Icon, Section, StatusDot, Text, VStack} from '../ui'
+import {EmptyState, Icon, Text, VStack} from '../ui'
 import {Clock3, Radio, UsersRound} from 'lucide-react'
 import {valorantMapName} from '../assets'
 import {fitsValorantRoster} from '../matchLayout'
@@ -42,15 +46,11 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
   useLocale()
   const match = state.currentMatch
   if (!state.gameDetected) {
-    return <AuthenticatedScreen eyebrow={t("LIVE SESSION")} screen="current-match" title={t("Current match")}>
-      <VStack className="pd-detail pd-live" gap={6}>
-        <Section className="pd-live__standby pd-riot-surface" padding={8} variant="transparent">
-          <VStack className="pd-detail__art-content" gap={8} justify="between">
-            <HStack align="center" gap={2}><StatusDot label={t("Waiting for a session")} variant="neutral" /><Text className="pd-detail__eyebrow" type="supporting">{t("WAITING FOR A SESSION")}</Text></HStack>
-            <VStack className="pd-live__standby-copy" gap={4}><Heading className="pd-detail__display" level={2} type="display-1">{t("No active session")}</Heading><Text color="secondary">{t("Join a lobby or start a game in VALORANT, League of Legends, or Teamfight Tactics.")}</Text></VStack>
-          </VStack>
-        </Section>
-      </VStack>
+    return <AuthenticatedScreen screen="current-match" title={t("Current match")}>
+      <Result className="pd-live-standby" icon={<Radar size={56} aria-hidden className="pd-live-standby__icon" />} title={t("No active session")}
+        extra={<Flex gap={20} justify="center" aria-label={t("Join a lobby or start a game in VALORANT, League of Legends, or Teamfight Tactics.")} role="img">
+          {PROFILE_GAMES.map(game => <Tooltip key={game} title={game}><img className="pd-riot-game-icon pd-riot-game-icon--standby" src={gameProfileIcon(game)} alt="" /></Tooltip>)}
+        </Flex>} />
     </AuthenticatedScreen>
   }
 
@@ -83,28 +83,26 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
     <Text type="inherit" color="secondary">{' : '}</Text>
     <Text type="inherit" className={`pmc-score--${ownTeam ? 'enemy' : 'neutral'}`}>{scoreTeams[1].score}</Text>
   </Text> : null
+  const pulsing = !match.isStale && (phase === 'matchmaking' || phase === 'readycheck' || isLive)
   return <AuthenticatedScreen
     fitContent={fitRoster}
-    actions={<HStack align="center" gap={4}>
-      {fitRoster ? score : null}
-      {fitRoster && match.elapsed ? <Text hasTabularNumbers>{match.elapsed}</Text> : null}
-      <HStack align="center" gap={2}><StatusDot isPulsing={!match.isStale && (phase === 'matchmaking' || phase === 'readycheck' || isLive)} label={status} variant={phase === 'readycheck' && !match.isStale ? 'success' : 'neutral'} /><Text weight="semibold">{status.toUpperCase()}</Text></HStack>
-    </HStack>}
-    description={[match.game ?? 'Riot', mode, label].filter(Boolean).join(' · ')}
-    eyebrow={t("LIVE SESSION")} screen="current-match" title={fitRoster ? title : t("Current match")}>
-    <VStack className="pd-detail pmc-match-screen" gap={fitRoster ? 2 : 5} height={fitRoster ? '100%' : undefined}>
-      {!fitRoster ? <Section className="pmc-match-banner pd-riot-surface" padding={5} variant="transparent">
-        <HStack align="center" justify="between" gap={5} wrap="wrap">
-          <VStack gap={1}><Text className="pd-detail__eyebrow" type="supporting">{[match.game ?? 'RIOT GAMES', mode].filter(Boolean).join(' · ')}</Text><Heading className="pmc-match-banner__title" level={2}>{title}</Heading></VStack>
-          {score ?? <Text color="secondary">{match.isStale ? t("Waiting for the client to reconnect.") : t(phaseDescription[phase])}</Text>}
-          {match.elapsed && phase !== 'lobby' ? <HStack align="center" gap={2}><Icon icon={Clock3} color="secondary" /><Text hasTabularNumbers>{match.elapsed}</Text></HStack> : null}
-        </HStack>
-      </Section> : null}
-
-      <HStack className="pmc-match-toolbar" align="center" justify="between" gap={4} wrap="wrap">
-        <HStack align="center" gap={2}><Icon icon={UsersRound} color="secondary" /><Text type="supporting">{rosterLabel}</Text></HStack>
-      </HStack>
-
+    title={title}
+    heading={<Flex gap={12} align="center" wrap className="pd-live-heading">
+      {match.game ? <img className="pd-riot-game-icon pd-riot-game-icon--heading" src={gameProfileIcon(match.game)} alt={match.game} /> : null}
+      <Typography.Title level={3} className="peaks-screen__title">{title}</Typography.Title>
+      {mode && mode !== title ? <Tag className="pd-live-mode">{mode}</Tag> : null}
+    </Flex>}
+    actions={<>
+      {score}
+      {match.elapsed && phase !== 'lobby' ? <Tooltip title={t('Elapsed time')}><Typography.Text className="pd-live-stat"><Clock3 size={14} aria-hidden /> {match.elapsed}</Typography.Text></Tooltip> : null}
+      {playerCount > 0 ? <Tooltip title={rosterLabel}><Typography.Text className="pd-live-stat" aria-label={rosterLabel}><UsersRound size={14} aria-hidden /> {isParty && match.partyMax ? `${partyCount}/${match.partyMax}` : playerCount}</Typography.Text></Tooltip> : null}
+      <Tooltip title={match.isStale ? t("Waiting for the client to reconnect.") : t(phaseDescription[phase])}>
+        <Badge status={match.isStale ? 'default' : phase === 'readycheck' ? 'success' : pulsing ? 'processing' : 'default'} text={status} className="pd-live-status" />
+      </Tooltip>
+    </>}
+    screen="current-match">
+    <VStack className="pd-detail pmc-match-screen" gap={fitRoster ? 2 : 4} height={fitRoster ? '100%' : undefined}>
+      {phase === 'readycheck' && !match.isStale ? <Alert type="success" showIcon title={t(phaseDescription[phase])} /> : null}
       {playerCount > 0 ? <PlayerMatchCards fitToHeight={fitRoster} teams={teams} game={match.game} phase={phase} mode={match.mode} queueId={match.queue} modeId={match.modeId} map={match.map} matchId={match.id} result={isLive ? 'Live' : undefined} label={label} freeForAll={match.freeForAll} teamMode={match.teamMode} allowReorder={!match.isStale} onSelectPlayer={onSelectPlayer} /> : <EmptyState description={isParty ? t("Party members will appear when your lobby is available.") : t("Player details will appear when your game shares the roster.")} icon={<Icon color="secondary" icon={Radio} />} title={isParty ? t("Waiting for your party") : t("Waiting for players")} />}
     </VStack>
   </AuthenticatedScreen>

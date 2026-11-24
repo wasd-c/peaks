@@ -1,6 +1,8 @@
+import {Badge, Tooltip} from 'antd'
+import riotFist from '../assets/riot-fist.png'
 import {t, useLocale} from '../i18n'
 import {useEffect, useMemo, useState} from 'react'
-import {Avatar, AvatarStatusDot, Button, CommandPalette, HStack, Icon, StatusDot, Text, TopNav, createStaticSource} from '../ui'
+import {Avatar, AvatarStatusDot, Button, CommandPalette, HStack, Icon, Text, TopNav, createStaticSource} from '../ui'
 import {EyeOff, Search} from 'lucide-react'
 import type {Account, AppState} from '../types'
 import type {Page} from './AppNavigation'
@@ -76,7 +78,11 @@ export function WorkspaceBar({state, profileAccount, onStateChange, onPage, onSe
         {profileAccount ? <ActiveAccount account={profileAccount} isActive={state.activeAccountId === profileAccount.id} onOpen={() => onPage('account')} /> : null}
       </HStack>}
       endContent={<HStack gap={5} align="center">
-        <HStack className="pd-client-indicator" gap={2} align="center"><StatusDot label={state.riotClient.detected ? t("Riot Client detected") : t("Riot Client offline")} variant={state.riotClient.detected ? 'accent' : 'neutral'} /><Text type="supporting">{state.riotClient.detected ? t("Client connected") : t("Client offline")}</Text></HStack>
+        <Tooltip title={state.riotClient.detected ? t("Riot Client detected") : t("Riot Client offline")}>
+          <Badge dot status={state.riotClient.detected ? 'success' : 'default'} offset={[-2, 22]} className="pd-client-indicator">
+            <img src={riotFist} alt={state.riotClient.detected ? t("Riot Client detected") : t("Riot Client offline")} data-online={state.riotClient.detected || undefined} />
+          </Badge>
+        </Tooltip>
         <FavoriteGameButton state={state} onStateChange={onStateChange} />
         <Button className="pd-command-trigger" label={t("Search accounts and commands")} tooltip={t("Quick switch · Ctrl K")} variant="secondary" onClick={() => setOpen(true)}>
           <HStack gap={3} align="center"><Icon icon={Search} size="sm" /><Text color="secondary">{t("Search…")}</Text><Text className="pd-key-hint" type="supporting">{t("Ctrl K")}</Text></HStack>
