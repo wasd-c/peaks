@@ -35,7 +35,7 @@
   transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .pd-account-picker__character.ant-btn[aria-pressed='true'] { border-color: var(--color-text-primary); background: var(--color-background-muted); }
-.pd-account-picker__character > *, .pd-account-picker__character .ant-flex { min-width: 0; width: 100%; }
+.pd-account-picker__character > *, .pd-account-picker__character :is(.pk-hstack, .pk-vstack) { min-width: 0; width: 100%; }
 .pd-account-picker__character img {
   display: block;
   width: 100%;

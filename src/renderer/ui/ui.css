@@ -1,6 +1,13 @@
 /* Small pieces Ant Design has no component for, drawn with Peaks tokens. */
 
 *, *::before, *::after { box-sizing: border-box; }
+
+/* Stacks: a single low-specificity class, so any screen rule can restyle them. */
+:where(.pk-hstack, .pk-vstack) {
+  display: flex; min-width: 0;
+  gap: var(--pk-gap, 0); align-items: var(--pk-align, normal); justify-content: var(--pk-justify, normal); flex-wrap: var(--pk-wrap, nowrap);
+}
+:where(.pk-vstack) { flex-direction: column; }
 img { max-width: 100%; }
 button { font: inherit; }
 

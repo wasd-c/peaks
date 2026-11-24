@@ -423,7 +423,7 @@ input {
   letter-spacing: var(--peaks-tracking-heading);
 }
 
-.peaks-screen__header > .ant-flex {
+.peaks-screen__header > :is(.pk-hstack, .pk-vstack) {
   min-width: 0;
 }
 
@@ -659,7 +659,7 @@ input {
 }
 
 /* Section's inset-aware wrappers inherit a zero bleed budget within page content. */
-.peaks-screen__content > .ant-flex,
+.peaks-screen__content > :is(.pk-hstack, .pk-vstack),
 .peaks-match-insights {
   --container-padding-inline-start: var(--spacing-0);
   --container-padding-inline-end: var(--spacing-0);

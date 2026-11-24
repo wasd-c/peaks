@@ -52,14 +52,16 @@ function Stack({vertical, as, isScrollable, gap, align, justify, wrap, width, he
   const Element = (as ?? 'div') as ElementType
   return <Element
     {...rest}
-    className={['pk-stack', rest.className].filter(Boolean).join(' ')}
+    className={[vertical ? 'pk-vstack' : 'pk-hstack', rest.className].filter(Boolean).join(' ')}
+    // Layout goes through custom properties so screen CSS (a grid, say) can still take over.
     style={{
-      display: 'flex', flexDirection: vertical ? 'column' : 'row', gap: space(gap),
-      alignItems: align ? ALIGN[align] : undefined, justifyContent: justify ? JUSTIFY[justify] : undefined,
-      flexWrap: wrap === true ? 'wrap' : wrap === false ? 'nowrap' : wrap,
-      width, height, minHeight, maxWidth, minWidth: 0, overflowY: isScrollable ? 'auto' : undefined,
+      // Always set, so a stack never inherits its parent's values.
+      '--pk-gap': `${space(gap ?? 0)}px`,
+      '--pk-align': align ? ALIGN[align] : 'normal', '--pk-justify': justify ? JUSTIFY[justify] : 'normal',
+      '--pk-wrap': wrap === true || wrap === 'wrap' ? 'wrap' : 'nowrap',
+      width, height, minHeight, maxWidth, overflowY: isScrollable ? 'auto' : undefined,
       ...paddingStyle({padding, paddingBlock, paddingBlockStart, paddingBlockEnd, paddingInline, paddingInlineStart}), ...style,
-    }}
+    } as CSSProperties}
   />
 }
 
