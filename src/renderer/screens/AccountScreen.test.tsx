@@ -40,7 +40,8 @@ describe('account profile presentation', () => {
   })
   it('renders absent damage and round events as unavailable while keeping known KDA', () => {
     const html = page()
-    expect(html).toContain('PrivateName#TEST')
+    // The page header names the player; the game hero does not repeat it.
+    expect(html).not.toContain('PrivateName#TEST')
     expect(html).toContain('Damage / round')
     expect(html).toContain('—')
     expect(html).not.toContain('>0%<')

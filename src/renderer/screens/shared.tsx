@@ -1,7 +1,9 @@
 import {accountRegionLabel} from '../accountRegions'
 import {t, useLocale, displayText} from '../i18n'
 import type {ReactNode} from 'react'
-import {Avatar, Button, Card, EmptyState, Heading, HStack, Icon, Layout, LayoutContent, LayoutHeader, List, ListItem, ProgressBar, StatusDot, Text, Thumbnail, VStack} from '../ui'
+import {Avatar, Button, Card, EmptyState, Heading, HStack, Icon, List, ListItem, ProgressBar, StatusDot, Text, Thumbnail, VStack} from '../ui'
+import {Space, Tooltip, Typography} from 'antd'
+import {gameProfileIcon} from '../profileAssets'
 import {ChevronRight, Star, Trophy} from 'lucide-react'
 import {hasExactValorantRankAsset, rankAsset} from '../assets'
 import type {Account, Game, Player, Rank} from '../types'
@@ -102,7 +104,10 @@ export function primaryAccountRank(account: Account) {
 interface AuthenticatedScreenProps {
   title: string
   description?: string
+  /** @deprecated pages no longer show an eyebrow; kept so callers compile while they are cleaned up. */
   eyebrow?: string
+  /** Replaces the visible title (an identity, a switcher); the title stays as the page's hidden h1. */
+  heading?: ReactNode
   actions?: ReactNode
   children: ReactNode
   screen: string
@@ -113,47 +118,27 @@ interface AuthenticatedScreenProps {
 export function AuthenticatedScreen({
   title,
   description,
-  eyebrow,
   actions,
+  heading,
   children,
   screen,
   contentWidth = 'var(--peaks-content-width)',
   fitContent = false,
 }: AuthenticatedScreenProps) {
   useLocale()
+  // One line per page: what it is, then what you can do. No eyebrow, no restated description.
   return (
-    <Layout
-      className={`peaks-screen peaks-screen--enter peaks-screen--${screen}${fitContent ? ' peaks-screen--fit-roster' : ''}`}
-      contentWidth={fitContent ? '100%' : contentWidth}
-      padding={fitContent ? 4 : 8}
-      header={
-        <LayoutHeader padding={0}>
-          <HStack
-            align="center"
-            className="peaks-screen__header"
-            gap={4}
-            paddingInline={fitContent ? 4 : 8}
-            paddingBlock={fitContent ? 2 : 6}
-            justify="between">
-            <VStack gap={1}>
-              {eyebrow && !fitContent ? <Text className="peaks-eyebrow" type="supporting">{eyebrow}</Text> : null}
-              <Heading level={1} textWrap="balance">{title}</Heading>
-              {description ? <Text color="secondary">{description}</Text> : null}
-            </VStack>
-            {actions ? (
-              <HStack align="center" className="peaks-screen__actions" gap={2}>
-                {actions}
-              </HStack>
-            ) : null}
-          </HStack>
-        </LayoutHeader>
-      }
-      content={
-        <LayoutContent className="peaks-screen__content" isScrollable={!fitContent}>
-          {children}
-        </LayoutContent>
-      }
-    />
+    <div className={`peaks-screen peaks-screen--enter peaks-screen--${screen}${fitContent ? ' peaks-screen--fit-roster' : ''}`}>
+      <header className="peaks-screen__header">
+        {heading ?? <Typography.Title level={3} className="peaks-screen__title">{title}</Typography.Title>}
+        {heading ? <h1 className="pk-visually-hidden">{title}</h1> : null}
+        {description ? <Typography.Text type="secondary" className="peaks-screen__meta">{description}</Typography.Text> : null}
+        {actions ? <Space size={8} className="peaks-screen__actions">{actions}</Space> : null}
+      </header>
+      <div className="peaks-screen__content" style={{overflowY: fitContent ? 'hidden' : 'auto'}}>
+        <div className="peaks-screen__inner" style={{maxWidth: fitContent ? '100%' : contentWidth}}>{children}</div>
+      </div>
+    </div>
   )
 }
 
@@ -222,8 +207,7 @@ export function AccountListItem({account, onSelect}: {account: Account; onSelect
       description={t("{{region}} · Level {{value2}} · {{value3}}", {region: accountRegionLabel(account), value2: account.level ?? '—', value3: displayText(rankLabel(rank))})}
       endContent={
         <HStack align="center" gap={3}>
-          <StatusDot label={t(connectionLabel)} variant={account.connected ? 'success' : 'neutral'} />
-          <Text type="supporting">{t(connectionLabel)}</Text>
+          <Tooltip title={t(connectionLabel)}><span><StatusDot label={t(connectionLabel)} variant={account.connected ? 'success' : 'neutral'} /></span></Tooltip>
           <Icon icon={ChevronRight} color="secondary" />
         </HStack>
       }
@@ -251,12 +235,12 @@ export function PlayerListItem({
     <ListItem
       description={
         <VStack gap={2}>
-          <Text type="supporting">{`${player.region} · ${t('Riot profile')}${player.lastUpdated ? ` · ${displayText(player.lastUpdated)}` : ''}`}</Text>
+          <Text type="supporting">{`${player.region}${player.lastUpdated ? ` · ${displayText(player.lastUpdated)}` : ''}`}</Text>
           {ranks.length > 0 ? <HStack align="start" gap={4} wrap="wrap">
             {ranks.map(rank => <HStack align="center" gap={2} key={rank.game}>
               <RankMedia rank={rank} />
               <VStack gap={0.5}>
-                <Text type="supporting">{rank.game}</Text>
+                <Tooltip title={rank.game}><img className="pd-riot-game-icon pd-riot-game-icon--small" src={gameProfileIcon(rank.game)} alt={rank.game} /></Tooltip>
                 <Text weight="semibold">{displayText(rankLabel(rank))}</Text>
                 {rank.rating != null ? <Text hasTabularNumbers type="supporting">{rankRatingLabel(rank.game, rank.rating)}</Text> : null}
               </VStack>

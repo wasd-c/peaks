@@ -1,0 +1,48 @@
+/* Page frame and screens on Ant Design. Loaded last, so it wins over the older surface sheets. */
+
+.peaks-screen { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--color-background-surface); border-radius: var(--radius-container) 0 0 0; }
+.peaks-screen__header {
+  display: flex; align-items: center; gap: var(--spacing-4); flex-wrap: wrap;
+  min-height: 64px; padding: var(--spacing-3) var(--spacing-6);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+.peaks-screen__title.ant-typography { margin: 0; font-family: var(--font-family-heading); letter-spacing: var(--peaks-tracking-heading); }
+.peaks-screen__meta { white-space: nowrap; }
+.peaks-screen__actions { margin-inline-start: auto; }
+.peaks-screen__content { flex: 1; min-height: 0; padding: var(--spacing-6); }
+.peaks-screen__inner { margin-inline: auto; width: 100%; }
+.peaks-screen--fit-roster .peaks-screen__content { padding: var(--spacing-4); }
+.peaks-screen--fit-roster .peaks-screen__inner { height: 100%; }
+
+/* Game switch: logos only, the selected one lit. */
+.pd-game-switch .ant-segmented-item-label { display: flex; align-items: center; justify-content: center; padding-inline: var(--spacing-3); }
+.pd-game-switch .pd-riot-game-icon { width: 22px; height: 22px; object-fit: contain; filter: grayscale(1) brightness(1.4); opacity: .55; transition: filter var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard); }
+.pd-game-switch .ant-segmented-item-selected .pd-riot-game-icon,
+.pd-game-switch .ant-segmented-item:hover .pd-riot-game-icon { filter: none; opacity: 1; }
+
+.pd-riot-game-icon--small { width: 16px; height: 16px; object-fit: contain; }
+.pd-riot-game-icon--large { width: 48px; height: 48px; object-fit: contain; opacity: .5; }
+
+/* Rank cards open their game. */
+.pd-rank-card { cursor: pointer; height: 100%; }
+.pd-rank-card:focus-visible { outline: var(--focus-outline-width) solid var(--focus-outline-color); outline-offset: 2px; }
+.pd-rank-card__chevron { color: var(--color-text-secondary); transition: transform var(--duration-fast) var(--ease-standard); }
+.pd-rank-card:hover .pd-rank-card__chevron { transform: translateX(2px); }
+
+/* Game hero: artwork behind ratings. */
+.pd-riot-hero { position: relative; overflow: hidden; min-height: 220px; padding: var(--spacing-6); border-radius: var(--radius-container); border: var(--border-width) solid var(--color-border); background: var(--color-background-card); }
+.pd-riot-hero__art { position: absolute; inset: 0 0 0 auto; height: 100%; width: 60%; object-fit: cover; object-position: top center; opacity: var(--peaks-artwork-opacity); mask-image: linear-gradient(to left, #000 30%, transparent); pointer-events: none; }
+.pd-riot-hero__body { position: relative; }
+.pd-riot-hero__meta.ant-tag { margin: 0; display: inline-flex; align-items: center; gap: var(--spacing-1); }
+
+/* Activity panels */
+.pd-activity-panel.ant-card { height: 100%; }
+.pd-activity-highlights .ant-statistic-content { font-size: var(--font-size-xl); }
+.pd-mix-bar { flex: 1; height: 6px; border-radius: var(--radius-full); background: var(--color-background-muted); overflow: hidden; min-width: 60px; }
+.pd-mix-bar > span { display: block; height: 100%; border-radius: inherit; transition: width var(--duration-medium) var(--ease-standard); }
+.pd-mix-value { white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 110px; text-align: end; }
+.pd-play-hours-grid { display: flex; flex-direction: column; gap: 3px; }
+.pd-play-hours { display: grid; grid-template-columns: 36px repeat(24, minmax(0, 1fr)); gap: 3px; align-items: center; }
+.pd-play-hours__scale { padding-inline-start: 39px; }
+.pd-histogram-labels { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; }
+.pd-activity-donut { width: 140px; height: 140px; flex-shrink: 0; }

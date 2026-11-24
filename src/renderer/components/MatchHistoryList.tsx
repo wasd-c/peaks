@@ -1,4 +1,5 @@
-import {EmptyState, Heading, HStack, Icon, Item, List, Text, Tooltip, VStack, Theme} from '../ui'
+import {Card} from 'antd'
+import {EmptyState, HStack, Icon, Item, List, Text, Tooltip, VStack, Theme} from '../ui'
 import {Gamepad2} from 'lucide-react'
 import {hasExactValorantRankAsset, rankAsset} from '../assets'
 import {displayText, t, useLocale} from '../i18n'
@@ -22,10 +23,8 @@ export function MatchHistoryList({matches, riotId, heading = 'Recent matches', o
 }) {
   useLocale()
   if (!matches.length) return <EmptyState icon={<Icon icon={Gamepad2} color="secondary" />} title={t('No recent matches')} />
-  return <Theme theme={profileTheme('riot')}>
-    <List className="peaks-dense-list peaks-match-list pd-match-history" density="compact"
-      aria-label={displayText(heading ?? 'Recent matches')}
-      header={heading ? <Heading level={2}>{displayText(heading)}</Heading> : undefined}>
+  const list = <List className="peaks-dense-list peaks-match-list pd-match-history" density="compact"
+      aria-label={displayText(heading ?? 'Recent matches')}>
       {matches.map((match, index) => {
         const row = matchHistoryRow(match, riotId)
         const isTft = match.game === 'Teamfight Tactics'
@@ -59,5 +58,7 @@ export function MatchHistoryList({matches, riotId, heading = 'Recent matches', o
           </HStack>} />
       })}
     </List>
+  return <Theme theme={profileTheme('riot')}>
+    {heading ? <Card size="small" title={displayText(heading)} className="pd-match-history-card" styles={{body: {padding: 4}}}>{list}</Card> : list}
   </Theme>
 }

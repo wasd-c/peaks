@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState, type ReactNode} from 'react'
-import {Button, EmptyState, Heading, Grid, HStack, Icon, IconButton, Section, Text, Token, VStack, Theme} from '../ui'
-import {RefreshCw, Settings2, UserRound} from 'lucide-react'
+import {Theme} from '../ui'
+import {Alert, Button as AntButton, Card, Col, Flex, Result, Row, Segmented, Spin, Statistic, Tag, Tooltip, Typography} from 'antd'
+import {ChevronRight, MapPin, Plus, RefreshCw, Settings2, Star, Swords, UserRound} from 'lucide-react'
 import {accountRegionForGame} from '../accountRegions'
 import {profileMatches, profilePlayer} from '../accountProfile'
 import {gameArtwork, valorantAgentPortraitAsset} from '../assets'
@@ -25,7 +26,6 @@ import {TftAccountProfile} from './TftAccountProfile'
 import {ValorantAccountProfile} from './ValorantAccountProfile'
 
 export function ProfileHero({account, game, isActive, owned = true, primary}: {account: Account; game: ProfileGame; isActive: boolean; owned?: boolean; primary?: ReactNode}) {
-  const {displayName} = usePlayerPrivacy()
   const favorite = game === 'riot' ? undefined : favoriteCharacter(account, game)
   const art = game === 'riot' ? undefined : game === 'VALORANT' && favorite
     ? valorantAgentPortraitAsset(favorite.id) : game === 'League of Legends' && favorite
@@ -36,38 +36,31 @@ export function ProfileHero({account, game, isActive, owned = true, primary}: {a
   const matches = game === 'riot' ? [] : profileMatches(account.matches ?? [], game)
   const level = game === 'VALORANT' ? account.valorantLevel ?? matches.map(match => profilePlayer(match, account.riotId)?.accountLevel).find(value => value != null)
     : game === 'League of Legends' ? account.leagueLevel : undefined
-  return <VStack className={`pd-riot-hero${game === 'riot' ? ' pd-riot-hero--riot' : ''}${game === 'VALORANT' && favorite ? ' pd-riot-hero--agent' : ''}`} gap={6} padding={6} justify="between">
+  const region = game === 'riot' ? undefined : accountRegionForGame(account, game)
+  const meta: [typeof MapPin, string, string][] = [
+    ...(game === 'Teamfight Tactics' ? [] : [[MapPin, t('Region'), region ?? t('Region not detected')] as [typeof MapPin, string, string]]),
+    ...(level != null ? [[Star, t('Level'), formatNumber(level)] as [typeof MapPin, string, string]] : []),
+    [Swords, t('Loaded matches'), formatNumber(matches.length)],
+  ]
+  return <div className={`pd-riot-hero${game === 'VALORANT' && favorite ? ' pd-riot-hero--agent' : ''}`}>
     {art ? <img className="pd-riot-hero__art" src={art} alt="" aria-hidden /> : null}
-    <VStack className="pd-riot-hero__identity" gap={3} align="start">
-      <Token label={isActive ? t('Active Riot account') : t(owned ? 'Saved profile' : 'Player profile')} color={isActive ? 'green' : 'gray'} size="sm" />
-      <VStack gap={1}>
-        <Text className="peaks-eyebrow">{game === 'riot' ? t('Riot profile') : game}</Text>
-        <Heading level={2} type="display-2">{displayName(account.riotId)}</Heading>
-      </VStack>
-      {game === 'riot' || game === 'Teamfight Tactics' ? null : <HStack gap={3} wrap="wrap">
-        <Text color="secondary">PC · {accountRegionForGame(account, game) ?? t('Region not detected')}</Text>
-        {level != null ? <Text color="secondary">{t('Level {{level}}', {level: formatNumber(level)})}</Text> : null}
-        <Text color="secondary">{t('{{count}} loaded matches', {count: matches.length})}</Text>
-      </HStack>}
-    </VStack>
-    {primary ? <VStack className="pd-riot-hero__primary" gap={3}>{primary}</VStack> : null}
-    {game !== 'riot' ? <HStack className="pd-riot-hero__footer" align="end" justify="between" gap={6} wrap="wrap">
-      <HStack gap={6} wrap="wrap">
-        {[{label: 'Current rating', value: rank, season: game === 'VALORANT' ? account.valorantAct : undefined},
-          ...(peak ? [{label: 'Peak rating', value: peak, season: rank?.peakSeason}] : [])].map(item => <HStack key={item.label} gap={3} align="center">
+    <Flex vertical gap={20} className="pd-riot-hero__body">
+      <Flex gap={8} wrap>{meta.map(([Glyph, label, value]) => <Tooltip key={label} title={label}>
+        <Tag className="pd-riot-hero__meta" icon={<Glyph size={12} aria-hidden />}><span className="pk-visually-hidden">{label} </span>{value}</Tag>
+      </Tooltip>)}{isActive && !owned ? <Tag color="success">{t('Active Riot account')}</Tag> : null}</Flex>
+      {primary}
+      <Flex gap={32} wrap align="end">
+        {[{label: t('Current rating'), value: rank, season: game === 'VALORANT' ? account.valorantAct : undefined},
+          ...(peak ? [{label: t('Peak rating'), value: peak, season: rank?.peakSeason}] : [])].map(item => <Flex key={item.label} gap={12} align="center">
           {item.value ? <RankMedia rank={item.value} /> : null}
-          <VStack gap={1}><Text type="supporting" color="secondary">{t(item.label)}</Text>
-            <Text weight="semibold">{item.value ? displayText(rankLabel(item.value)) : t('Rank unavailable')}</Text>
-            <Text type="supporting" color="secondary">{item.value?.rating != null ? rankRatingLabel(item.value.game, item.value.rating) : '—'}{item.season ? ` · ${item.season}` : ''}</Text>
-          </VStack>
-        </HStack>)}
-      </HStack>
-      {favorite ? <VStack className="pd-riot-hero__favorite" gap={1}>
-        <Text weight="semibold">{t('Most played')} · {favorite.name}</Text>
-        <Text type="supporting" color="secondary">{t('{{count}} matches in loaded history', {count: favorite.count})}</Text>
-      </VStack> : null}
-    </HStack> : null}
-  </VStack>
+          <Statistic title={item.label} value={item.value ? displayText(rankLabel(item.value)) : t('Rank unavailable')}
+            suffix={item.value?.rating != null || item.season ? <Typography.Text type="secondary">{[item.value?.rating != null ? rankRatingLabel(item.value.game, item.value.rating) : '', item.season ?? ''].filter(Boolean).join(' · ')}</Typography.Text> : undefined} />
+        </Flex>)}
+        {favorite ? <Statistic className="pd-riot-hero__favorite" title={t('Most played')} value={favorite.name}
+          suffix={<Typography.Text type="secondary">× {formatNumber(favorite.count)}</Typography.Text>} /> : null}
+      </Flex>
+    </Flex>
+  </div>
 }
 
 export function AccountScreen({account, isActive, isSynchronizing = false, onRefresh, onSelectMatch, onManage, onAdd, owned = true, actions, contextContent, activity: providedActivity}: {
@@ -88,6 +81,8 @@ export function AccountScreen({account, isActive, isSynchronizing = false, onRef
   const {refresh, revision, failed: refreshFailed} = useProfileRefresh(account?.id, onRefresh)
   const [tftMode, setTftMode] = useState('solo')
   const [reportError, setReportError] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const {displayName} = usePlayerPrivacy()
   const mountedIdentity = useRef(account?.id)
   useEffect(() => { mountedIdentity.current = account?.id; return () => { mountedIdentity.current = undefined } }, [account?.id])
   const {activity, failed} = useProfileActivity(account, owned, revision, providedActivity)
@@ -105,61 +100,72 @@ export function AccountScreen({account, isActive, isSynchronizing = false, onRef
   }
   const selectGame = (game: ProfileGame) => setView(previous => previous.game === game ? previous : {game, arrival: previous.arrival + 1})
   if (!account) return <AuthenticatedScreen title={t('Account')} screen="account">
-    <EmptyState title={t('Connect your Riot account')} icon={<Icon icon={UserRound} />}
-      description={t('Your Riot profile opens here when Peaks identifies your active account or approves a sign-in.')}
-      actions={<Button label={t('Add account')} onClick={onAdd} />} />
+    <Result icon={<UserRound size={48} aria-hidden />} title={t('Connect your Riot account')}
+      extra={onAdd ? <AntButton type="primary" icon={<Plus size={16} />} onClick={onAdd}>{t('Add account')}</AntButton> : null} />
   </AuthenticatedScreen>
 
   const games = PROFILE_GAMES.map(game => ({game, rank: account.ranks.find(rank => rank.game === game), peak: account.peakRanks?.find(rank => rank.game === game), matches: profileMatches(account.matches ?? [], game)}))
-  return <Theme theme={profileTheme(view.game)} mode="dark"><VStack height="100%" className="pd-riot-profile" data-profile-game={view.game}>
-    <AuthenticatedScreen title={t(owned ? 'Account' : 'Riot profile')} eyebrow={t('Riot profile')} screen={owned ? 'account' : 'player-profile'} contentWidth="100%"
+  const gameName = (game: ProfileGame) => game === 'riot' ? t('Riot profile') : game
+  const gameIcon = (game: ProfileGame) => game === 'riot' ? riotFist : gameProfileIcon(game)
+  const switcher = <Segmented className="pd-game-switch" size="large" value={view.game} onChange={value => selectGame(value as ProfileGame)}
+    aria-label={t('Game profiles')}
+    options={(['riot', ...PROFILE_GAMES] as ProfileGame[]).map(game => ({value: game, title: gameName(game),
+      label: <img className={`pd-riot-game-icon${game === 'riot' ? ' pd-riot-fist-icon' : ''}`} src={gameIcon(game)} alt={gameName(game)} />}))} />
+  const notices = ([
+    failed ? ['info', t('Accumulated history could not be loaded. Showing available recent matches.')] : null,
+    refreshFailed ? ['error', t('That action could not be completed')] : null,
+    reportError ? ['error', t('This saved match report could not be loaded. Try refreshing the profile.')] : null,
+  ].filter(Boolean)) as ['info' | 'error', string][]
+  const runRefresh = () => { setRefreshing(true); void Promise.resolve(refresh()).finally(() => setRefreshing(false)) }
+  return <Theme theme={profileTheme(view.game)} mode="dark">
+    <AuthenticatedScreen title={owned ? t('Account') : displayName(account.riotId)} screen={owned ? 'account' : 'player-profile'} contentWidth="100%"
+      heading={<Flex gap={16} align="center" wrap>
+        {owned ? null : <Typography.Title level={3} className="peaks-screen__title">{displayName(account.riotId)}</Typography.Title>}
+        {switcher}
+      </Flex>}
       actions={<>
+        {isSynchronizing ? <Tooltip title={t('Loading match history…')}><Spin size="small" /></Tooltip> : null}
         {actions}
-        {onManage ? <Button icon={<Icon icon={Settings2} />} label={t('Manage account')} variant="ghost" onClick={onManage} /> : null}
-        {onRefresh ? <Button icon={<Icon icon={RefreshCw} />} label={t(refreshFailed ? 'Try again' : 'Refresh data')} variant="secondary" clickAction={refresh} /> : null}
+        {onManage ? <Tooltip title={t('Manage account')}><AntButton type="text" icon={<Settings2 size={18} />} aria-label={t('Manage account')} onClick={onManage} /></Tooltip> : null}
+        {onRefresh ? <Tooltip title={t(refreshFailed ? 'Try again' : 'Refresh data')}><AntButton icon={<RefreshCw size={18} />} aria-label={t(refreshFailed ? 'Try again' : 'Refresh data')} loading={refreshing} onClick={runRefresh} /></Tooltip> : null}
       </>}>
-      <VStack gap={5}>
-          <HStack gap={2} align="center" role="group" aria-label={t('Game profiles')}>
-            <IconButton label={t('Riot profile')} tooltip={t('Riot profile')} icon={<img className="pd-riot-game-icon pd-riot-fist-icon" src={riotFist} alt="" />} size="lg"
-              variant={view.game === 'riot' ? 'primary' : 'ghost'} aria-pressed={view.game === 'riot'} onClick={() => selectGame('riot')} />
-            {PROFILE_GAMES.map(game => <IconButton key={game} label={game} tooltip={game} size="lg"
-              className="pd-riot-game-button" variant={view.game === game ? 'primary' : 'ghost'} aria-pressed={view.game === game}
-              icon={<img className="pd-riot-game-icon" src={gameProfileIcon(game)} alt="" />} onClick={() => selectGame(game)} />)}
-          </HStack>
-        <AccountArrival arrival={view.arrival} fitContent>
-          <VStack gap={6} className="pd-riot-profile__body">
+      <AccountArrival arrival={view.arrival} fitContent>
+        <Flex vertical gap={16} className="pd-riot-profile" data-profile-game={view.game}>
+          {notices.map(([type, message]) => <Alert key={message} type={type} title={message} showIcon role={type === 'error' ? 'alert' : 'status'} />)}
+          {view.game === 'riot' ? <>
+            <ActivityHighlights activity={activity} owned={owned} />
+            <Row gutter={[16, 16]} aria-label={t('Current ranks')} role="list">
+              {games.map(row => <Col key={row.game} xs={24} md={8} role="listitem">
+                <Card hoverable size="small" className="pd-rank-card" onClick={() => selectGame(row.game)}
+                  aria-label={row.game} tabIndex={0} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectGame(row.game) } }}>
+                  <Flex gap={16} align="center">
+                    {row.rank ? <RankMedia rank={row.rank} /> : <img className="pd-riot-game-icon pd-riot-game-icon--large" src={gameProfileIcon(row.game)} alt="" />}
+                    <Flex vertical gap={2} style={{minWidth: 0, flex: 1}}>
+                      <Flex gap={8} align="center"><img className="pd-riot-game-icon pd-riot-game-icon--small" src={gameProfileIcon(row.game)} alt="" />
+                        <Typography.Text strong>{row.rank ? displayText(rankLabel(row.rank)) : t('Rank unavailable')}</Typography.Text></Flex>
+                      <Typography.Text type="secondary">{row.rank?.rating != null ? rankRatingLabel(row.game, row.rank.rating) : '—'}{row.peak ? ` · ${t('Peak')} ${displayText(rankLabel(row.peak))}` : ''}</Typography.Text>
+                    </Flex>
+                    <ChevronRight size={16} className="pd-rank-card__chevron" aria-hidden />
+                  </Flex>
+                </Card>
+              </Col>)}
+            </Row>
+            <ActivityCalendar activity={activity} onSelectMatch={match => { void openRecordedMatch(match) }} />
+            <RiotActivity activity={activity} />
+            <MatchList riotId={account.riotId} heading={t('Recent matches')} matches={[...(account.matches ?? [])].sort((a, b) => (b.playedAtTimestamp ?? 0) - (a.playedAtTimestamp ?? 0)).slice(0, 9)} onSelect={onSelectMatch} />
+            {contextContent}
+          </> : <>
             <ProfileHero account={account} game={view.game} isActive={isActive} owned={owned}
               primary={view.game === 'Teamfight Tactics' ? <TftRecentResults account={account} onSelectMatch={onSelectMatch} /> : undefined} />
-            {view.game === 'riot' ? <ActivityCalendar activity={activity} onSelectMatch={match => { void openRecordedMatch(match) }} /> : null}
-            {failed ? <Text role="status" color="secondary">{t('Accumulated history could not be loaded. Showing available recent matches.')}</Text> : null}
-            {refreshFailed ? <Text role="alert" color="secondary">{t('That action could not be completed')}</Text> : null}
-            {reportError ? <Text role="alert" color="secondary">{t('This saved match report could not be loaded. Try refreshing the profile.')}</Text> : null}
-            {isSynchronizing ? <Text role="status" color="secondary">{t('Loading match history…')}</Text> : null}
-            {view.game === 'riot' ? <VStack gap={4}>
-              <ActivityHighlights activity={activity} owned={owned} />
-              <Grid columns={3} gap={4} className="pd-activity-ranks" aria-label={t('Current ranks')}>
-                {games.map(row => <Section key={row.game} className="pd-activity-panel" padding={4} variant="transparent"><VStack gap={4}>
-                  <Button label={row.game} icon={<img className="pd-riot-game-icon" src={gameProfileIcon(row.game)} alt="" />} variant="ghost" onClick={() => selectGame(row.game)} />
-                  <HStack gap={3} align="center">
-                  {row.rank ? <RankMedia rank={row.rank} /> : null}<VStack gap={1}>
-                    <Text weight="semibold">{row.rank ? displayText(rankLabel(row.rank)) : t('Rank unavailable')}</Text>
-                    <Text color="secondary" type="supporting">{row.rank?.rating != null ? rankRatingLabel(row.game, row.rank.rating) : '—'}</Text>
-                    {row.peak ? <Text color="secondary" type="supporting">{t('Peak')} · {displayText(rankLabel(row.peak))}</Text> : null}
-                  </VStack>
-                  </HStack><Text type="supporting" color="secondary">{accountRegionForGame(account, row.game) ?? t('Region not detected')} · {t('{{count}} loaded matches', {count: row.matches.length})}</Text>
-                </VStack></Section>)}
-              </Grid>
-              <RiotActivity activity={activity} />
-              <MatchList riotId={account.riotId} heading={t('Recent matches')} matches={[...(account.matches ?? [])].sort((a, b) => (b.playedAtTimestamp ?? 0) - (a.playedAtTimestamp ?? 0)).slice(0, 9)} onSelect={onSelectMatch} />
-              {contextContent}
-            </VStack> : <VStack gap={5}><RankHistoryChart game={view.game} activity={activity} />{view.game === 'VALORANT'
+            <RankHistoryChart game={view.game} activity={activity} />
+            {view.game === 'VALORANT'
               ? <ValorantAccountProfile account={account} isSynchronizing={isSynchronizing} onSelectMatch={onSelectMatch} />
               : view.game === 'League of Legends'
                 ? <LeagueAccountProfile account={account} isSynchronizing={isSynchronizing} onSelectMatch={onSelectMatch} />
-                : <TftAccountProfile account={account} mode={tftMode} onModeChange={setTftMode} isSynchronizing={isSynchronizing} onSelectMatch={onSelectMatch} />}</VStack>}
-          </VStack>
-        </AccountArrival>
-      </VStack>
+                : <TftAccountProfile account={account} mode={tftMode} onModeChange={setTftMode} isSynchronizing={isSynchronizing} onSelectMatch={onSelectMatch} />}
+          </>}
+        </Flex>
+      </AccountArrival>
     </AuthenticatedScreen>
-  </VStack></Theme>
+  </Theme>
 }

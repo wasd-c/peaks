@@ -13,6 +13,7 @@ import './playerMatchCards.css'
 import './utilitySurfaces.css'
 import './dialogSurfaces.css'
 import './accountPicker.css'
+import './ui/screens.css'
 
 initializeLanguage()
 

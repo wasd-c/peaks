@@ -1,5 +1,6 @@
+import {Card} from 'antd'
 import {useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject} from 'react'
-import {Button, Heading, HStack, Icon, IconButton, Section, Selector, Text, Tooltip, VStack, useGridFocus} from '../ui'
+import {Button, Heading, HStack, Icon, IconButton, Selector, Text, Tooltip, VStack, useGridFocus} from '../ui'
 import {analyzeActivity, dayDate, dayKey, GAME_COLORS} from '../activityAnalytics'
 import {activityCalendarCells, calendarFocusTarget, isCalendarDayAvailable} from '../activityCalendarKeyboard'
 import {shiftTimeline, TIMELINE_HOUR, TIMELINE_HOURS, timelineMarkers, timelineMatchDetails, timelineMatches, timelineStart} from '../activityTimeline'
@@ -193,16 +194,13 @@ export function ActivityCalendar({activity, onSelectMatch}: {activity: ProfileAc
     const index = cells.findIndex(date => dayKey(date) === selected)
     if (index >= 0) focusCell(index)
   }
-  return <Section className="pd-activity-panel pd-activity-calendar-panel" padding={5} variant="transparent"><VStack gap={3}>
-    <HStack justify="between" align="center" gap={3}>
-      <Heading level={3}>{t('Activity calendar')}</Heading>
-      <Selector label={t('Year')} value={year} onChange={value => {
+  return <Card className="pd-activity-panel pd-activity-calendar-panel" size="small" title={t('Activity calendar')}
+    extra={<Selector label={t('Year')} isLabelHidden size="sm" value={year} onChange={value => {
         setYear(value); setSelected(undefined); focusTimeline.current = false
         // Keep focus on the year control; the next Tab enters the new year's last available day.
         setFocused('')
-      }} options={years.map(value => ({value, label: value}))} />
-    </HStack>
-    <Text id={instructionsId} className="pd-activity-calendar__instructions" type="supporting" color="secondary">{t('Use arrow keys to move by day or week, Home and End within a week, and Enter to open the timeline.')}</Text>
+      }} options={years.map(value => ({value, label: value}))} />}><VStack gap={3}>
+    <Text id={instructionsId} className="pk-visually-hidden">{t('Use arrow keys to move by day or week, Home and End within a week, and Enter to open the timeline.')}</Text>
     <HStack className="pd-activity-calendar__months" gap={1} aria-hidden>{Array.from({length: 12}, (_, month) => <Text key={month} type="supporting" color="secondary" style={{gridColumn: `${Math.floor(cells.findIndex(date => date.getFullYear() === Number(year) && date.getMonth() === month && date.getDate() === 1) / 7) + 1} / span 3`}}>{new Intl.DateTimeFormat(localeTags[language], {month: 'short'}).format(new Date(Number(year), month, 1))}</Text>)}</HStack>
     <HStack ref={gridRef} className="pd-activity-calendar" gap={1} role="group" aria-label={t('Activity calendar')} aria-describedby={instructionsId}>
       {cells.map((date, index) => {
@@ -230,5 +228,5 @@ export function ActivityCalendar({activity, onSelectMatch}: {activity: ProfileAc
     </HStack>
     <HStack justify="end" gap={2} align="center"><Text type="supporting" color="secondary">{t('Less')}</Text>{[0, 0.25, 0.5, 0.75, 1].map(value => <HStack key={value} className="pd-activity-calendar__key" gap={0} style={{'--pd-heat': value} as CSSProperties} />)}<Text type="supporting" color="secondary">{t('More')}</Text></HStack>
     {selected ? <DayTimeline key={selected} id={timelineId} headingRef={headingRef} date={selected} matches={matches} onSelectMatch={onSelectMatch} onClose={closeTimeline} /> : null}
-  </VStack></Section>
+  </VStack></Card>
 }
