@@ -1,14 +1,8 @@
 import {accountRegionForGame} from './accountRegions'
 import {t, useLocale, displayText} from './i18n'
 import {useCallback, useEffect, useMemo, useReducer, useRef, useState} from 'react'
-import {AppShell} from '@astryxdesign/core/AppShell'
-import {Button} from '@astryxdesign/core/Button'
-import {Center} from '@astryxdesign/core/Center'
-import {Heading} from '@astryxdesign/core/Heading'
-import {Spinner} from '@astryxdesign/core/Spinner'
-import {Text} from '@astryxdesign/core/Text'
-import {useToast} from '@astryxdesign/core/Toast'
-import {VStack} from '@astryxdesign/core/VStack'
+import {Layout as AntLayout} from 'antd'
+import {Button, Center, Heading, Spinner, Text, useToast, VStack} from './ui'
 import {AppNavigation, type Page} from './components/AppNavigation'
 import {WorkspaceBar} from './components/WorkspaceBar'
 import {AddAccountDialog, ConnectDialog} from './components/Dialogs'
@@ -344,18 +338,14 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
   }
 
   return (
-    <AppShell
-      className={state.settings.reduceMotion ? 'peaks-app reduce-motion' : 'peaks-app'}
-      contentPadding={0}
-      height="fill"
-      variant="surface"
-      mobileNav={{breakpoint: 'none', hasToggle: false}}
-      topNav={<WorkspaceBar state={state} profileAccount={currentProfile} onStateChange={setState} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
+    <AntLayout className={state.settings.reduceMotion ? 'peaks-app reduce-motion' : 'peaks-app'} style={{height: '100vh'}}>
+      <WorkspaceBar state={state} profileAccount={currentProfile} onStateChange={setState} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
         setPage('overview')
         navigate({type: 'reset'})
         setSelectedAccountId(account.id)
-      }} />}
-      sideNav={
+      }} />
+      <AntLayout>
+        <AntLayout.Sider width="var(--peaks-sidebar-width)" className="peaks-sider">
         <AppNavigation
           hasAccount={Boolean(currentProfile)}
           page={page}
@@ -363,7 +353,8 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
           onLock={() => void requestLock('manual').catch(() => undefined)}
           onPage={changePage}
         />
-      }>
+        </AntLayout.Sider>
+        <AntLayout.Content className="peaks-content">
       <Workspace
         profileAccount={currentProfile}
         accountArrival={accountArrival}
@@ -394,6 +385,8 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
         view={view}
         onView={setView}
       />
+        </AntLayout.Content>
+      </AntLayout>
       <ReleaseNotesDialog isOpen={release.pending && !isAddOpen && !connectAccount} onClose={() => { void release.dismiss() }}
         currentVersion={release.currentVersion} busy={release.busy} error={release.error} />
       {postMatchReview ? (
@@ -418,7 +411,7 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
           />
         </>
       ) : null}
-    </AppShell>
+    </AntLayout>
   )
 }
 

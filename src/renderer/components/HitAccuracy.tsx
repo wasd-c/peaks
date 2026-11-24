@@ -1,6 +1,4 @@
-import {HStack} from '@astryxdesign/core/HStack'
-import {Text} from '@astryxdesign/core/Text'
-import {VStack} from '@astryxdesign/core/VStack'
+import {HStack, Text, VStack} from '../ui'
 import {formatNumber, t} from '../i18n'
 import {ChartSection} from './RiotActivity'
 

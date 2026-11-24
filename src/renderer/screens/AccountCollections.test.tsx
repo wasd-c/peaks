@@ -1,5 +1,5 @@
 import {renderToStaticMarkup} from 'react-dom/server'
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {describe, expect, it} from 'vitest'
 import {PlayerPrivacyProvider} from '../components/PlayerPrivacy'
 import type {AppState, Game} from '../types'
@@ -27,7 +27,7 @@ describe('account and watched-player collections', () => {
     const headers = html.match(/<thead[\s\S]*?<\/thead>/)?.[0] ?? ''
     expect(headers).toContain('Name')
     expect(headers).toContain('Last connection date')
-    expect(headers.match(/<button/g)).toHaveLength(2)
+    expect(headers.match(/ant-table-column-has-sorters/g)).toHaveLength(2)
     expect(headers).not.toContain('Icon')
     const body = html.match(/<tbody[\s\S]*?<\/tbody>/)?.[0] ?? ''
     expect(body.indexOf('My account')).toBeLessThan(body.indexOf('Account0'))

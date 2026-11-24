@@ -1,5 +1,5 @@
 import {renderToStaticMarkup} from 'react-dom/server'
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {afterEach, describe, expect, it} from 'vitest'
 import {DiscordPresenceSettings} from './DiscordPresenceSettings'
 import {i18n} from '../i18n'

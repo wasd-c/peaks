@@ -1,5 +1,5 @@
 import {renderToStaticMarkup} from 'react-dom/server'
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {describe, expect, it} from 'vitest'
 import {PlayerMatchCards} from './PlayerMatchCards'
 import {historicalPerformanceTags, playerPerformanceTags} from '../matchAnalytics'
@@ -200,7 +200,7 @@ describe('player match cards', () => {
     const subject = {...player(0), overallStats: undefined, statsLoading: true}
     const loading = render([{name: 'Blue', players: [subject]}], completed)
     expect(loading).toContain('Fetching stats')
-    expect(loading).toContain('astryx-skeleton')
+    expect(loading).toContain('ant-skeleton')
     expect(loading).not.toContain('astryx-spinner')
     for (const label of ['K/D', 'ACS', 'ADR', 'HS%', 'Kills', 'Deaths', 'Assists']) {
       expect(statisticCells(loading, label)?.[0]).toBe('Loading')
@@ -211,14 +211,14 @@ describe('player match cards', () => {
 
     const ready = render([{name: 'Blue', players: [{...subject, statsLoading: false, overallStats: player(0).overallStats}]}], completed)
     expect(ready).not.toContain('Fetching stats')
-    expect(ready).not.toContain('astryx-skeleton')
+    expect(ready).not.toContain('ant-skeleton')
     expect(ready).not.toContain('aria-busy="true"')
     expect(ready).toContain('Recent 5 games')
     expect(statisticCells(ready, 'Kills')).toEqual(['18'])
 
     const unavailable = render([{name: 'Blue', players: [{...subject, statsLoading: false}]}], completed)
     expect(unavailable).not.toContain('Fetching stats')
-    expect(unavailable).not.toContain('astryx-skeleton')
+    expect(unavailable).not.toContain('ant-skeleton')
     expect(unavailable).not.toContain('aria-busy="true"')
     expect(unavailable).toContain('Statistics unavailable')
   })
@@ -252,7 +252,7 @@ describe('player match cards', () => {
     ]}])
     expect(html).not.toContain('Fetching stats')
     expect(html).not.toContain('astryx-spinner')
-    expect(html).not.toContain('astryx-skeleton')
+    expect(html).not.toContain('ant-skeleton')
     expect(html).not.toContain('aria-busy="true"')
     expect(html).not.toContain('Player1#EU')
     expect(html.match(/Statistics unavailable/g)).toHaveLength(2)

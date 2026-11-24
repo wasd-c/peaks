@@ -1,15 +1,7 @@
+import type {InputRef} from 'antd'
 import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState} from 'react'
-import {AlertDialog} from '@astryxdesign/core/AlertDialog'
-import {Button} from '@astryxdesign/core/Button'
-import {Center} from '@astryxdesign/core/Center'
-import {Heading} from '@astryxdesign/core/Heading'
-import {HStack} from '@astryxdesign/core/HStack'
-import {Icon} from '@astryxdesign/core/Icon'
-import {RadioIndicator} from '@astryxdesign/core/Indicator'
-import {Text} from '@astryxdesign/core/Text'
-import {TextInput} from '@astryxdesign/core/TextInput'
-import {VStack} from '@astryxdesign/core/VStack'
+import {AlertDialog, Button, Center, Heading, HStack, Icon, RadioIndicator, Text, TextInput, VStack} from '../ui'
 import {LockKeyhole, Mountain} from 'lucide-react'
 import {passcodeErrorMessage} from '../passcodeMessages'
 import {LanguageSelector} from './LanguageSelector'
@@ -66,7 +58,7 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
   const [resetStep, setResetStep] = useState<ResetStep>('closed')
   const [isResetting, setIsResetting] = useState(false)
   const [resetError, setResetError] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<InputRef>(null)
   const submittingRef = useRef(false)
   const mountedRef = useRef(true)
   const resetTimer = useRef<number | undefined>(undefined)
@@ -102,7 +94,7 @@ export function LockScreen({mode, onReset, onSubmit, reduceMotion = false}: Lock
       // Let the window finish activating before restoring keyboard input.
       focusFrame = window.requestAnimationFrame(() => {
         const input = inputRef.current
-        if (document.hasFocus() && document.visibilityState !== 'hidden' && input && !input.disabled) {
+        if (document.hasFocus() && document.visibilityState !== 'hidden' && input && !input.input?.disabled) {
           input.focus({preventScroll: true})
         }
       })

@@ -108,7 +108,7 @@ export function fitsValorantRoster(input: MatchLayoutInput): boolean {
     && layout.groups.every(team => team.players.length > 0 && team.players.length <= 5)
 }
 
-/** Structural width belongs to Astryx Grid; CSS does not override its tracks. */
+/** Structural width belongs to the Grid component; CSS does not override its tracks. */
 export function matchGridColumns(playerCount: number, game?: Game): {minWidth: number; max: number; repeat: 'fit'} {
   const count = Number.isFinite(playerCount) ? Math.max(1, Math.floor(playerCount)) : 1
   const limit = game === 'Teamfight Tactics' && count === 8 ? 4 : 6

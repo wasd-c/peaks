@@ -1,5 +1,5 @@
 import {useLayoutEffect, useRef, useState, type ReactNode} from 'react'
-import {VStack} from '@astryxdesign/core/VStack'
+import {VStack} from '../ui'
 
 /** Keep the previous workspace visible beneath an arriving account page. */
 export function AccountArrival({arrival, children, fitContent = false}: {arrival: number; children: ReactNode; fitContent?: boolean}) {

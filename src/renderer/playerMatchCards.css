@@ -15,11 +15,11 @@
   font-size: var(--font-size-xl);
 }
 
-.pmc-team__cards.astryx-grid {
+.pmc-team__cards.pk-grid {
   align-items: stretch;
 }
 
-.pmc-card.astryx-card {
+.pmc-card.pk-card {
   --pmc-tone: var(--peaks-team-ally);
   position: relative;
   isolation: isolate;
@@ -52,7 +52,7 @@
   opacity: var(--peaks-artwork-opacity);
 }
 
-.pmc-card.astryx-card[data-drop-target='true'] {
+.pmc-card.pk-card[data-drop-target='true'] {
   border-color: var(--focus-outline-color);
   box-shadow: inset 0 0 0 var(--focus-outline-width) var(--focus-outline-color);
 }
@@ -138,7 +138,7 @@
   font-family: var(--font-family-code);
 }
 
-.pmc-card__name-button.astryx-button {
+.pmc-card__name-button.ant-btn {
   justify-content: space-between;
   min-width: 0;
   width: 100%;
@@ -149,11 +149,11 @@
   color: var(--color-on-dark);
 }
 
-.pmc-card__name-button.astryx-button:hover {
+.pmc-card__name-button.ant-btn:hover {
   background: transparent;
 }
 
-.pmc-card__name-button > :not(.astryx-icon):has(.pmc-card__name) {
+.pmc-card__name-button > :not(.pk-icon):has(.pmc-card__name) {
   min-width: 0;
   flex: 1;
   text-align: start;
@@ -222,7 +222,7 @@
   min-height: var(--spacing-6);
 }
 
-.pmc-tag.astryx-token {
+.pmc-tag.pk-token {
   border-radius: var(--radius-none);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -285,7 +285,7 @@
   min-height: var(--spacing-4);
 }
 
-.pmc-card__source > .astryx-text {
+.pmc-card__source > .pk-text {
   color: color-mix(in srgb, var(--color-on-dark) 60%, transparent);
   font-size: var(--font-size-xs);
 }
@@ -295,7 +295,7 @@
   min-height: var(--spacing-5);
 }
 
-.pmc-stat-skeleton.astryx-skeleton {
+.pmc-stat-skeleton.ant-skeleton {
   max-width: 100%;
   opacity: 1;
   background: linear-gradient(100deg,
@@ -329,9 +329,9 @@
   50% { opacity: 1; }
 }
 
-.reduce-motion .pmc-stat-skeleton.astryx-skeleton,
-[data-reduce-motion='true'] .pmc-stat-skeleton.astryx-skeleton,
-body:has(.reduce-motion) [role='dialog'] .pmc-stat-skeleton.astryx-skeleton {
+.reduce-motion .pmc-stat-skeleton.ant-skeleton,
+[data-reduce-motion='true'] .pmc-stat-skeleton.ant-skeleton,
+body:has(.reduce-motion) [role='dialog'] .pmc-stat-skeleton.ant-skeleton {
   background-position: center;
   animation: pmc-stat-pulse calc(var(--duration-slow-max) * 2) ease-in-out infinite both !important;
 }
@@ -354,7 +354,7 @@ body:has(.reduce-motion) [role='dialog'] .pmc-stat-skeleton.astryx-skeleton {
   background-size: cover;
 }
 
-.pmc-match-banner > .astryx-section {
+.pmc-match-banner > .pk-section {
   background: linear-gradient(to right, color-mix(in srgb, var(--color-background-body) 75%, transparent), color-mix(in srgb, var(--color-background-body) 90%, transparent));
 }
 
@@ -404,10 +404,10 @@ body:has(.reduce-motion) [role='dialog'] .pmc-stat-skeleton.astryx-skeleton {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pmc-card.astryx-card { transition: none; }
+  .pmc-card.pk-card { transition: none; }
   .pmc-stat-value { animation: none; }
   /* Keep loading discernible without the moving shimmer. */
-  .pmc-stat-skeleton.astryx-skeleton {
+  .pmc-stat-skeleton.ant-skeleton {
     background-position: center;
     animation: pmc-stat-pulse calc(var(--duration-slow-max) * 2) ease-in-out infinite both !important;
   }

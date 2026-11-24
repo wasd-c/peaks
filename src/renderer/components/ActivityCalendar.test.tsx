@@ -1,4 +1,4 @@
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {timelineStart, TIMELINE_HOUR} from '../activityTimeline'

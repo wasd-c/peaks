@@ -1,5 +1,5 @@
 import {useLayoutEffect, useRef, useState, type ReactNode} from 'react'
-import {VStack} from '@astryxdesign/core/VStack'
+import {VStack} from '../ui'
 
 function RetainedScreen({active, children, viewKey}: {active: boolean; children: ReactNode; viewKey: string}) {
   const root = useRef<HTMLDivElement>(null)

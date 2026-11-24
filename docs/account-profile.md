@@ -18,7 +18,7 @@ are opaque handles; subjects and tokens remain in the backend.
 
 The initial view is a neutral Riot profile with equally available icon buttons
 for VALORANT, League of Legends, and TFT. Switching games crossfades the profile
-and applies a scoped Astryx theme. VALORANT uses the most-played available
+and applies a scoped game accent (`Theme` in `src/renderer/ui`). VALORANT uses the most-played available
 agent's body artwork; League uses the most-played available champion's splash;
 TFT uses a generic arena. Favorites are determined from loaded history, with
 recent play breaking ties; they are not lifetime mastery claims.

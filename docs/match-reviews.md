@@ -1,6 +1,6 @@
 # Match reviews and sharing
 
-Peaks uses a black Astryx theme, locally bundled game artwork, a fixed navigation rail, and a searchable account roster. The generated Peaks mark is in `src/renderer/assets/peaks-mark.png`; its generation notes are alongside it.
+Peaks uses a black Ant Design theme, locally bundled game artwork, a fixed navigation rail, and a searchable account roster. The generated Peaks mark is in `src/renderer/assets/peaks-mark.png`; its generation notes are alongside it.
 
 ## Automatic review
 

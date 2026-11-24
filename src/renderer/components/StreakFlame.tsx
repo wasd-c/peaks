@@ -1,6 +1,5 @@
 import {useEffect, useRef} from 'react'
-import {HStack} from '@astryxdesign/core/HStack'
-import {Icon} from '@astryxdesign/core/Icon'
+import {HStack, Icon} from '../ui'
 import {Flame} from 'lucide-react'
 import {Color, Mesh, Program, Renderer, Triangle} from 'ogl'
 

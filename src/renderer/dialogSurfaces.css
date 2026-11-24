@@ -12,23 +12,23 @@
   backdrop-filter: blur(var(--spacing-2));
 }
 
-.pd-dialog .astryx-layout-content {
+.pd-dialog .pk-layout__content {
   min-height: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-emphasized) transparent;
 }
 
 /* A zero-padding Dialog otherwise passes zero inner spacing to its header. */
-.pd-dialog .astryx-layout-header {
+.pd-dialog .pk-layout__header {
   --layout-padding-inner-y: var(--spacing-5);
 }
 
-.pd-dialog--connection > .astryx-layout,
-.pd-qr > .astryx-layout {
+.pd-dialog--connection > .pk-layout,
+.pd-qr > .pk-layout {
   max-height: calc(100dvh - var(--spacing-8));
 }
 
-.pd-dialog .astryx-layout-footer {
+.pd-dialog .pk-layout__footer {
   background: var(--color-background-surface);
 }
 
@@ -64,18 +64,18 @@
   box-shadow: 0 0 0 var(--spacing-2) color-mix(in srgb, var(--color-border) 35%, transparent);
 }
 
-.pd-dialog__steps .astryx-list-item,
-.pd-dialog__actions .astryx-list-item {
+.pd-dialog__steps .pk-list-item__action,
+.pd-dialog__actions .pk-list-item__action {
   padding-block: var(--spacing-5);
 }
 
-.pd-dialog__actions .astryx-list-item {
+.pd-dialog__actions .pk-list-item__action {
   transition:
     background var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard);
 }
 
-.pd-dialog__actions .astryx-list-item:hover {
+.pd-dialog__actions .pk-list-item__action:hover {
   background: var(--color-background-muted);
 }
 
@@ -86,7 +86,7 @@
   background: var(--color-background-body);
 }
 
-.pd-dialog__identity .astryx-text {
+.pd-dialog__identity .pk-text {
   overflow-wrap: anywhere;
 }
 
@@ -198,7 +198,7 @@
   border-inline-start: var(--border-width) solid var(--color-border);
 }
 
-.pd-recap__analysis .astryx-heading {
+.pd-recap__analysis .pk-heading {
   font-size: var(--font-size-lg);
 }
 

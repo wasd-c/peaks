@@ -1,4 +1,4 @@
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {describe, expect, it} from 'vitest'
 import {AccountIconPicker, EditAccountDialog} from './EditAccountDialog'

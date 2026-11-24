@@ -1,5 +1,5 @@
 import {renderToStaticMarkup} from 'react-dom/server'
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {detectLanguage, displayText, formatNumber, getLanguage, i18n, initializeLanguage, LANGUAGE_STORAGE_KEY, setLanguage, t} from './index'
 import {LocaleProvider} from './LocaleProvider'

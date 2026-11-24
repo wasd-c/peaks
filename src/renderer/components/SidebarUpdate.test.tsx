@@ -1,5 +1,5 @@
 import {renderToStaticMarkup} from 'react-dom/server'
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {describe, expect, it} from 'vitest'
 import {updateControl, type UpdateState} from '../updateState'
 import {UpdateControl} from './SidebarUpdate'
@@ -29,7 +29,7 @@ describe('sidebar app update', () => {
   })
   it.each(['checking', 'ready', 'installing'] as const)('disables %s controls while native work is in progress', phase => {
     expect(updateControl(state(phase)).busy).toBe(true)
-    expect(render(state(phase))).toContain('aria-disabled="true"')
+    expect(render(state(phase))).toMatch(/disabled=""/)
   })
   it('does not advertise fake updates in the browser or development app', () => {
     expect(render(state('unsupported'))).not.toContain('Peaks updates')

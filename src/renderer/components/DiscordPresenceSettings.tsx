@@ -1,9 +1,6 @@
 import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState, type ReactNode} from 'react'
-import {HStack} from '@astryxdesign/core/HStack'
-import {List, ListItem} from '@astryxdesign/core/List'
-import {Switch} from '@astryxdesign/core/Switch'
-import {Text} from '@astryxdesign/core/Text'
+import {HStack, List, ListItem, Switch, Text} from '../ui'
 import {invoke} from '../bridge'
 
 interface DiscordPresenceState {

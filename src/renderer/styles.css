@@ -41,9 +41,7 @@ input {
   background: var(--color-background-body);
 }
 
-.peaks-app .astryx-app-shell-sidenav {
-  overflow-x: clip;
-}
+
 
 .screen-transition {
   min-width: 0;
@@ -129,7 +127,7 @@ input {
   padding: var(--spacing-4);
 }
 
-.peaks-settings-group .astryx-list-item {
+.peaks-settings-group .pk-list-item__action {
   padding-block: var(--spacing-4);
   padding-inline: var(--spacing-4);
 }
@@ -382,29 +380,15 @@ input {
   background: var(--color-background-body);
 }
 
-.peaks-navigation .astryx-side-nav-heading {
-  min-height: calc(var(--spacing-12) * 2);
-  padding: var(--spacing-6) var(--spacing-5);
-}
 
-.peaks-navigation .astryx-side-nav-heading .astryx-heading {
-  font-size: var(--font-size-2xl);
-  letter-spacing: var(--peaks-tracking-heading);
-}
 
-.peaks-navigation .astryx-side-nav-section {
-  padding-block: var(--spacing-4);
-}
 
-.peaks-navigation .astryx-side-nav-item {
-  min-height: var(--spacing-10);
-  margin-block: var(--spacing-1);
-  padding-inline: var(--spacing-3);
-}
 
-.peaks-navigation .astryx-side-nav-item[data-selected='true'] {
-  box-shadow: inset var(--spacing-0-5) 0 0 var(--color-text-primary);
-}
+
+
+
+
+
 
 .peaks-client-status {
   margin-inline: var(--spacing-3);
@@ -430,7 +414,7 @@ input {
   background: var(--color-background-surface);
 }
 
-.peaks-screen > .astryx-layout-header {
+.peaks-screen > .pk-layout__header {
   background: var(--color-background-surface);
 }
 
@@ -439,7 +423,7 @@ input {
   letter-spacing: var(--peaks-tracking-heading);
 }
 
-.peaks-screen__header > .astryx-vstack {
+.peaks-screen__header > .ant-flex {
   min-width: 0;
 }
 
@@ -605,8 +589,8 @@ input {
   background: transparent;
 }
 
-.peaks-roster-section .astryx-list-item,
-.peaks-match-list .astryx-list-item {
+.peaks-roster-section .pk-list-item__action,
+.peaks-match-list .pk-list-item__action {
   padding-block: var(--spacing-4);
 }
 
@@ -641,7 +625,7 @@ input {
   border-block: var(--border-width) solid var(--color-border);
 }
 
-.peaks-dialog-actions .astryx-list-item {
+.peaks-dialog-actions .pk-list-item__action {
   padding-block: var(--spacing-4);
 }
 
@@ -675,7 +659,7 @@ input {
 }
 
 /* Section's inset-aware wrappers inherit a zero bleed budget within page content. */
-.peaks-screen__content > .astryx-stack,
+.peaks-screen__content > .ant-flex,
 .peaks-match-insights {
   --container-padding-inline-start: var(--spacing-0);
   --container-padding-inline-end: var(--spacing-0);
@@ -704,13 +688,9 @@ input {
   width: var(--spacing-10);
 }
 
-.peaks-navigation .astryx-side-nav-section {
-  padding-block: var(--spacing-2);
-}
 
-.peaks-navigation .astryx-side-nav-item {
-  margin-block: 0;
-}
+
+
 
 .peaks-client-status {
   padding: var(--spacing-3);

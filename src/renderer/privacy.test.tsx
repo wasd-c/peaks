@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react'
 import {renderToStaticMarkup} from 'react-dom/server'
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from './ui'
 import {describe, expect, it} from 'vitest'
 import {PlayerAliases} from './privacy'
 import {PlayerPrivacyProvider} from './components/PlayerPrivacy'

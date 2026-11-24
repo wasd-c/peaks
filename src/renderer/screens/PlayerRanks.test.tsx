@@ -1,5 +1,5 @@
 import {renderToStaticMarkup} from 'react-dom/server'
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {describe, expect, it} from 'vitest'
 import type {Player} from '../types'
 import {rankAsset} from '../assets'

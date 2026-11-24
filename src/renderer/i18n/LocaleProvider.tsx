@@ -1,12 +1,14 @@
 import {type ReactNode} from 'react'
-import {InternationalizationProvider} from '@astryxdesign/core/i18n'
-import frFR from '@astryxdesign/core/locales/fr-FR.json'
-import koKR from '@astryxdesign/core/locales/ko-KR.json'
-import {localeTags, useLocale} from './index'
+import {ConfigProvider} from 'antd'
+import enUS from 'antd/locale/en_US'
+import frFR from 'antd/locale/fr_FR'
+import koKR from 'antd/locale/ko_KR'
+import {useLocale} from './index'
 
-const messages = {'fr-FR': frFR, 'ko-KR': koKR}
+const locales = {en: enUS, fr: frFR, ko: koKR}
 
+/** Ant Design's own strings (pickers, empty states, pagination) follow the app language. */
 export function LocaleProvider({children}: {children: ReactNode}) {
   const language = useLocale()
-  return <InternationalizationProvider locale={localeTags[language]} messages={messages}>{children}</InternationalizationProvider>
+  return <ConfigProvider locale={locales[language]}>{children}</ConfigProvider>
 }

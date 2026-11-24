@@ -15,8 +15,6 @@
     "predev:onboard": "npm run build:electron",
     "dev:onboard": "concurrently -k --success first \"vite --port 5174 --strictPort\" \"wait-on tcp:5174 && cross-env PEAKS_DEMO=1 PEAKS_ONBOARD_PREVIEW=1 VITE_DEV_SERVER_URL=http://localhost:5174 electron .\"",
     "build:electron": "tsc -p tsconfig.node.json",
-    "build:themes:profiles": "npx astryx theme build src/renderer/theme/riotProfileTheme.ts src/renderer/theme/valorantProfileTheme.ts src/renderer/theme/leagueProfileTheme.ts src/renderer/theme/tftProfileTheme.ts",
-    "check:themes:profiles": "npm run build:themes:profiles -- --check",
     "build:runtime": "uv run python scripts/build_electron_runtime.py --clean --smoke",
     "build": "tsc -b && vite build && npm run build:runtime && electron-builder --dir",
     "package:win": "tsc -b && vite build && npm run build:runtime && electron-builder --win nsis",
@@ -26,11 +24,8 @@
     "lint": "eslint . --max-warnings=0"
   },
   "dependencies": {
-    "@astryxdesign/cli": "0.6.2",
-    "@astryxdesign/core": "0.6.2",
-    "@astryxdesign/theme-neutral": "0.6.2",
-    "@stylexjs/stylex": "0.19.1",
     "@vitejs/plugin-react": "latest",
+    "antd": "6.7.2",
     "electron-updater": "6.8.9",
     "i18next": "26.4.2",
     "lucide-react": "1.47.0",

@@ -1,10 +1,6 @@
 import {t, useLocale, displayText} from '../i18n'
 import {useEffect, useRef, useState} from 'react'
-import {Button} from '@astryxdesign/core/Button'
-import {Icon} from '@astryxdesign/core/Icon'
-import {ProgressBar} from '@astryxdesign/core/ProgressBar'
-import {Text} from '@astryxdesign/core/Text'
-import {VStack} from '@astryxdesign/core/VStack'
+import {Button, Icon, ProgressBar, Text, VStack} from '../ui'
 import {Download, RefreshCw, RotateCcw} from 'lucide-react'
 import {updateControl, type UpdateState} from '../updateState'
 

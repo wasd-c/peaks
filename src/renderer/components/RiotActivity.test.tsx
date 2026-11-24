@@ -1,4 +1,4 @@
-import {LayerProvider} from '@astryxdesign/core/Layer'
+import {LayerProvider} from '../ui'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {emptyActivity} from '../activityAnalytics'

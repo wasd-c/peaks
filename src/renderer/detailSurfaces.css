@@ -33,7 +33,7 @@
   border-radius: var(--radius-container);
 }
 
-.pd-profile__identity > .astryx-section > .astryx-stack > .astryx-stack {
+.pd-profile__identity > .pk-section > .ant-flex > .ant-flex {
   min-width: 0;
 }
 
@@ -68,7 +68,7 @@
   overflow-wrap: anywhere;
 }
 
-.pd-detail__avatar.astryx-avatar {
+.pd-detail__avatar.ant-avatar {
   width: calc(var(--spacing-10) * 1.5);
   height: calc(var(--spacing-10) * 1.5);
   border: var(--border-width) solid var(--color-border-emphasized);
@@ -98,7 +98,7 @@
   background: linear-gradient(to top, var(--color-background-body), color-mix(in srgb, var(--color-background-body) 20%, transparent)), linear-gradient(to right, var(--color-background-body), transparent 45%);
 }
 
-.pd-detail__art > .astryx-section {
+.pd-detail__art > .pk-section {
   display: flex;
   flex: 1;
   min-width: 0;
@@ -134,14 +134,14 @@
   border-inline-start: var(--border-width) solid var(--color-border);
 }
 
-.pd-detail__rank-list.astryx-list {
+.pd-detail__rank-list.pk-list {
   background: transparent;
   box-shadow: none;
   border: 0;
   border-radius: var(--radius-none);
 }
 
-.pd-detail__rank-list .astryx-list-item {
+.pd-detail__rank-list .pk-list-item__action {
   padding-inline: 0;
   padding-block: var(--spacing-5);
 }
@@ -161,7 +161,7 @@
   min-width: 0;
 }
 
-.pd-detail__tabs .astryx-tab {
+.pd-detail__tabs .ant-tabs-tab {
   padding-block: var(--spacing-3);
 }
 
@@ -227,14 +227,14 @@
   border-bottom: var(--border-width) solid var(--color-border-emphasized);
 }
 
-.pd-match__team .astryx-list {
+.pd-match__team .pk-list {
   border: 0;
   border-radius: var(--radius-none);
   box-shadow: none;
   background: transparent;
 }
 
-.pd-match__team .astryx-list-item {
+.pd-match__team .pk-list-item__action {
   min-width: 0;
   padding-block: var(--spacing-4);
   transition: background var(--duration-fast) var(--ease-standard);
@@ -245,7 +245,7 @@
   box-shadow: inset var(--spacing-0-5) 0 0 var(--color-text-primary);
 }
 
-.pd-match__agent.astryx-avatar {
+.pd-match__agent.ant-avatar {
   border-radius: var(--radius-inner);
   width: var(--spacing-10);
   height: var(--spacing-10);
@@ -358,7 +358,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pd-detail__panel,
-  .pd-match__team .astryx-list-item {
+  .pd-match__team .pk-list-item__action {
     animation: none;
     transition: none;
   }

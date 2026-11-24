@@ -1,10 +1,7 @@
 import {t, useLocale} from '../i18n'
-import {Button} from '@astryxdesign/core/Button'
-import {Center} from '@astryxdesign/core/Center'
-import {Icon} from '@astryxdesign/core/Icon'
-import {SideNav, SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav'
-import {VStack} from '@astryxdesign/core/VStack'
+import {Badge, Flex, Menu, Tooltip} from 'antd'
 import {Crosshair, Fingerprint, LockKeyhole, Mountain, Search, Settings2, UserRound, UsersRound} from 'lucide-react'
+import {Button, Icon, type IconType} from '../ui'
 import type {AppState} from '../types'
 import {SidebarUpdate} from './SidebarUpdate'
 
@@ -16,28 +13,38 @@ interface AppNavigationProps {
   onLock: () => void
   hasAccount?: boolean
 }
+
+type Destination = {key: Page; label: string; icon: IconType}
+
 export function AppNavigation({page, state, onPage, onLock, hasAccount}: AppNavigationProps) {
   useLocale()
+  const destinations: Destination[] = [
+    ...(hasAccount ? [{key: 'account' as const, label: t('Account'), icon: UserRound}] : []),
+    {key: 'overview', label: t('Accounts'), icon: Fingerprint},
+    {key: 'search', label: t('Player search'), icon: Search},
+    {key: 'watchlist', label: t('Watchlist'), icon: UsersRound},
+    {key: 'current', label: t('Current match'), icon: Crosshair},
+  ]
+  const item = ({key, label, icon}: Destination) => {
+    const glyph = <Icon icon={icon} size="lg" />
+    return {
+      key, 'aria-label': label,
+      label: <Tooltip title={label} placement="right"><span className="pd-navigation__icon">
+        {key === 'current' && state.gameDetected ? <Badge dot status="error" offset={[-1, 2]}>{glyph}</Badge> : glyph}
+      </span></Tooltip>,
+    }
+  }
+  const menu = (items: Destination[]) => <Menu className="pd-navigation__menu" mode="vertical" selectable selectedKeys={[page]}
+    onClick={({key}) => onPage(key as Page)} items={items.map(item)} />
   return (
-    <SideNav className="pd-navigation" aria-label={t("Main navigation")}
-      collapsible={{isCollapsed: true, hasButton: false}}
-      header={<Button className="pd-navigation__brand" label={t("Peaks · Accounts")} icon={<Icon icon={Mountain} size="lg" />} isIconOnly variant="ghost" onClick={() => onPage('overview')} />}
-      footer={<VStack gap={3} align="center" paddingBlock={4}>
+    <Flex vertical align="center" gap={8} className="pd-navigation" component="nav" aria-label={t('Main navigation')}>
+      <Button className="pd-navigation__brand" label={t('Peaks · Accounts')} icon={<Icon icon={Mountain} size="lg" />} isIconOnly variant="ghost" onClick={() => onPage('overview')} />
+      {menu(destinations)}
+      <Flex vertical align="center" gap={8} className="pd-navigation__footer">
         <SidebarUpdate />
-        <Center width="var(--spacing-12)">
-          <SideNavItem label={t("Settings")} icon={Settings2} isSelected={page === 'settings'} onClick={() => onPage('settings')} />
-        </Center>
-        <Button label={t("Lock Peaks")} tooltip={t("Lock Peaks")} icon={<Icon icon={LockKeyhole} />} isIconOnly variant="ghost" onClick={onLock} />
-      </VStack>}>
-      <SideNavSection title={t("Accounts and players")} isHeaderHidden>
-        {hasAccount ? <SideNavItem label={t('Account')} icon={UserRound} isSelected={page === 'account'} onClick={() => onPage('account')} /> : null}
-        <SideNavItem label={t("Accounts")} icon={Fingerprint} isSelected={page === 'overview'} onClick={() => onPage('overview')} />
-        <SideNavItem label={t("Player search")} icon={Search} isSelected={page === 'search'} onClick={() => onPage('search')} />
-        <SideNavItem label={t("Watchlist")} icon={UsersRound} isSelected={page === 'watchlist'} onClick={() => onPage('watchlist')} />
-      </SideNavSection>
-      <SideNavSection title={t("Play")} isHeaderHidden>
-        <SideNavItem className={state.gameDetected ? 'pd-navigation__live' : undefined} label={t("Current match")} icon={Crosshair} isSelected={page === 'current'} onClick={() => onPage('current')} />
-      </SideNavSection>
-    </SideNav>
+        {menu([{key: 'settings', label: t('Settings'), icon: Settings2}])}
+        <Button label={t('Lock Peaks')} icon={<Icon icon={LockKeyhole} size="lg" />} isIconOnly variant="ghost" onClick={onLock} />
+      </Flex>
+    </Flex>
   )
 }

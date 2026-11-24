@@ -1,5 +1,4 @@
-import {HStack} from '@astryxdesign/core/HStack'
-import {Text} from '@astryxdesign/core/Text'
+import {HStack, Text} from '../ui'
 import {rankDelta, rankPoints} from '../activityAnalytics'
 import {valorantMapName} from '../assets'
 import {displayText, formatNumber, localeTags, t, useLocale} from '../i18n'

@@ -1,7 +1,6 @@
-import {peaksRiotProfileTheme as riot} from './peaks-riot-profile'
-import {peaksValorantProfileTheme as valorant} from './peaks-valorant-profile'
-import {peaksLeagueProfileTheme as league} from './peaks-league-profile'
-import {peaksTftProfileTheme as tft} from './peaks-tft-profile'
+import type {PeaksTheme} from '../ui'
 import type {ProfileGame} from '../riotProfile'
 
-export const profileTheme = (game: ProfileGame) => game === 'VALORANT' ? valorant : game === 'League of Legends' ? league : game === 'Teamfight Tactics' ? tft : riot
+/** Each game's profile keeps its own accent (see theme/tokens.css and ui/theme.tsx). */
+export const profileTheme = (game: ProfileGame): PeaksTheme =>
+  game === 'VALORANT' ? 'valorant' : game === 'League of Legends' ? 'league' : game === 'Teamfight Tactics' ? 'tft' : 'riot'

@@ -1,4 +1,4 @@
-import {Selector} from '@astryxdesign/core/Selector'
+import {Selector} from '../ui'
 import {LANGUAGES, setLanguage, supportedLanguage, t, useLocale} from '../i18n'
 
 export function LanguageSelector({isLabelHidden = false}: {isLabelHidden?: boolean}) {
