@@ -1,10 +1,11 @@
+import {Alert, Result, Spin, Steps, Tag} from 'antd'
 import {accountRegionLabel} from '../accountRegions'
 import {accountConnectionError} from '../accountConnection'
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {useCallback, useEffect, useRef, useState} from 'react'
-import {Avatar, Button, Dialog, DialogHeader, Heading, HStack, Icon, Layout, LayoutContent, LayoutFooter, List, ListItem, Section, Spinner, StatusDot, Text, VStack} from '../ui'
-import {ArrowUpRight, ChevronRight, ExternalLink, Fingerprint, Gamepad2, KeyRound, LockKeyhole, QrCode, ShieldCheck, TriangleAlert} from 'lucide-react'
+import {Avatar, Button, Dialog, DialogHeader, HStack, Icon, Layout, LayoutContent, LayoutFooter, List, ListItem, Spinner, Text, VStack} from '../ui'
+import {ArrowUpRight, ChevronRight, ExternalLink, Fingerprint, Gamepad2, KeyRound, QrCode, ShieldCheck} from 'lucide-react'
 import type {Account, TotpSetupResult} from '../types'
 import {MFA_VERIFICATION_WARNING} from '../mfa'
 
@@ -98,37 +99,14 @@ export function AddAccountDialog({isOpen, onOpenChange, onConnect, onCancel}: Ad
         content={
           <LayoutContent padding={6} isScrollable>
             <VStack gap={6}>
-              <Section className="pd-dialog__stage" padding={6} variant="transparent">
-                <VStack gap={4} align="center">
-                  <HStack className="pd-dialog__orbit" align="center" justify="center">
-                    {connectionState === 'connecting' ? (
-                      <Spinner size="lg" aria-label={t("Connecting Riot account")} />
-                    ) : (
-                      <Icon icon="error" color="error" size="lg" />
-                    )}
-                  </HStack>
-                  <VStack gap={2} align="center">
-                  <Text className="pd-dialog__eyebrow" type="supporting">{connectionState === 'connecting' ? t("RIOT SIGN-IN") : t("CONNECTION PAUSED")}</Text>
-                  <Heading level={2} type="display-3" justify="center" role={connectionState === 'error' ? 'alert' : 'status'}>
-                    {connectionState === 'connecting'
-                      ? t("Connecting your account…")
-                      : t("Could not add the account")}
-                  </Heading>
-                  <Text color="secondary" justify="center">
-                    {connectionState === 'connecting'
-                      ? t("Keep Peaks open. Complete sign-in in the Riot window if one appears.")
-                      : redact(displayText(errorMessage))}
-                  </Text>
-                  </VStack>
-                </VStack>
-              </Section>
-
-              <List className="pd-dialog__steps" density="spacious" hasDividers>
-                <ListItem label={t("Already in VALORANT?")} description={t("We’ll find the account signed in on this PC.")}
-                  startContent={<Icon icon={Gamepad2} color="secondary" />} />
-                <ListItem label={t("Or sign in with Riot")} description={t("Use the Riot window. Your account appears here automatically.")}
-                  startContent={<Icon icon={ExternalLink} color="secondary" />} />
-              </List>
+              <Result className="pd-dialog__result" status={connectionState === 'error' ? 'error' : undefined}
+                icon={connectionState === 'connecting' ? <Spin size="large" aria-label={t("Connecting Riot account")} /> : undefined}
+                title={<span role={connectionState === 'error' ? 'alert' : 'status'}>{connectionState === 'connecting' ? t("Connecting your account…") : t("Could not add the account")}</span>}
+                subTitle={connectionState === 'connecting' ? t("Keep Peaks open. Complete sign-in in the Riot window if one appears.") : redact(displayText(errorMessage))} />
+              <Steps orientation="vertical" size="small" current={-1} items={[
+                {icon: <Gamepad2 size={18} aria-hidden />, title: t("Already in VALORANT?"), content: t("We’ll find the account signed in on this PC.")},
+                {icon: <ExternalLink size={18} aria-hidden />, title: t("Or sign in with Riot"), content: t("Use the Riot window. Your account appears here automatically.")},
+              ]} />
             </VStack>
           </LayoutContent>
         }
@@ -314,12 +292,9 @@ export function ConnectDialog({
                 <HStack className="pd-dialog__identity" gap={4} align="center" justify="between" padding={4}>
                   <HStack gap={3} align="center">
                     <Avatar name={displayName(account.riotId)} src={account.avatar} size="lg" tooltip={false} />
-                    <VStack gap={0.5}>
-                      <Text className="pd-dialog__eyebrow" type="supporting">{t("SELECTED ACCOUNT ·")} {accountRegionLabel(account)}</Text>
-                      <Text type="large" weight="semibold">{displayName(account.riotId)}</Text>
-                    </VStack>
+                    <Text type="large" weight="semibold">{displayName(account.riotId)}</Text>
                   </HStack>
-                  <Icon icon={LockKeyhole} color="secondary" />
+                  <Tag>{accountRegionLabel(account)}</Tag>
                 </HStack>
               )}
 
@@ -351,10 +326,6 @@ export function ConnectDialog({
                       </Text>
                     </VStack>
                   </HStack>
-                  <HStack className="pd-dialog__progress-track" gap={2} align="center">
-                    <StatusDot label={t("Connection in progress")} variant="neutral" isPulsing />
-                    <Text type="supporting">{totpState === 'enabling' ? t('Activating authenticator') : t("Keep the Riot window open")}</Text>
-                  </HStack>
                   {totpState === 'connecting' && connectionKind === 'session' && account?.hasTotp ? (
                     <VStack gap={1}>
                       <Button
@@ -369,27 +340,17 @@ export function ConnectDialog({
                   ) : null}
                 </VStack>
               ) : totpState === 'partial' ? (
-                <HStack className="pd-dialog__notice" gap={3} align="start" padding={4}>
-                  <Icon icon={TriangleAlert} color="warning" />
-                  <VStack gap={1}>
-                    <Text weight="semibold">{t("Saved, but Riot verification needs attention")}</Text>
-                    <Text color="secondary" role="alert">{redact(displayText(totpWarning))}</Text>
-                  </VStack>
-                </HStack>
+                <Alert type="warning" showIcon role="alert" title={t("Saved, but Riot verification needs attention")} description={redact(displayText(totpWarning))} />
               ) : (
                 <>
                   {totpError && (
-                    <HStack className="pd-dialog__notice" gap={3} align="start" padding={4}>
-                      <Icon icon="error" color="error" />
-                      <Text color="secondary" role="alert">{redact(displayText(totpError))}</Text>
-                    </HStack>
+                    <Alert type="error" showIcon role="alert" title={redact(displayText(totpError))} />
                   )}
 
                   <List
                     className="pd-dialog__actions"
                     density="spacious"
-                    hasDividers
-                    header={<Text className="pd-dialog__eyebrow" type="supporting">{t("CONNECTION OPTIONS")}</Text>}>
+                    hasDividers>
                     {canConnectQr ? (
                       <ListItem
                         label={t("Connect to Riot Client")}

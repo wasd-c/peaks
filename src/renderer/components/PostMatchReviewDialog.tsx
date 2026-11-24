@@ -1,6 +1,8 @@
+import {Flex, Tag} from 'antd'
+import {gameProfileIcon} from '../profileAssets'
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from './PlayerPrivacy'
-import {Button, Dialog, DialogHeader, Grid, Heading, HStack, Icon, Layout, LayoutContent, LayoutFooter, Section, StatusDot, Text, VStack} from '../ui'
+import {Button, Dialog, DialogHeader, Grid, Heading, HStack, Icon, Layout, LayoutContent, LayoutFooter, Section, Text, VStack} from '../ui'
 import {ArrowUpRight, Clock3, Crosshair, Share2, Trophy} from 'lucide-react'
 import {gameArtwork, rankAsset, valorantMapName} from '../assets'
 import type {PostMatchReview} from '../postMatch'
@@ -69,7 +71,6 @@ export function PostMatchReviewDialog({
           <DialogHeader
             onOpenChange={open => { if (!open) onDismiss() }}
             startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={Crosshair} /></HStack>}
-            endContent={<HStack align="center" gap={2}><StatusDot label={t("Match recorded")} variant="neutral" /><Text type="supporting">{t("RECORDED")}</Text></HStack>}
             title={t("Match recap")}
           />
         }
@@ -84,7 +85,7 @@ export function PostMatchReviewDialog({
                 <img className="pd-recap__art" src={gameArtwork(match.game, match.map)} alt="" />
                 <VStack className="pd-recap__hero-content" gap={6}>
                   <HStack align="center" justify="between" gap={4} wrap="wrap">
-                    <Text className="pd-dialog__eyebrow" type="supporting">{match.game} / {displayText(titleCase(match.mode ?? 'Match'))}</Text>
+                    <Flex gap={8} align="center"><img className="pd-riot-game-icon pd-riot-game-icon--heading" src={gameProfileIcon(match.game)} alt={match.game} /><Tag>{displayText(titleCase(match.mode ?? 'Match'))}</Tag></Flex>
                     <HStack align="center" gap={2}><Icon icon={Clock3} size="sm" /><Text type="supporting">{displayText(match.playedAt ?? 'Just completed')}</Text></HStack>
                   </HStack>
                   <HStack align="end" gap={6} justify="between" wrap="wrap">
@@ -92,18 +93,12 @@ export function PostMatchReviewDialog({
                       <Heading className="pd-recap__result" level={2} type="display-1">{displayText(headline)}</Heading>
                       <Text type="large">{map ?? t("Map unavailable")}</Text>
                     </VStack>
-                    <VStack align="end" gap={1}>
-                      <Text className="pd-dialog__eyebrow" type="supporting">{t("FINAL SCORE")}</Text>
-                      <Text className="pd-recap__score" hasTabularNumbers type="display-1" weight="semibold">{match.score ?? '—'}</Text>
-                    </VStack>
+                    <Text className="pd-recap__score" hasTabularNumbers type="display-1" weight="semibold" aria-label={`${t("Final score")} ${match.score ?? '—'}`}>{match.score ?? '—'}</Text>
                   </HStack>
                 </VStack>
               </Section>
               <HStack className="pd-recap__identity" align="center" gap={4} justify="between" padding={5} wrap="wrap">
-                <VStack gap={0.5}>
-                  <Text className="pd-dialog__eyebrow" type="supporting">{t("YOUR MATCH")}</Text>
-                  <Text weight="semibold">{displayName(account.riotId)}</Text>
-                </VStack>
+                <Text weight="semibold">{displayName(account.riotId)}</Text>
                 <HStack align="center" gap={3}>
                   {rank ? <img className="pd-recap__rank" src={rankAsset(rank.game, rankLabel(rank))} alt="" /> : <Icon icon={Trophy} color="secondary" />}
                   <VStack align="end" gap={0.5}>

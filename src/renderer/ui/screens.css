@@ -64,3 +64,4 @@
 .pd-live-stat { display: inline-flex; align-items: center; gap: var(--spacing-1-5); font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
 .pd-live-status .ant-badge-status-text { font-weight: var(--font-weight-semibold); }
 .peaks-screen__actions .pmc-match-banner__score { font-size: var(--font-size-xl); }
+.pd-rank-card__empty { color: var(--color-text-disabled); flex-shrink: 0; margin: 12px; }

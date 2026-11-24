@@ -128,7 +128,6 @@ export function ShareMatchDialog({isOpen, onOpenChange, match, account}: ShareMa
         header={<DialogHeader
           onOpenChange={onOpenChange}
           startContent={<HStack className="pd-dialog__header-icon" align="center" justify="center"><Icon icon={Share2} /></HStack>}
-          subtitle={`${map} · ${displayText(summary.result)}`}
           title={t("Share your match")}
         />}
         content={

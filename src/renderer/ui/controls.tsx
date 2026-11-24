@@ -4,6 +4,7 @@ import {Avatar as AntAvatar, Badge, Button as AntButton, Card as AntCard, Collap
 import type {InputRef} from 'antd'
 import {space, type SpacingStep} from './layout'
 import {Icon, Text, type IconType} from './typography'
+import {Upload as UploadGlyph} from 'lucide-react'
 
 const isIconType = (value: unknown): value is IconType =>
   typeof value === 'function' || (typeof value === 'object' && value !== null && 'render' in value)
@@ -295,7 +296,7 @@ export function FileInput({label, accept, onChange, changeAction, isDisabled, is
       return false
     }}>
     <Flex vertical align="center" gap={4} style={{padding: 16}}>
-      {isLoading ? <Spin /> : null}
+      {isLoading ? <Spin /> : <UploadGlyph size={28} aria-hidden color="var(--color-text-secondary)" />}
       <Text weight="semibold">{placeholder ?? label}</Text>
       {description ? <Text type="supporting" color="secondary">{description}</Text> : null}
       {status ? <Text type="supporting" color={status.type}>{status.message}</Text> : null}

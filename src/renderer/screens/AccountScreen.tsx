@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState, type ReactNode} from 'react'
 import {Theme} from '../ui'
 import {Alert, Button as AntButton, Card, Col, Flex, Result, Row, Segmented, Spin, Statistic, Tag, Tooltip, Typography} from 'antd'
-import {ChevronRight, MapPin, Plus, RefreshCw, Settings2, Star, Swords, UserRound} from 'lucide-react'
+import {ChevronRight, MapPin, Plus, RefreshCw, Settings2, Star, Swords, Trophy, UserRound} from 'lucide-react'
 import {accountRegionForGame} from '../accountRegions'
 import {profileMatches, profilePlayer} from '../accountProfile'
 import {gameArtwork, valorantAgentPortraitAsset} from '../assets'
@@ -139,7 +139,7 @@ export function AccountScreen({account, isActive, isSynchronizing = false, onRef
                 <Card hoverable size="small" className="pd-rank-card" onClick={() => selectGame(row.game)}
                   aria-label={row.game} tabIndex={0} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectGame(row.game) } }}>
                   <Flex gap={16} align="center">
-                    {row.rank ? <RankMedia rank={row.rank} /> : <img className="pd-riot-game-icon pd-riot-game-icon--large" src={gameProfileIcon(row.game)} alt="" />}
+                    {row.rank ? <RankMedia rank={row.rank} /> : <Trophy size={40} className="pd-rank-card__empty" aria-hidden />}
                     <Flex vertical gap={2} style={{minWidth: 0, flex: 1}}>
                       <Flex gap={8} align="center"><img className="pd-riot-game-icon pd-riot-game-icon--small" src={gameProfileIcon(row.game)} alt="" />
                         <Typography.Text strong>{row.rank ? displayText(rankLabel(row.rank)) : t('Rank unavailable')}</Typography.Text></Flex>
