@@ -483,7 +483,8 @@ function leagueActivity(match: RecordValue, teams: RecordValue[]): DiscordActivi
 
   const partySize = count(match.partySize, 64) && match.partySize >= 1 ? match.partySize : undefined
   const partyMax = count(match.partyMax, 64) && match.partyMax >= (partySize ?? 1) ? match.partyMax : undefined
-  if (partySize !== undefined) parts.push(partyMax === undefined ? `Party of ${partySize}` : `Party ${partySize}/${partyMax}`)
+  // A known party max is sent as party.size, which Discord renders as "(2 of 5)" itself.
+  if (partySize !== undefined && partyMax === undefined) parts.push(`Party of ${partySize}`)
 
   return {
     type: 0,
@@ -541,7 +542,8 @@ export function buildDiscordActivity(snapshot: unknown): DiscordActivity | null 
   const defaultPartyMax = match.partyMax === undefined && match.freeForAll !== true && teams.length <= 2
     && partySize !== undefined && partySize <= 5 && FIVE_PLAYER_PARTY_MODES.has(partyMode ?? '') ? 5 : undefined
   const partyMax = count(match.partyMax, 20) && match.partyMax >= (partySize ?? 1) ? match.partyMax : defaultPartyMax
-  if (partySize !== undefined) parts.push(partyMax === undefined ? `Party of ${partySize}` : `Party ${partySize}/${partyMax}`)
+  // A known party max is sent as party.size, which Discord renders as "(2 of 5)" itself.
+  if (partySize !== undefined && partyMax === undefined) parts.push(`Party of ${partySize}`)
 
   return {
     type: 0,

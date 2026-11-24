@@ -155,6 +155,7 @@ def _default_process_names() -> tuple[str, ...]:
         "RiotClientUx.exe",
         "RiotClientUxRender.exe",
         "VALORANT-Win64-Shipping.exe",
+        "TFTClient-Win64-Shipping.exe",
         "LeagueClient.exe",
         "LeagueClientUx.exe",
         "League of Legends.exe",

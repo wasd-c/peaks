@@ -871,12 +871,14 @@ class Bridge:
                 update_setting(persisted)
         self.settings.update(updates)
 
-    def _launch_favorite_game(self, *, after_qr_account_id: str | None = None) -> str:
+    def _launch_favorite_game(self, *, after_qr_account_id: str | None = None, game: object = None) -> str:
         if self.demo:
             return "Game launch is unavailable in preview mode."
         from peaks.adapters.riot.launcher import launch_game
+        from peaks.domain.models import Game
 
-        game = str(self.settings["favoriteGame"])
+        # Any allowlisted game can be launched; Game.parse rejects everything else.
+        game = Game.parse(str(game)).value if game else str(self.settings["favoriteGame"])
         if after_qr_account_id is None:
             launch_game(game)
         else:
@@ -3166,7 +3168,7 @@ class Bridge:
         elif command == "settings":
             self._update_settings(payload)
         elif command == "launch_favorite_game":
-            notice = self._launch_favorite_game()
+            notice = self._launch_favorite_game(game=payload.get("game") if isinstance(payload, dict) else None)
             return {**self.state(), "operationNotice": notice}
         elif command == "change_pin":
             self._change_security_code(payload)

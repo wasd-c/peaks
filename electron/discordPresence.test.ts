@@ -94,7 +94,7 @@ describe('Discord presence preferences and lifecycle', () => {
       // Exercise the wrapped backend result too, not just the pure builder.
       service.observe({state})
       expect(client.setActivity).toHaveBeenLastCalledWith(expect.objectContaining({
-        details: `${phrase} on Ascent`, state: 'Competitive · 9:5 · Party 2/5',
+        details: `${phrase} on Ascent`, state: 'Competitive · 9:5',
         assets: {large_image: 'https://media.valorant-api.com/agents/8e253930-4c05-31dd-1b6c-968525494517/displayicon.png', large_text: 'Omen', small_image: DISCORD_PEAKS_IMAGE, small_text: 'Peaks'},
       }))
     }

@@ -83,7 +83,7 @@ def test_only_final_log_event_qualifies_not_live_file_or_arbitrary_json(tmp_path
     lambda value: value["statsBlock"]["players"].pop(6),
     lambda value: value["statsBlock"]["players"].append(deepcopy(value["statsBlock"]["players"][6])),
     lambda value: value.update(gameId=True),
-    lambda value: value.update(queueId=420),
+    lambda value: value.update(queueId="1100"),
     lambda value: value.update(gameMode="CLASSIC"),
     lambda value: value["statsBlock"].update(gameLengthSeconds=float("nan")),
     lambda value: value["statsBlock"].update(gameLengthSeconds=-1),

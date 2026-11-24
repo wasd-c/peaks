@@ -151,14 +151,20 @@ def test_manual_launch_uses_saved_favorite_and_requires_unlock(bridge: Bridge, m
     monkeypatch.setattr(launcher, "launch_game", launch)
     bridge.handle("settings", {"favoriteGame": "League of Legends"})
     bridge.demo = False
-    result = bridge.handle("launch_favorite_game", {"game": "VALORANT", "executable": "arbitrary.exe"})
+    result = bridge.handle("launch_favorite_game", {"executable": "arbitrary.exe"})
     launch.assert_called_once_with("League of Legends")
     bridge_module.sleep.assert_not_called()
     assert result["operationNotice"] == "Launch request sent to Riot Client."
+    # The sidebar launches the other games directly, but only allowlisted ones.
+    bridge.handle("launch_favorite_game", {"game": "Teamfight Tactics", "executable": "arbitrary.exe"})
+    assert launch.call_args.args == (Game.TFT.value,)
+    with pytest.raises(ValueError):
+        bridge.handle("launch_favorite_game", {"game": "arbitrary.exe"})
+    assert launch.call_count == 2
     bridge.handle("lock", {})
     with pytest.raises(PermissionError):
         bridge.handle("launch_favorite_game", {})
-    launch.assert_called_once()
+    assert launch.call_count == 2
 
 
 def test_preview_never_starts_a_real_game(bridge: Bridge, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -208,12 +214,14 @@ def test_running_client_launches_the_game_through_play_api(local_riot_client: Mo
     assert local_riot_client.method_calls == [
         call.get_json("/rso-auth/v1/authorization"),
         call.get_json("/entitlements/v1/token"),
-        call.request("PUT", "/player-session-lifecycle/v1/product-context", json_body={
-            "productContext": {"productId": "league_of_legends" if game == Game.TFT else product, "patchlineId": "live"},
-        }),
-        call.get_json("/player-session-lifecycle/v1/session"),
+        *([
+            call.request("PUT", "/player-session-lifecycle/v1/product-context", json_body={
+                "productContext": {"productId": product, "patchlineId": "live"},
+            }),
+            call.get_json("/player-session-lifecycle/v1/session"),
+        ] if game != Game.TFT else []),
         call.get_json("/client-config/v1/status/player"),
-        *([call.get_json("/client-config/v2/config/lol.client_settings.league_edge.url")] if game != Game.VALORANT else []),
+        *([call.get_json("/client-config/v2/config/lol.client_settings.league_edge.url")] if game == Game.LEAGUE_OF_LEGENDS else []),
         call.get_json(f"/product-launcher/v1/products/{product}/patchlines/live/eligibility"),
         call.request("POST", f"/product-launcher/v1/products/{product}/patchlines/live"),
     ]
@@ -221,16 +229,33 @@ def test_running_client_launches_the_game_through_play_api(local_riot_client: Mo
     launcher.sleep.assert_not_called()
 
 
+def test_standalone_tft_launches_without_a_league_session(local_riot_client: Mock) -> None:
+    # Riot's own Play leaves the session at PendingProductContext for TFT; Peaks
+    # must neither force League's context nor wait for League's configuration.
+    local_riot_client.get_json.side_effect = [
+        {"subject": "selected-account"}, _READY_ENTITLEMENTS, {"readiness": "NotReady"},
+        {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_CONFIG, True,
+    ]
+    launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+    assert launcher.sleep.call_args_list == [call(0.5)]
+    assert local_riot_client.request.call_args_list == [
+        call("POST", "/product-launcher/v1/products/teamfighttactics/patchlines/live"),
+    ]
+    requested = [entry.args[0] for entry in local_riot_client.get_json.call_args_list]
+    assert "/player-session-lifecycle/v1/session" not in requested
+    assert not any("league_edge" in route for route in requested)
+
+
 def test_local_client_can_finish_its_poll_after_the_initial_delay(local_riot_client: Mock) -> None:
     local_riot_client.get_json.side_effect = [
         RiotClientError("Not authenticated", status_code=404), {}, {"subject": "previous-account"},
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_SESSION, _READY_CONFIG, _LEAGUE_EDGE_URL, True,
     ]
-    launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+    launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert launcher.sleep.call_args_list == [call(0.5)] * 3
     assert local_riot_client.request.call_args_list == [
         _LEAGUE_CONTEXT_CALL,
-        call("POST", "/product-launcher/v1/products/teamfighttactics/patchlines/live"),
+        call("POST", "/product-launcher/v1/products/league_of_legends/patchlines/live"),
     ]
 
 
@@ -250,7 +275,7 @@ def test_signed_in_identity_waits_until_riot_allows_play(local_riot_client: Mock
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_SESSION, _READY_CONFIG, _LEAGUE_EDGE_URL, False,
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_SESSION, _READY_CONFIG, _LEAGUE_EDGE_URL, True,
     ]
-    launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+    launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert launcher.sleep.call_args_list == [call(0.5)] * 2
     assert local_riot_client.request.call_count == 2
 
@@ -261,7 +286,7 @@ def test_old_or_missing_game_credentials_are_not_enough_to_launch(local_riot_cli
         {"subject": "selected-account"}, {**_READY_ENTITLEMENTS, "token": ""},
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_SESSION, _READY_CONFIG, _LEAGUE_EDGE_URL, True,
     ]
-    launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+    launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert launcher.sleep.call_count == 2
     assert local_riot_client.request.call_count == 2
 
@@ -272,11 +297,11 @@ def test_waits_for_league_session_after_qr_before_play(local_riot_client: Mock) 
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, {**_READY_SESSION, "loginState": "PendingAffinityData"},
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_SESSION, _READY_CONFIG, _LEAGUE_EDGE_URL, True,
     ]
-    launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+    launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert launcher.sleep.call_args_list == [call(0.5)] * 2
     assert local_riot_client.request.call_args_list == [
         _LEAGUE_CONTEXT_CALL,
-        call("POST", "/product-launcher/v1/products/teamfighttactics/patchlines/live"),
+        call("POST", "/product-launcher/v1/products/league_of_legends/patchlines/live"),
     ]
 
 
@@ -286,11 +311,11 @@ def test_waits_for_player_config_before_league_reads_it_once_at_startup(local_ri
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_SESSION, _READY_CONFIG, None,
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, _READY_SESSION, _READY_CONFIG, _LEAGUE_EDGE_URL, True,
     ]
-    launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+    launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert launcher.sleep.call_args_list == [call(0.5)] * 2
     assert local_riot_client.request.call_args_list == [
         _LEAGUE_CONTEXT_CALL,
-        call("POST", "/product-launcher/v1/products/teamfighttactics/patchlines/live"),
+        call("POST", "/product-launcher/v1/products/league_of_legends/patchlines/live"),
     ]
 
 
@@ -303,14 +328,14 @@ def test_unready_game_session_never_launches(local_riot_client: Mock, session_ch
         {"subject": "selected-account"}, _READY_ENTITLEMENTS, {**_READY_SESSION, **session_change},
     ] * 30
     with pytest.raises(RuntimeError, match="has not finished signing in"):
-        launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+        launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert local_riot_client.request.call_args_list == [_LEAGUE_CONTEXT_CALL]
 
 
 def test_rejected_product_context_does_not_start_an_empty_client(local_riot_client: Mock) -> None:
     local_riot_client.request.return_value = SimpleNamespace(status_code=400)
     with pytest.raises(RuntimeError, match="could not prepare the game session"):
-        launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+        launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert local_riot_client.request.call_args_list == [_LEAGUE_CONTEXT_CALL]
 
 
@@ -322,7 +347,7 @@ def test_slow_play_is_never_retried_and_does_not_use_short_readiness_timeout(loc
         raise RiotClientError("timed out")
     local_riot_client.request.side_effect = play
     with pytest.raises(RuntimeError, match="could not start the game"):
-        launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+        launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert local_riot_client.request.call_count == 2
 
 
@@ -330,7 +355,7 @@ def test_slow_play_is_never_retried_and_does_not_use_short_readiness_timeout(loc
 def test_rejected_play_is_not_reported_as_a_success(local_riot_client: Mock, status: int) -> None:
     local_riot_client.request.side_effect = [SimpleNamespace(status_code=201), SimpleNamespace(status_code=status)]
     with pytest.raises(RuntimeError, match="could not start the game"):
-        launcher.launch_game(Game.TFT, expected_puuid="selected-account")
+        launcher.launch_game(Game.LEAGUE_OF_LEGENDS, expected_puuid="selected-account")
     assert local_riot_client.request.call_count == 2
 
 

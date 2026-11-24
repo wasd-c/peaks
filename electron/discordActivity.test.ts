@@ -43,7 +43,7 @@ describe('League and TFT Discord activity', () => {
     expect(buildDiscordActivity(leagueSnapshot())).toEqual({
       type: 0,
       details: "Ahri on Summoner's Rift",
-      state: 'Ranked Solo/Duo · 8/3/6 KDA · 21:34 · Party 2/2',
+      state: 'Ranked Solo/Duo · 8/3/6 KDA · 21:34',
       assets: {
         large_image: 'https://ddragon.leagueoflegends.com/cdn/16.18.1/img/champion/Ahri.png',
         large_text: 'Ahri · League of Legends',
@@ -57,7 +57,7 @@ describe('League and TFT Discord activity', () => {
     expect(buildDiscordActivity(leagueSnapshot(true))).toEqual({
       type: 0,
       details: 'Playing Teamfight Tactics',
-      state: 'Double Up · 76 HP · 21:34 · Party 2/8',
+      state: 'Double Up · 76 HP · 21:34',
       assets: {
         large_image: DISCORD_TFT_IMAGE, large_text: 'Teamfight Tactics',
         small_image: DISCORD_PEAKS_IMAGE, small_text: 'Peaks',
@@ -73,7 +73,7 @@ describe('League and TFT Discord activity', () => {
     for (const tft of [false, true]) {
       const activity = buildDiscordActivity(leagueSnapshot(tft, {phase}))
       const status = tft && phase === 'pregame' ? 'Getting ready' : expected
-      expect(activity?.state).toBe(`${tft ? 'Double Up' : 'Ranked Solo/Duo'} · ${status} · Party 2/${tft ? 8 : 2}`)
+      expect(activity?.state).toBe(`${tft ? 'Double Up' : 'Ranked Solo/Duo'} · ${status}`)
       if (phase !== 'pregame' || tft) expect(activity?.details).not.toContain('Ahri')
       if (phase === 'pregame' && !tft) expect(activity?.details).toBe("Ahri on Summoner's Rift")
     }
@@ -100,7 +100,7 @@ describe('League and TFT Discord activity', () => {
   it.each([false, true])('requires exactly one visible self for personal stats and artwork, TFT=%s', tft => {
     for (const players of [[], [{...selfPlayer(), self: false}], [selfPlayer(), selfPlayer()], [{...selfPlayer(), hidden: true}]]) {
       const activity = buildDiscordActivity(leagueSnapshot(tft, {teams: [{players}], elapsed: undefined}))
-      expect(activity?.state).toBe(`${tft ? 'Double Up' : 'Ranked Solo/Duo'} · In game · Party 2/${tft ? 8 : 2}`)
+      expect(activity?.state).toBe(`${tft ? 'Double Up' : 'Ranked Solo/Duo'} · In game`)
       expect(activity?.assets.large_image).toBe(tft ? DISCORD_TFT_IMAGE : 'https://ddragon.leagueoflegends.com/cdn/16.18.1/img/map/map11.png')
     }
   })
@@ -111,7 +111,7 @@ describe('League and TFT Discord activity', () => {
     ['99999', 'TFT'],
   ])('uses TFT queue %s over conflicting old labels or duo hints', (queue, mode) => {
     const activity = buildDiscordActivity(leagueSnapshot(true, {queue, mode: 'Double Up', teamMode: 'duos'}))
-    expect(activity?.state).toBe(`${mode} · 76 HP · 21:34 · Party 2/8`)
+    expect(activity?.state).toBe(`${mode} · 76 HP · 21:34`)
   })
 
   it.each(['Double Up', 'TFT_PAIRS', 'RANKED_TFT_DOUBLE_UP', 'pairs', 'double_up'])('recognizes Double Up %s without native queue metadata', mode => {
@@ -139,12 +139,12 @@ describe('League and TFT Discord activity', () => {
       {...selfPlayer({}), overallStats: {health: 99}, score: '76 HP'},
       {...selfPlayer({health: 76}), self: false},
     ]}]
-    expect(buildDiscordActivity(leagueSnapshot(true, {teams}))?.state).toBe('Double Up · 21:34 · Party 2/8')
+    expect(buildDiscordActivity(leagueSnapshot(true, {teams}))?.state).toBe('Double Up · 21:34')
   })
 
   it.each([{}, {kills: 8, deaths: 3}, {kills: 8, deaths: 3, assists: '6'}, {kills: 8, deaths: -1, assists: 6}])('omits incomplete or invalid League KDA %j', stats => {
     const teams = [{players: [{...selfPlayer(stats), agent: 'Ahri', score: '8 / 3 / 6'}]}]
-    expect(buildDiscordActivity(leagueSnapshot(false, {teams}))?.state).toBe('Ranked Solo/Duo · 21:34 · Party 2/2')
+    expect(buildDiscordActivity(leagueSnapshot(false, {teams}))?.state).toBe('Ranked Solo/Duo · 21:34')
   })
 
   it.each([undefined, null, 0, '8', 65, 1, Infinity])('does not invent TFT capacity from a duo or invalid partyMax %j', partyMax => {
@@ -161,7 +161,7 @@ describe('League and TFT Discord activity', () => {
 
   it.each(['00:01', '3:99', '-1:20', '1000:00', '21:34\nprivate', 'PrivateIdentity#EU', 2134, null])('drops invalid or account-controlled elapsed text %j', elapsed => {
     const activity = buildDiscordActivity(leagueSnapshot(false, {elapsed}))
-    expect(activity?.state).toBe('Ranked Solo/Duo · 8/3/6 KDA · Party 2/2')
+    expect(activity?.state).toBe('Ranked Solo/Duo · 8/3/6 KDA')
   })
 
   it('resolves champion names whose official asset IDs differ without raw URL interpolation', () => {
@@ -211,7 +211,7 @@ describe('Discord activity projection', () => {
     expect(activity).toEqual({
       type: 0,
       details: 'Carrying on Ascent',
-      state: 'Competitive · 9:5 · Party 2/5',
+      state: 'Competitive · 9:5',
       assets: {large_image: omenImage, large_text: 'Omen', small_image: DISCORD_PEAKS_IMAGE, small_text: 'Peaks'},
       party: {size: [2, 5]},
     })
@@ -262,7 +262,7 @@ describe('Discord activity projection', () => {
   it('uses safe pregame presence without stale performance or round scores', () => {
     const activity = buildDiscordActivity(snapshot({kills: 90, deaths: 0}, {phase: 'pregame', partySize: 5}))
     expect(activity?.details).toBe('Playing on Ascent')
-    expect(activity?.state).toBe('Competitive · Agent select · Party 5/5')
+    expect(activity?.state).toBe('Competitive · Agent select')
     expect(activity?.party?.size).toEqual([5, 5])
   })
 
@@ -282,7 +282,7 @@ describe('Discord activity projection', () => {
   it.each([[2, 2], [3, 3], [5, 5], [6, 10], [16, 20]])('uses actual party capacity for %i of %i members', (partySize, partyMax) => {
     const activity = buildDiscordActivity(snapshot(null, {partySize, partyMax}))
     expect(activity?.party?.size).toEqual([partySize, partyMax])
-    expect(activity?.state).toContain(`Party ${partySize}/${partyMax}`)
+    expect(activity?.state).not.toContain('Party')
   })
 
   it.each([null, 0, 1, 21, 2.5, '5', NaN])('retains the known count without a contradictory or invalid party capacity %j', partyMax => {
@@ -293,7 +293,7 @@ describe('Discord activity projection', () => {
 
   it.each(['competitive', 'unrated', 'swiftplay', 'spikerush', 'hurm', 'premier'])('keeps the requested out-of-five display for ordinary queue %s', queue => {
     const activity = buildDiscordActivity(snapshot(null, {queue, partySize: 2}))
-    expect(activity?.state).toContain('Party 2/5')
+    expect(activity?.state).not.toContain('Party')
     expect(activity?.party?.size).toEqual([2, 5])
   })
 
@@ -326,7 +326,7 @@ describe('Discord activity projection', () => {
     const activity = buildDiscordActivity(snapshot(undefined, {partySize: 1, teams: [
       {score: '9', players: [selfPlayer()]}, {score: '5', players: []},
     ]}))
-    expect(activity?.state).toBe('Competitive · 9:5 · Party 1/5')
+    expect(activity?.state).toBe('Competitive · 9:5')
     expect(activity?.party?.size).toEqual([1, 5])
   })
 
@@ -385,7 +385,7 @@ describe('Discord activity projection', () => {
     ]}))
     const activity = buildDiscordActivity(snapshot(null, {mode: 'Gauntlet: Glitched', teams, partySize: 2, partyMax: 2}))
     expect(activity?.details).toBe('Playing on Ascent')
-    expect(activity?.state).toBe('Gauntlet: Glitched · Party 2/2')
+    expect(activity?.state).toBe('Gauntlet: Glitched')
     expect(activity?.assets.large_image).toBe(omenImage)
   })
 

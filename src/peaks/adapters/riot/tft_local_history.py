@@ -1,9 +1,16 @@
 """Completed TFT reports already delivered by the game to its local client.
 
 TFTEoGStats.json is also rewritten during play, so it cannot prove a final
-placement. The explicit PostEogStatsBlock log event can, and survives the next
-game replacing that file. Only bounded, owner-bound presentation fields leave
-this reader; command lines, headers and raw log content never leave it.
+placement on its own. Two log events can:
+
+* PostEogStatsBlock, sent to the League client before TFT had its own client;
+  its body survives the next game replacing the stats file.
+* Since patch 18.6 the standalone client posts nothing locally. It logs its
+  move to the end-of-game screen instead; the stats file written for that game
+  is then final, until the next game replaces it.
+
+Only bounded, owner-bound presentation fields leave this reader; command
+lines, headers and raw log content never leave it.
 """
 
 from __future__ import annotations
@@ -24,6 +31,7 @@ from typing import Any
 from peaks.adapters.providers.riot_api import PlatformRouting
 from peaks.domain.regions import normalize_league_region
 
+from .tft_client import is_double_up, read_log_state, read_stats_file
 from .tft_composition import composition_view
 
 MAX_LOG_FILES = 20
@@ -31,7 +39,6 @@ MAX_TAIL_BYTES = 2 * 1024 * 1024
 MAX_REPORT_BYTES = 1024 * 1024
 MAX_AGE_SECONDS = 90 * 86_400
 _PLATFORMS = {normalize_league_region(value.value): value.value.upper() for value in PlatformRouting}
-_QUEUES = frozenset({1090, 1100, 1110, 1111, 1130, 1150, 1160})
 _EVENT = re.compile(
     r"^\[(?P<time>\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}:\d{3})\]"
     r"\[\s*\d+\]RGIOPHttp: UTFTLeagueFoundationClient::PostEogStatsBlock: Query Start"
@@ -78,7 +85,8 @@ def _report(payload: object, owner: str, platform: str, ended_at: float) -> dict
     match_id = platform_match_id(payload.get("gameId"), platform)
     queue = _integer(payload.get("queueId"), 1, 1_000_000)
     block = payload.get("statsBlock")
-    if not match_id or queue not in _QUEUES or not isinstance(block, Mapping):
+    # Event queues (Choncc's Treasure is 6080) are new each set: accept any.
+    if not match_id or queue is None or not isinstance(block, Mapping):
         return None
     rows = block.get("players")
     duration = _number(block.get("gameLengthSeconds"), 1, 86_400)
@@ -92,7 +100,7 @@ def _report(payload: object, owner: str, platform: str, ended_at: float) -> dict
     placement = _integer(selves[0].get("ffaStanding"), 1, min(8, len(rows)))
     if placement is None:
         return None
-    duos = queue in {1150, 1160}
+    duos = is_double_up(queue, dict(payload))
     groups: dict[int, list[int]] = {}
     if duos:
         for index, row in enumerate(rows):
@@ -104,6 +112,9 @@ def _report(payload: object, owner: str, platform: str, ended_at: float) -> dict
     standings = [row.get("ffaStanding") for row in rows]
     team_places = duos and len(rows) == 8 and all(standings.count(place) == 2 for place in (1, 2, 3, 4))
     positive_threshold = 2 if team_places else 4
+    healths = [_number(row.get("health"), -99, 1000) for row in rows]
+    # Once every other player is out, the last one standing has won.
+    survivors = [index for index, health in enumerate(healths) if health is None or health > 0]
     grouped: dict[str, list[dict[str, Any]]] = {}
     for index, row in enumerate(rows):
         own = row.get("PUUID") == owner
@@ -113,7 +124,7 @@ def _report(payload: object, owner: str, platform: str, ended_at: float) -> dict
         health = _number(row.get("health"), -99, 1000)
         # The owner has finished; living opponents still have provisional
         # standings and boards. Do not present those as their final result.
-        finished = own or (health is not None and health <= 0)
+        finished = own or (health is not None and health <= 0) or (not duos and survivors == [index])
         place = _integer(row.get("ffaStanding"), 1, min(8, len(rows))) if finished else None
         stats: dict[str, Any] = {"placement": place} if place is not None else {}
         level = _integer(row.get("level"), 1, 20)
@@ -181,6 +192,15 @@ def _read_log(path_string: str, revision: tuple[int, int, int, int], owner: str,
     return tuple(reports)
 
 
+def _standalone_report(directory: Path, ended: Mapping[int, float], owner: str, platform: str) -> tuple[float, dict[str, Any]] | None:
+    """The stats file of a game the standalone client logged as finished."""
+    for game_id, ended_at in sorted(ended.items(), key=lambda item: item[1], reverse=True)[:1]:
+        payload = read_stats_file(directory / "TFTEoGStats.json", game_id)
+        report = _report(payload, owner, platform, ended_at) if payload is not None else None
+        return (ended_at, report) if report is not None else None
+    return None
+
+
 def read_tft_local_history(
     puuid: str, platform: str, *, limit: int = 20,
     directory: Path | None = None, now: float | None = None,
@@ -212,12 +232,21 @@ def read_tft_local_history(
     except OSError:
         return []
     found: dict[str, tuple[float, dict[str, Any]]] = {}
+    ended: dict[int, float] = {}
     for _, path, revision in sorted(candidates, key=lambda item: item[0], reverse=True)[:MAX_LOG_FILES]:
+        state = read_log_state(path)
+        if state is not None:
+            ended.update(state.ended)
         for ended_at, report in _read_log(str(path), revision, puuid, platform):
             if not -5 <= observed_now - ended_at <= MAX_AGE_SECONDS or report["played_at"] <= 0:
                 continue
             previous = found.get(report["id"])
             if previous is None or ended_at > previous[0]:
                 found[report["id"]] = (ended_at, report)
+    standalone = _standalone_report(directory, ended, puuid, platform)
+    if standalone is not None:
+        ended_at, report = standalone
+        if -5 <= observed_now - ended_at <= MAX_AGE_SECONDS and report["played_at"] > 0 and report["id"] not in found:
+            found[report["id"]] = standalone
     ordered = sorted(found.values(), key=lambda item: item[1]["played_at"], reverse=True)
     return [deepcopy(report) for _, report in ordered[:min(limit, 20)]]

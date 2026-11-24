@@ -1098,15 +1098,27 @@ class CurrentGameService:
             "game": "",
         }
         league_client = LeagueClient.from_discovery()
+        session_client: Any = league_client
+        tft_client: Any = None
         try:
             session_reader = getattr(league_client, "current_session", league_client.current_game)
             league_session = session_reader()
             league_available = bool(league_session or getattr(league_client, "activity_available", False))
-            league = self._league_session_view(league_session, league_client) if league_session else None
+            if league_session is None:
+                # Since patch 18.6 TFT runs in its own client, without LCU.
+                from peaks.adapters.riot.tft_client import StandaloneTftClient
+
+                tft_client = StandaloneTftClient.from_discovery(discovery)
+                league_session = tft_client.current_session()
+                league_available = league_available or tft_client.activity_available
+                if league_session is not None:
+                    session_client = tft_client
+            league = self._league_session_view(league_session, session_client) if league_session else None
         finally:
-            closer = getattr(league_client, "close", None)
-            if callable(closer):
-                closer()
+            for opened in (league_client, tft_client):
+                closer = getattr(opened, "close", None)
+                if callable(closer):
+                    closer()
         # A client left open in its party lobby must not mask the other game.
         selected: dict[str, Any] | None
         if league and league.get("phase") == "live" and self._last_session_game != "VALORANT":

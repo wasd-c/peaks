@@ -19,9 +19,10 @@ _PRODUCTS = {
     Game.LEAGUE_OF_LEGENDS: "league_of_legends",
     Game.TFT: "teamfighttactics",
 }
-# Riot currently exposes TFT as a launch alias of the League installation.
-# Its player session must therefore use League's product context.
-_SESSION_PRODUCTS = {"teamfighttactics": "league_of_legends"}
+# Since patch 18.6 TFT is a standalone client with its own installation.
+# Riot's own Play action leaves the player session without a product context
+# for it (PendingProductContext), so only the games below get one.
+_SESSION_PRODUCTS = {"valorant": "valorant", "league_of_legends": "league_of_legends"}
 
 
 def find_riot_executable() -> Path | None:
@@ -79,7 +80,7 @@ def launch_game(game: Game | str, *, expected_puuid: str | None = None) -> None:
     if discovered.lockfile is not None:
         try:
             with RiotClientHTTP(discovered.lockfile, timeout=3.0) as client:
-                session_product = _SESSION_PRODUCTS.get(product, product)
+                session_product = _SESSION_PRODUCTS.get(product)
                 context_prepared = False
                 for attempt in range(30):
                     try:
@@ -94,7 +95,7 @@ def launch_game(game: Game | str, *, expected_puuid: str | None = None) -> None:
                             and bool(entitlements.get("accessToken"))
                             and bool(entitlements.get("token"))
                         )
-                        if credentials_ready and not context_prepared:
+                        if credentials_ready and session_product is not None and not context_prepared:
                             # QR signs in to Riot, but an account switch can
                             # leave its game session PendingProductContext.
                             # Starting League then opens an empty client.
@@ -104,8 +105,8 @@ def launch_game(game: Game | str, *, expected_puuid: str | None = None) -> None:
                             if not 200 <= response.status_code < 300:
                                 raise RuntimeError("Riot Client could not prepare the game session. Open Riot Client and try again.")
                             context_prepared = True
-                        session = client.get_json("/player-session-lifecycle/v1/session") if credentials_ready else None
-                        ready = (
+                        session = client.get_json("/player-session-lifecycle/v1/session") if credentials_ready and session_product is not None else None
+                        ready = credentials_ready if session_product is None else (
                             isinstance(session, dict)
                             and session.get("loginState") == "Authorized"
                             and session.get("actionRequired") is False
