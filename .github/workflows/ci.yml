@@ -38,7 +38,7 @@ jobs:
             architecture: x64
             artifact: Peaks-windows-x64
           - platform: macos
-            runner: macos-14
+            runner: macos-15
             architecture: arm64
             artifact: Peaks-macos-arm64
 
