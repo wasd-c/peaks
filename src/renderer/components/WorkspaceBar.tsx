@@ -1,5 +1,6 @@
 import {t, useLocale} from '../i18n'
 import {useEffect, useMemo, useState} from 'react'
+import {Avatar, AvatarStatusDot} from '@astryxdesign/core/Avatar'
 import {Button} from '@astryxdesign/core/Button'
 import {CommandPalette} from '@astryxdesign/core/CommandPalette'
 import {HStack} from '@astryxdesign/core/HStack'
@@ -13,6 +14,21 @@ import type {Account, AppState} from '../types'
 import type {Page} from './AppNavigation'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 import {FavoriteGameButton} from './FavoriteGameButton'
+import {resolveAccountIcon} from '../accountIcons'
+
+/** The account Peaks follows, next to the wordmark: who is signed in, one click from their profile. */
+function ActiveAccount({account, isActive, onOpen}: {account: Account; isActive: boolean; onOpen: () => void}) {
+  const {displayName} = usePlayerPrivacy()
+  const identity = displayName(account.riotId)
+  const status = isActive ? t('Active Riot account') : t('Saved profile')
+  return <Button className="pd-active-account" variant="ghost" label={t('Open profile for {{name}}', {name: identity})} tooltip={status} onClick={onOpen}>
+    <HStack gap={3} align="center">
+      <Avatar size="sm" shape="rounded" name={identity} src={resolveAccountIcon(account)?.image} tooltip={false}
+        status={<AvatarStatusDot variant={isActive ? 'success' : 'neutral'} label={status} />} />
+      <Text weight="bold" maxLines={1}>{identity}</Text>
+    </HStack>
+  </Button>
+}
 
 const destinations: Array<{id: Page; label: string}> = [
   {id: 'overview', label: 'Accounts'}, {id: 'search', label: 'Player search'},
@@ -20,8 +36,9 @@ const destinations: Array<{id: Page; label: string}> = [
   {id: 'settings', label: 'Settings'},
 ]
 
-export function WorkspaceBar({state, onStateChange, onPage, onSelect, onAdd, onLock}: {
+export function WorkspaceBar({state, profileAccount, onStateChange, onPage, onSelect, onAdd, onLock}: {
   state: AppState
+  profileAccount?: Account
   onStateChange: (state: AppState) => void
   onPage: (page: Page) => void
   onSelect: (account: Account) => void
@@ -62,7 +79,10 @@ export function WorkspaceBar({state, onStateChange, onPage, onSelect, onAdd, onL
 
   return <>
     <TopNav className="pd-workspace-bar" label={t("App controls")}
-      heading={<Text className="pd-wordmark" weight="bold">PEAKS</Text>}
+      heading={<HStack gap={4} align="center">
+        <Text className="pd-wordmark" weight="bold">PEAKS</Text>
+        {profileAccount ? <ActiveAccount account={profileAccount} isActive={state.activeAccountId === profileAccount.id} onOpen={() => onPage('account')} /> : null}
+      </HStack>}
       endContent={<HStack gap={5} align="center">
         <HStack className="pd-client-indicator" gap={2} align="center"><StatusDot label={state.riotClient.detected ? t("Riot Client detected") : t("Riot Client offline")} variant={state.riotClient.detected ? 'accent' : 'neutral'} /><Text type="supporting">{state.riotClient.detected ? t("Client connected") : t("Client offline")}</Text></HStack>
         <FavoriteGameButton state={state} onStateChange={onStateChange} />

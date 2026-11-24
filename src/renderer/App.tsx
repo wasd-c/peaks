@@ -350,7 +350,7 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
       height="fill"
       variant="surface"
       mobileNav={{breakpoint: 'none', hasToggle: false}}
-      topNav={<WorkspaceBar state={state} onStateChange={setState} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
+      topNav={<WorkspaceBar state={state} profileAccount={currentProfile} onStateChange={setState} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
         setPage('overview')
         navigate({type: 'reset'})
         setSelectedAccountId(account.id)
