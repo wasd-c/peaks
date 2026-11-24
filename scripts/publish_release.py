@@ -34,6 +34,24 @@ def _api(endpoint: str) -> Any:
     return json.loads(_gh("api", f"repos/{REPOSITORY}/{endpoint}"))
 
 
+def _created_draft(tag: str) -> dict[str, Any]:
+    # Drafts can return 404 from releases/tags even though the releases list
+    # contains them; retry the list briefly for API propagation.
+    for attempt in range(3):
+        matches = [
+            release
+            for release in _api("releases?per_page=100")
+            if release.get("tag_name") == tag and release.get("draft") is True
+        ]
+        if len(matches) > 1:
+            raise ValueError("Multiple draft releases use the requested tag")
+        if matches:
+            return matches[0]
+        if attempt < 2:
+            time.sleep(1)
+    raise ValueError("Created draft release was not found")
+
+
 def _sha256(path: Path) -> str:
     with path.open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()
@@ -112,7 +130,7 @@ def publish(directory: Path, version: str, expected_commit: str) -> None:
             "--notes",
             "Windows desktop release with in-app updates.",
         )
-        release = _api(f"releases/tags/{tag}")
+        release = _created_draft(tag)
     for path in files:
         print(f"Uploading {path.name}", flush=True)
         _upload(tag, path)

@@ -82,6 +82,27 @@ def test_publishes_only_after_five_verified_uploads(
     assert "--draft=false" in calls[-1]
 
 
+def test_creates_and_finds_a_draft_through_the_releases_list(
+    release: tuple[ModuleType, Path, list[tuple[str, ...]], dict[str, Any]],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module, directory, calls, state = release
+    original_api = module._api
+    lists = 0
+
+    def api(endpoint: str) -> Any:
+        nonlocal lists
+        if endpoint.startswith("releases?"):
+            lists += 1
+            return [] if lists == 1 else [state["release"]]
+        return original_api(endpoint)
+
+    monkeypatch.setattr(module, "_api", api)
+    module.publish(directory, "0.3.0", "a" * 40)
+    assert calls[0][:3] == ("release", "create", "v0.3.0")
+    assert calls[-1][:2] == ("release", "edit")
+
+
 @pytest.mark.parametrize("failure", ["tag", "published", "hash", "uploading", "missing"])
 def test_never_publishes_incomplete_or_unbound_release(
     release: tuple[ModuleType, Path, list[tuple[str, ...]], dict[str, Any]], failure: str
