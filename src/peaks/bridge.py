@@ -492,7 +492,7 @@ class Bridge:
     def __init__(
         self,
         *,
-        account_onboarding_factory: Callable[[], Any] | None = None,
+        account_onboarding_factory: Callable[..., Any] | None = None,
         account_refresh_factory: Callable[[], Any] | None = None,
         session_importer_factory: Callable[[], Any] | None = None,
         qr_approval_factory: Callable[[], Any] | None = None,

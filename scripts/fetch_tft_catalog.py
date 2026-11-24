@@ -12,12 +12,11 @@ import io
 import json
 import math
 import re
-from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from pathlib import Path
 
 import requests
-from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "src/renderer/data/tft"
@@ -69,6 +68,8 @@ def unit_id(unit: dict) -> str | None:
 
 
 def thumbnail(patch: str, candidates: list[str | None]) -> str | None:
+    from PIL import Image
+
     for candidate in dict.fromkeys(candidates):
         if not isinstance(candidate, str) or not candidate.lower().startswith("assets/"):
             continue
@@ -324,7 +325,7 @@ def enrich_catalogs() -> None:
                 continue
             patch = variant["patch"]
             strings = {lang: translations(patch, locale) for lang, locale in LOCALES.items()}
-            def enrich(item):
+            def enrich(item, patch=patch, strings=strings):
                 key, unit = item
                 ability = unit["ability"]
                 if ability.get("source", {}).get("provider") == "MetaTFT":
@@ -367,7 +368,7 @@ def import_patch(patch: str, allowed: list[int] | None) -> None:
             localized = {lang: next((s for s in rows if s["number"] == number and s.get("mutator", f"TFTSet{number}") == mutator), current)
                          for lang, rows in catalogs.items()}
             maps = {lang: {unit_id(u): u for u in data["champions"]} for lang, data in localized.items()}
-            def build_unit(unit):
+            def build_unit(unit, patch=patch, maps=maps):
                 key = unit_id(unit)
                 if not key:
                     return None

@@ -13,8 +13,8 @@ import json
 import re
 from html.parser import HTMLParser
 from pathlib import Path
-
 from urllib.request import ProxyHandler, build_opener
+
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]

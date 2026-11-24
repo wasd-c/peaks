@@ -132,7 +132,7 @@ change MFA, and it does not extract a TOTP secret. MFA enrollment is a separate
 action described below and is never part of Add account or Save reusable Riot
 session.
 
-**Known issue (0.5.0): enabling MFA directly from Peaks is not yet functional.**
+**Known issue (0.6.0): enabling MFA directly from Peaks is not yet functional.**
 Configure MFA at [your Riot account](https://account.riotgames.com/) for now.
 
 The **Enable MFA** integration, in the account's sign-in **More** menu, is still

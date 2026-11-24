@@ -163,10 +163,12 @@ def test_local_signout_is_distinct_from_a_temporary_identity_read_failure(monkey
     service = CurrentGameService()
     assert service.active_riot_subject() == 'owned-subject'
     assert service.riot_session_state == 'active'
-    for result in (TimeoutError(), client.RiotClientError('Temporary', status_code=500), client.RiotClientError('Stale lockfile', status_code=401)):
+    for failure in (TimeoutError(), client.RiotClientError('Temporary', status_code=500), client.RiotClientError('Stale lockfile', status_code=401)):
+        result = failure
         assert service.active_riot_subject() is None
         assert service.riot_session_state == 'unavailable'
-    for result in ({}, client.RiotClientError('No session', status_code=404)):
+    for failure in ({}, client.RiotClientError('No session', status_code=404)):
+        result = failure
         assert service.active_riot_subject() is None
         assert service.riot_session_state == 'signed_out'
 

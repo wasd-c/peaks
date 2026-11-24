@@ -1090,5 +1090,14 @@
   "Synced": "Synchronisé",
   "Loaded matches": "Parties chargées",
   "Elapsed time": "Temps écoulé",
-  "Played": "Jouée"
+  "Played": "Jouée",
+  "A new interface built on Ant Design, and support for the standalone Teamfight Tactics client.": "Une nouvelle interface construite sur Ant Design, et la prise en charge du client autonome de Teamfight Tactics.",
+  "Detect Teamfight Tactics lobbies, queues and live games from the standalone TFT client, and save finished games to your history.": "Détection des salons, files et parties de Teamfight Tactics depuis le client TFT autonome, avec enregistrement des parties terminées dans l’historique.",
+  "See the Riot account Peaks follows next to the wordmark, one click from its profile.": "Le compte Riot suivi par Peaks s’affiche à côté du logo, à un clic de son profil.",
+  "Switch game profiles with their logos, and open a game from its rank card.": "Change de profil de jeu avec son logo, et ouvre un jeu depuis sa carte de rang.",
+  "Rebuild the interface on Ant Design, with one header per page and icons with tooltips instead of repeated text.": "Interface reconstruite sur Ant Design : un seul en-tête par page et des icônes avec info-bulle au lieu de textes répétés.",
+  "Group settings into tabs, and show each game breakdown once with a 7, 30 and 90-day switch.": "Paramètres regroupés en onglets, et une seule répartition des jeux avec un choix 7, 30 ou 90 jours.",
+  "Launch Teamfight Tactics as its own game.": "Teamfight Tactics se lance comme un jeu à part entière.",
+  "Show the party size once in Discord activity.": "La taille du groupe n’apparaît plus qu’une fois dans l’activité Discord.",
+  "Recognize Double Up from its queue type, so event modes keep the right layout.": "Double Up est reconnu par son type de file, pour que les modes événementiels gardent la bonne disposition."
 }

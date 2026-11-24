@@ -7,6 +7,7 @@ import os
 import struct
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,14 +35,16 @@ def main() -> None:
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
-    subprocess.run(
-        [str(executable)],
-        cwd=ROOT,
-        env=env,
-        check=True,
-        timeout=60,
-        startupinfo=startupinfo,
-    )
+    with tempfile.TemporaryDirectory(prefix="peaks-electron-smoke-") as profile:
+        # A running install holds the single-instance lock for its profile.
+        subprocess.run(
+            [str(executable), f"--user-data-dir={profile}"],
+            cwd=ROOT,
+            env=env,
+            check=True,
+            timeout=60,
+            startupinfo=startupinfo,
+        )
     image = screenshot.read_bytes()
     if image[:8] != b"\x89PNG\r\n\x1a\n" or len(image) < 1024:
         raise RuntimeError("Packaged Electron did not render a valid startup screenshot")

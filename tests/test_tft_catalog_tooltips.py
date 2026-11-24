@@ -1,7 +1,11 @@
 """The Set 18 data source must retain real scaling and snapshot provenance."""
 from copy import deepcopy
 
-from scripts.fetch_tft_catalog import curve_star_values, curve_units_by_asset, normalize_curve_ability
+from scripts.fetch_tft_catalog import (
+    curve_star_values,
+    curve_units_by_asset,
+    normalize_curve_ability,
+)
 
 
 def test_curves_use_explicit_step_values_including_missing_middle_stars():

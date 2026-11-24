@@ -9,7 +9,7 @@ const EVENTS = new Set(['app.started', 'backend.started', 'backend.failed', 'bac
 // their own category; do not send unknown names or label them as another action.
 const COMMANDS = new Set([
   'state', 'activity', 'refresh', 'search', 'settings',
-  'add_account', 'remove_account', 'set_account_icon', 'import_session', 'connect_riot_client', 'connect_riot_qr_image',
+  'add_account', 'remove_account', 'set_account_icon', 'import_session', 'connect_riot_client', 'connect_riot_qr_image', 'cancel_connection',
   'pin', 'lock', 'change_pin', 'reset_application', 'api_key',
   'prepare_totp_setup', 'confirm_totp_setup', 'cancel_totp_setup', 'copy_totp', 'enable_riot_mfa',
   'toggle_follow', 'toggle_watchlist', 'copy_match_image', 'discord_presence',

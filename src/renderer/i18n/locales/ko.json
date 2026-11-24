@@ -1090,5 +1090,14 @@
   "Synced": "동기화됨",
   "Loaded matches": "불러온 경기",
   "Elapsed time": "경과 시간",
-  "Played": "플레이"
+  "Played": "플레이",
+  "A new interface built on Ant Design, and support for the standalone Teamfight Tactics client.": "Ant Design 기반의 새 인터페이스와 독립 실행형 전략적 팀 전투 클라이언트 지원.",
+  "Detect Teamfight Tactics lobbies, queues and live games from the standalone TFT client, and save finished games to your history.": "독립 실행형 TFT 클라이언트에서 전략적 팀 전투 로비, 대기열, 진행 중인 게임을 감지하고 끝난 게임을 기록에 저장합니다.",
+  "See the Riot account Peaks follows next to the wordmark, one click from its profile.": "Peaks가 따라가는 Riot 계정이 로고 옆에 표시되며, 클릭 한 번으로 프로필을 엽니다.",
+  "Switch game profiles with their logos, and open a game from its rank card.": "로고로 게임 프로필을 전환하고, 랭크 카드에서 게임을 엽니다.",
+  "Rebuild the interface on Ant Design, with one header per page and icons with tooltips instead of repeated text.": "Ant Design으로 인터페이스를 다시 만들었습니다. 페이지마다 머리글은 하나, 반복되는 문구 대신 도움말이 있는 아이콘을 사용합니다.",
+  "Group settings into tabs, and show each game breakdown once with a 7, 30 and 90-day switch.": "설정을 탭으로 묶고, 게임별 비중은 7일·30일·90일 전환과 함께 한 번만 표시합니다.",
+  "Launch Teamfight Tactics as its own game.": "전략적 팀 전투를 독립된 게임으로 실행합니다.",
+  "Show the party size once in Discord activity.": "Discord 활동에 파티 인원이 한 번만 표시됩니다.",
+  "Recognize Double Up from its queue type, so event modes keep the right layout.": "대기열 유형으로 더블 업을 인식해 이벤트 모드도 올바른 배치를 유지합니다."
 }

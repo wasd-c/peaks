@@ -1090,5 +1090,14 @@
   "Synced": "Synced",
   "Loaded matches": "Loaded matches",
   "Elapsed time": "Elapsed time",
-  "Played": "Played"
+  "Played": "Played",
+  "A new interface built on Ant Design, and support for the standalone Teamfight Tactics client.": "A new interface built on Ant Design, and support for the standalone Teamfight Tactics client.",
+  "Detect Teamfight Tactics lobbies, queues and live games from the standalone TFT client, and save finished games to your history.": "Detect Teamfight Tactics lobbies, queues and live games from the standalone TFT client, and save finished games to your history.",
+  "See the Riot account Peaks follows next to the wordmark, one click from its profile.": "See the Riot account Peaks follows next to the wordmark, one click from its profile.",
+  "Switch game profiles with their logos, and open a game from its rank card.": "Switch game profiles with their logos, and open a game from its rank card.",
+  "Rebuild the interface on Ant Design, with one header per page and icons with tooltips instead of repeated text.": "Rebuild the interface on Ant Design, with one header per page and icons with tooltips instead of repeated text.",
+  "Group settings into tabs, and show each game breakdown once with a 7, 30 and 90-day switch.": "Group settings into tabs, and show each game breakdown once with a 7, 30 and 90-day switch.",
+  "Launch Teamfight Tactics as its own game.": "Launch Teamfight Tactics as its own game.",
+  "Show the party size once in Discord activity.": "Show the party size once in Discord activity.",
+  "Recognize Double Up from its queue type, so event modes keep the right layout.": "Recognize Double Up from its queue type, so event modes keep the right layout."
 }

@@ -129,10 +129,11 @@ def test_electron_builder_embeds_only_the_frozen_runtime_browser_and_brand_icon(
         "patchright-browsers",
         "runtime-manifest.json",
         "brand/peaks-mark.png",
+        "brand/peaks-mark.ico",
     }
     assert all(
-        item["from"] == "src/renderer/assets/peaks-mark.png"
-        if item["to"] == "brand/peaks-mark.png"
+        item["from"] == f"src/renderer/assets/{item['to'].rsplit('/', 1)[-1]}"
+        if item["to"].startswith("brand/")
         else item["from"].startswith("build/electron-runtime/")
         for item in resources
     )

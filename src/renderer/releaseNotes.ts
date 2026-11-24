@@ -2,22 +2,20 @@
  * Update this content as part of preparing a release, before changing its version.
  */
 export const releaseNotes = {
-  summary: 'Detailed Riot profiles, local activity history and one-click favorite-game launching.',
+  summary: "A new interface built on Ant Design, and support for the standalone Teamfight Tactics client.",
   added: [
-    'Explore dedicated VALORANT, League of Legends and TFT profiles with statistics from your available match history.',
-    'Track recorded playtime, activity calendars, sessions and rank changes across Riot games.',
-    'Inspect TFT results and recorded compositions, including units, items, traits and augments.',
-    'Choose and launch your favorite game from the top bar, with optional automatic launch after sign-in.',
+    "Detect Teamfight Tactics lobbies, queues and live games from the standalone TFT client, and save finished games to your history.",
+    "See the Riot account Peaks follows next to the wordmark, one click from its profile.",
+    "Switch game profiles with their logos, and open a game from its rank card.",
   ],
   fixed: [
-    'Prevent repeated JavaScript error dialogs when the launcher console closes.',
-    'Keep cached profiles available when a background refresh has no active game session.',
-    'Restore immediate passcode typing after switching back to Peaks.',
-    'Keep activity timestamps and TFT Double Up results consistent across profile views.',
+    "Show the party size once in Discord activity.",
+    "Recognize Double Up from its queue type, so event modes keep the right layout.",
   ],
   changed: [
-    'Open the active Riot account profile after a verified account change or successful sign-in.',
-    'Browse compact match rows with game-specific results and recorded ranked rewards.',
+    "Rebuild the interface on Ant Design, with one header per page and icons with tooltips instead of repeated text.",
+    "Group settings into tabs, and show each game breakdown once with a 7, 30 and 90-day switch.",
+    "Launch Teamfight Tactics as its own game.",
   ],
   removed: [],
   knownIssues: ['Enabling MFA directly from Peaks is not yet functional. Configure MFA through your Riot account for now.'],
