@@ -132,10 +132,10 @@ export function MoreMenu({items, label = 'More actions', icon, isDisabled, varia
   alignment?: string
   placement?: string
 }) {
-  return <Dropdown menu={{items: menuItems(items)}} trigger={['click']} placement="bottomRight" disabled={isDisabled}>
-    <span><Button label={label} isIconOnly variant={variant} size={size} isDisabled={isDisabled}
-      icon={icon ?? <span aria-hidden style={{fontWeight: 700, letterSpacing: 1}}>⋯</span>} /></span>
-  </Dropdown>
+  return <MenuTrigger hint={label} menu={{items: menuItems(items)}} disabled={isDisabled}>
+    <Button label={label} isIconOnly hasTooltip={false} variant={variant} size={size} isDisabled={isDisabled}
+      icon={icon ?? <span aria-hidden style={{fontWeight: 700, letterSpacing: 1}}>⋯</span>} />
+  </MenuTrigger>
 }
 
 export interface DropdownMenuItemProps {
@@ -149,9 +149,17 @@ export const DropdownMenuItem = (_: DropdownMenuItemProps) => null
 
 export function DropdownMenu({button, children}: {button: Omit<ButtonProps, 'label'> & {label: string}; children?: ReactNode; presentation?: string; alignment?: string; hasChevron?: boolean; menuWidth?: string}) {
   const items = (Array.isArray(children) ? children : [children]).flat().filter(Boolean) as ReactElement<DropdownMenuItemProps>[]
-  return <Dropdown trigger={['click']} placement="bottomRight" disabled={button.isDisabled}
+  return <MenuTrigger hint={button.tooltip ?? button.label} disabled={button.isDisabled}
     menu={{items: items.map((item, index) => ({key: String(item.key ?? index), label: item.props.label, icon: item.props.icon, disabled: item.props.isDisabled, onClick: item.props.onClick, style: item.props.style}))}}>
-    <span><Button {...button} /></span>
+    <Button {...button} hasTooltip={false} />
+  </MenuTrigger>
+}
+
+/** A menu button whose hint hides while its menu is open, so it never covers the menu. */
+function MenuTrigger({hint, menu, disabled, children}: {hint: ReactNode; menu: MenuProps; disabled?: boolean; children: ReactNode}) {
+  const [open, setOpen] = useState(false)
+  return <Dropdown menu={menu} trigger={['click']} placement="bottomRight" disabled={disabled} open={open} onOpenChange={setOpen}>
+    <span><AntTooltip title={hint} open={open ? false : undefined}><span>{children}</span></AntTooltip></span>
   </Dropdown>
 }
 

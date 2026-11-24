@@ -39,6 +39,8 @@ export interface ButtonProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'on
   tooltip?: ReactNode
   onClick?: (event: MouseEvent<HTMLElement>) => void
   clickAction?: () => unknown
+  /** Icon-only buttons explain themselves on hover unless a parent (a menu) handles it. */
+  hasTooltip?: boolean
   isInterruptible?: boolean
   href?: string
   target?: string
@@ -50,7 +52,7 @@ export interface ButtonProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'on
   [data: `data-${string}`]: unknown
 }
 
-export function Button({label, icon, endContent, variant, size = 'md', isIconOnly, isDisabled, isLoading, width, tooltip, onClick, clickAction, isInterruptible: _isInterruptible, type = 'button', src, alt, children, className, style, ...rest}: ButtonProps) {
+export function Button({label, icon, endContent, variant, size = 'md', isIconOnly, isDisabled, isLoading, width, tooltip, onClick, clickAction, isInterruptible: _isInterruptible, hasTooltip = true, type = 'button', src, alt, children, className, style, ...rest}: ButtonProps) {
   const [pending, setPending] = useState(false)
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     onClick?.(event)
@@ -68,7 +70,7 @@ export function Button({label, icon, endContent, variant, size = 'md', isIconOnl
     {isIconOnly ? null : children ?? <>{label}{endContent}</>}
   </AntButton>
   const hint = tooltip ?? (isIconOnly ? label : undefined)
-  return hint ? <AntTooltip title={hint}>{button}</AntTooltip> : button
+  return hint && hasTooltip ? <AntTooltip title={hint}>{button}</AntTooltip> : button
 }
 
 export const IconButton = ({icon, label, ...rest}: Omit<ButtonProps, 'isIconOnly'>) => <Button {...rest} icon={icon} label={label} isIconOnly />

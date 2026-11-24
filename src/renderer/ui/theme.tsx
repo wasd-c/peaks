@@ -49,7 +49,8 @@ export function antThemeFor(name: PeaksTheme): ThemeConfig {
       Tabs: {itemSelectedColor: '#f0f1f3', inkBarColor: accent.primary},
       Segmented: {itemSelectedBg: '#2a2b2f', trackBg: '#141517'},
       Modal: {contentBg: '#141517', headerBg: '#141517'},
-      Tooltip: {colorBgSpotlight: '#2a2b2f'},
+      // Primary text is dark (for accent buttons); tooltips sit on a dark surface, so their text stays light.
+      Tooltip: {colorBgSpotlight: '#2a2b2f', colorTextLightSolid: '#f0f1f3'},
       Button: {primaryShadow: 'none', defaultShadow: 'none'},
       Menu: {itemBg: 'transparent', darkItemBg: 'transparent'},
     },
