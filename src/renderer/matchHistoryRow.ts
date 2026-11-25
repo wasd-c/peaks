@@ -95,8 +95,8 @@ export function matchHistoryRow(match: Match, riotId?: string): MatchHistoryRow 
     const historicalRank = player?.rank?.trim()
     if (historicalRank && !['unknown', '—', '-'].includes(historicalRank.toLocaleLowerCase('en'))) {
       row.rank = historicalRank
-      if (match.game === 'VALORANT' && count(player?.rankTier) && player.rankTier <= 27) row.rankTier = player.rankTier
     }
+    if (match.game === 'VALORANT' && count(player?.rankTier) && player.rankTier >= 3 && player.rankTier <= 27) row.rankTier = player.rankTier
     const unit = match.game === 'VALORANT' ? 'RR' : 'LP'
     const reward = ownerBound ? rankReward(match.delta, unit) : undefined
     if (reward != null) { row.delta = reward; row.deltaUnit = unit }

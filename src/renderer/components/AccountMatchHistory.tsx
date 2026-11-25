@@ -1,57 +1,62 @@
-import {Check, ChevronRight, Equal, History, X} from 'lucide-react'
-import {valorantMapName} from '../assets'
+import {ChevronRight, History} from 'lucide-react'
+import {knownValorantMapAsset, valorantMapName} from '../assets'
 import {displayText, t, useLocale} from '../i18n'
-import {matchHistoryRow} from '../matchHistoryRow'
+import {matchHistoryRow, type MatchHistoryRow} from '../matchHistoryRow'
 import {gameProfileIcon} from '../profileAssets'
 import {gameMode} from '../riotProfile'
-import type {Account, Match} from '../types'
-import {EmptyState, HStack, Icon, Tooltip, VisuallyHidden, VStack} from '../ui'
+import type {Account, Game, Match} from '../types'
+import {EmptyState, Icon, VisuallyHidden} from '../ui'
+import {AccountRankEmblem} from './AccountRankEmblem'
+
+function MatchOutcome({row, game}: {row: MatchHistoryRow; game: Game}) {
+  const result = row.result === 'Unknown' ? undefined : t(row.result)
+  const rounds = game === 'VALORANT' ? row.score?.match(/^(\d+)-(\d+)$/) : undefined
+  const placement = row.placement
+  const score = placement != null ? `#${placement}` : row.score
+  if (!score) return <span className="account-outcome" data-result={row.result}>{result ?? '—'}</span>
+
+  // A surrender can contradict the round count. A League K/D/A never proves a win.
+  const winnerByScore = rounds ? Number(rounds[1]) - Number(rounds[2]) : undefined
+  const scoreExplainsResult = placement != null || (winnerByScore != null && row.result ===
+    (winnerByScore === 0 ? 'Draw' : winnerByScore > 0 ? 'Victory' : 'Defeat'))
+  return <span className="account-outcome" data-result={row.result} title={result}>
+    {rounds ? <span className="account-outcome__rounds"><b>{rounds[1]}</b><i>:</i><b>{rounds[2]}</b></span>
+      : <b className="account-outcome__value">{score}</b>}
+    {result && (scoreExplainsResult ? <VisuallyHidden>{result}</VisuallyHidden> : <small>{result}</small>)}
+  </span>
+}
 
 export function AccountMatchHistory({account, onSelect}: {account: Account; onSelect: (match: Match) => void}) {
   useLocale()
   if (!account.matches?.length) return <EmptyState title={t('No recent matches')} icon={<Icon icon={History} color="secondary" />} />
-  // Legacy entries without a timestamp keep their provider order after dated games.
-  const matches = [...account.matches].sort((left, right) => (right.playedAtTimestamp ?? 0) - (left.playedAtTimestamp ?? 0))
-  return <table className="account-history" aria-label={t('Match history')}>
-    <thead><tr>
-      <th scope="col"><VisuallyHidden>{t('Match')}</VisuallyHidden></th><th scope="col">{t('Result')}</th><th scope="col">{t('Score')}</th>
-      <th scope="col">{t('Rank')}</th><th scope="col">{t('Played')}</th>
-    </tr></thead>
-    <tbody>{matches.map((match, index) => {
+  // Stable sort keeps the source order for undated legacy entries.
+  const matches = [...account.matches].sort((a, b) => (b.playedAtTimestamp ?? 0) - (a.playedAtTimestamp ?? 0))
+  return <ol className="account-history" aria-label={t('Match history')}>
+    {matches.map((match, index) => {
       const row = matchHistoryRow(match, account.riotId)
       const mode = displayText(gameMode(match))
       const map = match.map && !/^(unknown( map)?|current match)$/i.test(match.map)
         ? match.game === 'VALORANT' ? valorantMapName(match.map) : match.map : undefined
       const title = map || match.game
+      const mapArt = match.game === 'VALORANT' && map ? knownValorantMapAsset(map) : undefined
+      const art = mapArt ?? row.character?.image
       const details = [row.character?.name, mode !== t('Unknown queue') && !/^\d+$/.test(mode) && mode !== title ? mode : null].filter(Boolean).join(' · ')
-      const score = row.placement != null ? `#${row.placement}` : row.score ?? '—'
-      const delta = row.delta != null ? `${row.delta > 0 ? '+' : ''}${row.delta} ${row.deltaUnit ?? ''}`.trim() : undefined
-      return <tr key={match.id ?? index} onClick={() => onSelect(match)}>
-        <th scope="row">
-          <button className="account-history__open" type="button" onClick={event => { event.stopPropagation(); onSelect(match) }}>
-            <span className="account-history__media">
-              <img src={row.character?.image ?? gameProfileIcon(match.game)} alt={match.game} />
-              {row.character ? <img className="account-history__game" src={gameProfileIcon(match.game)} alt="" /> : null}
-            </span>
-            <VStack as="span" className="account-history__match" gap={0.5}>
-              <strong>{title}</strong>{details ? <small>{details}</small> : null}
-            </VStack>
-          </button>
-        </th>
-        <td>{row.result === 'Unknown' ? '—' : <Tooltip content={t(row.result)}>
-          <span className="account-history__result" data-result={row.result}><Icon icon={row.result === 'Victory' ? Check : row.result === 'Defeat' ? X : Equal} label={t(row.result)} /></span>
-        </Tooltip>}</td>
-        <td className="account-history__score">{score}</td>
-        <td><HStack as="span" className="account-history__rating" align="center" gap={2} wrap>
-          {row.rank ? <span>{displayText(row.rank)}</span> : null}
-          {delta ? <b data-result={row.delta! > 0 ? 'Victory' : row.delta! < 0 ? 'Defeat' : undefined}>{delta}</b> : null}
-          {!delta && !row.rank ? '—' : null}
-        </HStack></td>
-        <td><HStack as="span" justify="between" align="center" gap={1}>
-          <VStack as="span">{match.playedAt ? displayText(match.playedAt) : '—'}{match.duration ? <small>{match.duration}</small> : null}</VStack>
+      return <li key={match.id ?? index}>
+        <button className="account-history__open" type="button" data-result={row.result} onClick={() => onSelect(match)}>
+          <span className="account-history__media" data-art={Boolean(art)}>
+            <img src={art ?? gameProfileIcon(match.game)} alt={art ? '' : match.game} loading="lazy" />
+            {art && <img className="account-history__game" src={gameProfileIcon(match.game)} alt={match.game} />}
+          </span>
+          <span className="account-history__match"><strong>{title}</strong>{details && <small>{details}</small>}</span>
+          <MatchOutcome row={row} game={match.game} />
+          <span className="account-history__rating">
+            <AccountRankEmblem game={match.game} rank={row.rank} tierId={row.rankTier} />
+            {row.delta != null && <b data-direction={Math.sign(row.delta)}>{row.delta > 0 ? '+' : ''}{row.delta} <small>{row.deltaUnit}</small></b>}
+          </span>
+          <span className="account-history__when">{match.playedAt && displayText(match.playedAt)}{match.duration && <small>{match.duration}</small>}</span>
           <Icon icon={ChevronRight} size="sm" color="secondary" />
-        </HStack></td>
-      </tr>
-    })}</tbody>
-  </table>
+        </button>
+      </li>
+    })}
+  </ol>
 }

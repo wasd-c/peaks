@@ -7,13 +7,14 @@ import {Badge, Button as AntButton, Descriptions, Dropdown, Flex, Space, Spin, T
 import {ArrowLeft, BarChart3, Copy, Ellipsis, History, KeyRound, QrCode, Radio, RefreshCw, ShieldCheck, Trash2} from 'lucide-react'
 import {gameProfileIcon} from '../profileAssets'
 import {resolveAccountIcon} from '../accountIcons'
+import {AccountRankEmblem} from '../components/AccountRankEmblem'
 import {AccountMatchHistory} from '../components/AccountMatchHistory'
 import './accountDetail.css'
 import {CompetitiveInsights} from '../components/CompetitiveInsights'
 import {PasteQrDialog} from '../components/PasteQrDialog'
 import type {QrImageRequest} from '../qrImage'
 import type {Account, Match} from '../types'
-import {AuthenticatedScreen, GAMES, RankMedia, rankLabel, rankRatingLabel} from './shared'
+import {AuthenticatedScreen, GAMES, rankLabel, rankRatingLabel} from './shared'
 
 type AccountTab = 'matches' | 'insights' | 'security'
 
@@ -54,6 +55,11 @@ export function AccountDetailScreen({
   const name = displayName(account.riotId)
   const avatar = resolveAccountIcon(account)
   const regions = accountRegionLabels(account)
+  const ranks = GAMES.flatMap(game => {
+    const rank = account.ranks.find(item => item.game === game)
+    return rank?.tier.trim() && !/^(unranked|unknown|unavailable|rank unavailable|—|-)$/i.test(rank.tier.trim()) ? [rank] : []
+  })
+  const unrankedGames = account.ranks.filter(rank => /^unranked$/i.test(rank.tier.trim()))
 
   const deleteAccount = async () => {
     setDeleting(true)
@@ -112,22 +118,26 @@ export function AccountDetailScreen({
           </Space.Compact>
         </>}>
         <VStack className="account-detail-body" gap={6}>
-          <section className="account-ranks" aria-label={t('Ranks')}>
-            {GAMES.map(game => {
-              const rank = account.ranks.find(item => item.game === game)
-              const ranked = rank && !/^(unranked|unknown|unavailable|rank unavailable)$/i.test(rank.tier)
-              return <HStack key={game} className="account-ranks__game" align="center" justify="between" gap={2} data-ranked={ranked || undefined}>
-                <HStack className="account-ranks__summary" align="center" gap={3}>
-                  <Tooltip title={game}><img className="account-ranks__logo" src={gameProfileIcon(game)} alt={game} /></Tooltip>
-                  <HStack className="account-ranks__value" align="baseline" gap={2} wrap>
-                    {ranked ? <strong>{displayText(rankLabel(rank))}</strong> : <Tooltip title={rank ? displayText(rankLabel(rank)) : t('Rank unavailable')}><span role="img" aria-label={rank ? displayText(rankLabel(rank)) : t('Rank unavailable')}>—</span></Tooltip>}
-                    {ranked && rank.rating != null ? <Text hasTabularNumbers>{rankRatingLabel(game, rank.rating)}</Text> : null}
-                  </HStack>
-                </HStack>
-                {ranked ? <RankMedia rank={rank} /> : null}
+          <HStack as="section" className="account-rank-strip" aria-label={t('Ranks')} gap={5} align="center" wrap>
+            {ranks.length ? ranks.map(rank => {
+              const label = rankLabel(rank)
+              const rating = rank.rating
+              const hasRating = rating != null && Number.isFinite(rating) && rating >= 0
+              const showMeter = hasRating && rating <= 100 && rank.game === 'VALORANT'
+                && /^(iron|bronze|silver|gold|platinum|diamond|ascendant)\b/i.test(label)
+              return <HStack key={rank.game} className="account-rank-strip__game" gap={3} align="center">
+                <Tooltip title={rank.game}><img className="account-rank-strip__logo" src={gameProfileIcon(rank.game)} alt={rank.game} /></Tooltip>
+                <AccountRankEmblem game={rank.game} rank={label} />
+                {hasRating ? <VStack gap={1}>
+                  <Text hasTabularNumbers weight="semibold">{rankRatingLabel(rank.game, rating)}</Text>
+                  {showMeter ? <meter className="account-rank-strip__meter" min={0} max={100} value={rating} aria-label={rankRatingLabel(rank.game, rating)} /> : null}
+                </VStack> : null}
               </HStack>
-            })}
-          </section>
+            }) : <HStack align="center" gap={2}>
+              {unrankedGames.map(({game}) => <Tooltip key={game} title={game}><img className="account-rank-strip__logo" src={gameProfileIcon(game)} alt={game} /></Tooltip>)}
+              <Text color="secondary">{unrankedGames.length ? t('Unranked') : t('Rank unavailable')}</Text>
+            </HStack>}
+          </HStack>
           <Tabs className="account-detail-tabs" activeKey={tab} onChange={value => setTab(value as AccountTab)}
             tabBarExtraContent={account.lastUpdated ? <Tooltip title={t('Synced')}><HStack className="account-detail__synced" align="center" gap={1.5}><Icon icon={RefreshCw} size="sm" label={t('Synced')} />{displayText(account.lastUpdated)}</HStack></Tooltip> : undefined}
             items={[
