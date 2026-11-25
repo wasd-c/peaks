@@ -441,6 +441,19 @@ describe('Discord activity projection', () => {
     }
   })
 
+  it('resolves the codename the backend reports for every bundled map', () => {
+    const metadata = JSON.parse(readFileSync(new URL('../src/peaks/ui/assets/riot/valorant/index.json', import.meta.url), 'utf8')) as {
+      maps: Array<{displayName: string; mapUrl: string}>
+    }
+    // Mirrors CurrentGameService._valorant_map_name: last path segment, "_" → " ", title case.
+    const backendName = (mapUrl: string) => mapUrl.split('/').filter(Boolean).at(-1)!
+      .replace(/_/g, ' ').replace(/\w\S*/g, word => word[0].toUpperCase() + word.slice(1).toLowerCase())
+    expect(backendName('/Game/Maps/Triad/Triad')).toBe('Triad')
+    for (const map of metadata.maps) {
+      expect(buildDiscordActivity(snapshot(undefined, {map: backendName(map.mapUrl)}))?.details).toBe(`Trying on ${map.displayName}`)
+    }
+  })
+
   it('is deterministic, leaves its input unchanged, and bounds all outbound text', () => {
     const state = snapshot(undefined, {partySize: 5})
     const original = JSON.stringify(state)

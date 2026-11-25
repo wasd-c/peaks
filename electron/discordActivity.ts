@@ -294,7 +294,12 @@ const mapLookup = new Map<string, {name: string; image: string; skirmish: boolea
 for (const [name, uuid, mapUrl, path] of MAP_CATALOG) {
   // Same rule as agents: only bundled catalog UUIDs ever form an artwork URL.
   const map = {name, image: `https://media.valorant-api.com/maps/${uuid}/splash.png`, skirmish: mapUrl.startsWith('/Game/Maps/Duel/')}
-  for (const alias of [name, uuid, mapUrl, path, `riot/${path}`]) mapLookup.set(alias.toLowerCase(), map)
+  // The backend reports Riot's internal codename ("Triad" for Haven,
+  // "HURM_Bowl" as "Hurm Bowl"), so accept the last mapUrl segment too.
+  const internal = mapUrl.split('/').at(-1)!
+  for (const alias of [name, uuid, mapUrl, path, `riot/${path}`, internal, internal.replace(/_/g, ' ')]) {
+    mapLookup.set(alias.toLowerCase(), map)
+  }
 }
 
 // Skirmish is 1v1 or 2v2. Riot's party presence can still report the generic
