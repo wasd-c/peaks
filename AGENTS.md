@@ -12,3 +12,4 @@ The renderer is built on **Ant Design 6** (`antd`), dark theme, with Peaks's own
 - Spacing props are steps of 4px (`gap={3}` = 12px).
 - Custom styling: component props first; otherwise CSS with tokens (`var(--color-*)`, `var(--spacing-*)`, `var(--radius-*)`). No raw hex/px in screens.
 - Dense data = rows (`Table`, `List`/`ListItem`), never cards around list items. Status = `StatusDot`/`Token`.
+- Omit headings, captions and counts that repeat what the screen already shows. Use recognizable game logos and action icons with accessible names and tooltips. Keep visible text for ambiguous actions, data units and exceptional states.

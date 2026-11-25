@@ -1,0 +1,75 @@
+.account-detail-body { min-width: 0; container: account-detail / inline-size; }
+.account-detail__identity { min-width: 0; }
+.account-detail__identity .pk-avatar { background: var(--color-background-muted); }
+.account-detail__identity .peaks-screen__title { overflow-wrap: anywhere; }
+.account-detail__meta, .account-detail__synced { color: var(--color-text-secondary); }
+.account-detail__meta .ant-badge-status-text { color: var(--color-text-primary); }
+.account-detail__meta .ant-typography { color: inherit; }
+
+.account-ranks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block: var(--border-width) solid var(--color-border);
+  background: var(--color-background-card);
+}
+.account-ranks__game { min-width: 0; padding: var(--spacing-4) var(--spacing-5); }
+.account-ranks__game + .account-ranks__game { border-inline-start: var(--border-width) solid var(--color-border); }
+.account-ranks__logo { width: var(--spacing-6); height: var(--spacing-6); object-fit: contain; }
+.account-ranks__value strong { font-size: var(--font-size-xl); color: var(--color-text-secondary); }
+.account-ranks__game[data-ranked] .account-ranks__value strong { color: var(--color-text-primary); }
+.account-ranks__value .pk-text { color: var(--color-text-secondary); }
+.account-ranks__game .peaks-rank-media { width: var(--spacing-12); height: var(--spacing-12); flex: none; }
+.account-detail-tabs > .ant-tabs-nav { margin-bottom: 0; }
+.account-detail-tabs .ant-tabs-tab { font-weight: var(--font-weight-semibold); }
+.account-detail-tabs .ant-tabs-tab { min-width: var(--spacing-10); justify-content: center; }
+.account-detail__count .ant-badge-count { color: var(--color-text-primary); background: var(--color-background-gray); box-shadow: none; }
+.account-detail-tabs :is(.ant-descriptions, .ant-tabs-tabpane > .pk-vstack) { margin-block-start: var(--spacing-4); }
+
+.account-history { width: 100%; border-collapse: collapse; text-align: start; font-variant-numeric: tabular-nums; }
+.account-history thead th {
+  text-align: start; color: var(--color-text-secondary); font-weight: var(--font-weight-medium);
+  background: var(--color-background-muted); padding: var(--spacing-2) var(--spacing-3);
+}
+.account-history tbody tr { cursor: pointer; border-bottom: var(--border-width) solid var(--color-border); }
+.account-history tbody tr:is(:hover, :focus-within) { background: var(--color-overlay-hover); }
+.account-history td, .account-history th { padding: 0 var(--spacing-3); }
+.account-history tbody th { text-align: start; width: 36%; }
+.account-history__open {
+  display: flex; align-items: center; gap: var(--spacing-3); width: 100%;
+  padding: var(--spacing-2) 0; color: inherit; border: 0; background: transparent;
+  font: inherit; text-align: start; cursor: pointer;
+}
+.account-history__open:focus-visible { outline: var(--focus-outline-width) solid var(--focus-outline-color); }
+.account-history__media { position: relative; display: inline-flex; flex: none; }
+.account-history__media > img:first-child {
+  width: var(--spacing-10); height: var(--spacing-10); object-fit: contain;
+  border-radius: var(--radius-inner); background: var(--color-background-muted);
+}
+.account-history__game {
+  position: absolute; inset: auto calc(-1 * var(--spacing-1)) calc(-1 * var(--spacing-0-5)) auto;
+  width: var(--spacing-4); height: var(--spacing-4); padding: var(--spacing-0-5);
+  background: var(--color-background-body); border-radius: var(--radius-inner);
+}
+.account-history__match { min-width: 0; overflow-wrap: anywhere; }
+.account-history__match strong { font-size: var(--font-size-lg); }
+.account-history small { color: var(--color-text-secondary); font-weight: var(--font-weight-normal); }
+.account-history [data-result="Victory"] { color: var(--color-success); }
+.account-history [data-result="Defeat"] { color: var(--color-error); }
+.account-history__score { white-space: nowrap; font-weight: var(--font-weight-semibold); }
+.account-history__rating b { white-space: nowrap; }
+.account-history td:last-child { color: var(--color-text-secondary); }
+
+@container account-detail (max-width: 52rem) {
+  .account-ranks__game { padding: var(--spacing-3); }
+  .account-ranks__game .peaks-rank-media { width: var(--spacing-8); height: var(--spacing-8); }
+  .account-detail__synced { font-size: var(--font-size-base); }
+}
+@container account-detail (max-width: 39rem) {
+  .account-ranks { grid-template-columns: 1fr; }
+  .account-ranks__game + .account-ranks__game { border-inline-start: 0; border-block-start: var(--border-width) solid var(--color-border); }
+  .account-ranks__value strong { font-size: var(--font-size-lg); }
+  .account-history :is(th, td) { padding-inline: var(--spacing-1); }
+  .account-history__media > img:first-child { width: var(--spacing-7); height: var(--spacing-7); }
+  .account-history__open { gap: var(--spacing-1-5); }
+  .account-detail-tabs > .ant-tabs-nav { flex-wrap: wrap; }
+}

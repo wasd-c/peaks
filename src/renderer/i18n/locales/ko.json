@@ -1,4 +1,13 @@
 {
+  "Lobby standings": "로비 순위",
+  "Tactician": "전략가",
+  "Board": "전장",
+  "Eliminated": "탈락",
+  "Scout {{name}}": "{{name}} 정찰",
+  "{{alive}} / {{total}} alive": "{{total}}명 중 {{alive}}명 생존",
+  "Recent games": "최근 경기",
+  "Statistics source": "통계 기준",
+  "Rank": "티어",
   "Use arrow keys to move by day or week, Home and End within a week, and Enter to open the timeline.": "방향키로 날짜나 주를 이동하고 Home과 End로 주의 처음과 끝을 탐색하세요. Enter로 타임라인을 엽니다.",
   "Activity analysis": "활동 분석",
   "Rank history": "랭크 변동",

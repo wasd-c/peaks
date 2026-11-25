@@ -1,4 +1,13 @@
 {
+  "Lobby standings": "Classement du lobby",
+  "Tactician": "Tacticien",
+  "Board": "Plateau",
+  "Eliminated": "Éliminé",
+  "Scout {{name}}": "Observer {{name}}",
+  "{{alive}} / {{total}} alive": "{{alive}} / {{total}} en vie",
+  "Recent games": "Parties récentes",
+  "Statistics source": "Source des statistiques",
+  "Rank": "Rang",
   "Use arrow keys to move by day or week, Home and End within a week, and Enter to open the timeline.": "Utilise les flèches pour changer de jour ou de semaine, Début et Fin dans la semaine, et Entrée pour ouvrir la chronologie.",
   "Activity analysis": "Analyse de l’activité",
   "Rank history": "Évolution du classement",
