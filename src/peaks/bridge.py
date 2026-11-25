@@ -3419,6 +3419,18 @@ _DIAGNOSTIC_BRIDGE_COMMANDS = frozenset(
 )
 _CONNECTION_COMMANDS = frozenset({"add_account", "import_session", "connect_riot_client", "connect_riot_qr_image"})
 _COMMANDS_DURING_SESSION_IMPORT = frozenset({"activity", "copy_totp", "lock", "state"})
+# The connection worker reads these when sign-in completes, so changing them
+# mid-connection decides whether the favorite game launches afterwards.
+_SETTINGS_DURING_CONNECTION = frozenset({"autoLaunchFavoriteGame", "favoriteGame"})
+
+
+def _allowed_during_connection(command: str, request: object, active_command: str) -> bool:
+    if command in (_COMMANDS_DURING_SESSION_IMPORT if active_command == "import_session" else {"copy_totp", "lock", "state"}):
+        return True
+    if command != "settings" or not isinstance(request, Mapping):
+        return False
+    payload = request.get("payload")
+    return isinstance(payload, Mapping) and bool(payload) and set(payload) <= _SETTINGS_DURING_CONNECTION
 
 
 def _bridge_request_command(request: object) -> str:
@@ -3532,8 +3544,7 @@ class _BridgeRequestDispatcher:
         with self._state_lock:
             import_active = self._session_import_active
             active_command = self._active_connection_command
-        allowed = _COMMANDS_DURING_SESSION_IMPORT if active_command == "import_session" else {"copy_totp", "lock", "state"}
-        if import_active and command not in allowed:
+        if import_active and not _allowed_during_connection(command, request, active_command):
             self._write(
                 {
                     "id": request_id,

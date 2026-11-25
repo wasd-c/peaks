@@ -106,6 +106,40 @@ def test_bridge_keeps_totp_copy_responsive_during_session_import() -> None:
     assert bridge._session_import_in_progress is False  # type: ignore[attr-defined]
 
 
+def test_launch_preferences_can_change_while_a_riot_sign_in_is_running() -> None:
+    class BlockingBridge:
+        def __init__(self) -> None:
+            self.started = threading.Event()
+            self.release = threading.Event()
+            self.settings: dict[str, Any] = {"autoLaunchFavoriteGame": False}
+
+        def handle(self, command: str, payload: dict[str, Any]) -> dict[str, Any]:
+            if command == "connect_riot_client":
+                self.started.set()
+                assert self.release.wait(timeout=1)
+                # The worker decides after sign-in, so it sees the new value.
+                return {"launched": self.settings["autoLaunchFavoriteGame"]}
+            assert command == "settings"
+            self.settings.update(payload)
+            return {"settings": dict(self.settings)}
+
+    bridge = BlockingBridge()
+    responses: list[Mapping[str, Any]] = []
+    dispatcher = _BridgeRequestDispatcher(bridge, responses.append)  # type: ignore[arg-type]
+
+    dispatcher.dispatch({"id": 1, "command": "connect_riot_client", "payload": {}})
+    assert bridge.started.wait(timeout=1)
+    dispatcher.dispatch({"id": 2, "command": "settings", "payload": {"autoLaunchFavoriteGame": True}})
+    dispatcher.dispatch({"id": 3, "command": "settings", "payload": {"autoLaunchFavoriteGame": False, "lockOnBlur": False}})
+    bridge.release.set()
+    dispatcher.wait_for_workers()
+
+    by_id = {response["id"]: response for response in responses}
+    assert by_id[2] == {"id": 2, "result": {"settings": {"autoLaunchFavoriteGame": True}}}
+    assert by_id[3]["error"] == "Finish or close the temporary Riot sign-in before this action"
+    assert by_id[1] == {"id": 1, "result": {"launched": True}}
+
+
 def test_cancel_connection_interrupts_a_running_account_request() -> None:
     class BlockingBridge:
         def __init__(self) -> None:

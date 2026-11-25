@@ -10,9 +10,11 @@ const games: readonly Game[] = ['VALORANT', 'League of Legends', 'Teamfight Tact
 const gameIcon = (game: Game) => <img src={gameProfileIcon(game)} alt=""
   style={{width: 'var(--spacing-6)', height: 'var(--spacing-6)', objectFit: 'contain'}} />
 
-export function FavoriteGameButton({state, onStateChange}: {
+export function FavoriteGameButton({state, onStateChange, onSignInRequired}: {
   state: AppState
   onStateChange: (state: AppState) => void
+  /** Called instead of launching when no Riot account is signed in. */
+  onSignInRequired: () => void
 }) {
   useLocale()
   const showToast = useToast()
@@ -22,6 +24,12 @@ export function FavoriteGameButton({state, onStateChange}: {
 
   const perform = async (kind: 'save' | 'launch', game?: string) => {
     if (inFlight.current || (kind === 'save' && game === favorite)) return
+    // Launching without a signed-in account would only open Riot's login
+    // screen; send the user to Accounts so they can connect one first.
+    if (kind === 'launch' && !state.activeAccountId) {
+      onSignInRequired()
+      return
+    }
     inFlight.current = true
     setPending(kind)
     try {

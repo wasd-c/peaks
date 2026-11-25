@@ -83,7 +83,7 @@ export function WorkspaceBar({state, profileAccount, onStateChange, onPage, onSe
             <img src={riotFist} alt={state.riotClient.detected ? t("Riot Client detected") : t("Riot Client offline")} data-online={state.riotClient.detected || undefined} />
           </Badge>
         </Tooltip>
-        <FavoriteGameButton state={state} onStateChange={onStateChange} />
+        <FavoriteGameButton state={state} onStateChange={onStateChange} onSignInRequired={() => onPage('overview')} />
         <Button className="pd-command-trigger" label={t("Search accounts and commands")} tooltip={t("Quick switch · Ctrl K")} variant="secondary" onClick={() => setOpen(true)}>
           <HStack gap={3} align="center"><Icon icon={Search} size="sm" /><Text color="secondary">{t("Search…")}</Text><Text className="pd-key-hint" type="supporting">{t("Ctrl K")}</Text></HStack>
         </Button>
