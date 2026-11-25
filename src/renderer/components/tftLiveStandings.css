@@ -1,0 +1,224 @@
+.tft-live {
+  --tft-live-gold: var(--color-tft-metal-gold-light);
+  --tft-live-panel: var(--color-background-surface);
+  --tft-live-line: var(--color-border);
+  container-type: inline-size;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.tft-live-heading .pk-heading {
+  font-size: var(--font-size-2xl);
+  line-height: var(--text-display-1-leading);
+}
+.tft-live-heading__mark { color: var(--tft-live-gold); }
+.tft-live-remaining, .tft-scout-time {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+.tft-live-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.15fr) minmax(16rem, 1fr);
+  align-items: start;
+  gap: var(--spacing-5);
+}
+.tft-live-ladder, .tft-scout {
+  min-width: 0;
+  background: var(--tft-live-panel);
+  border: var(--border-width) solid var(--tft-live-line);
+  border-radius: var(--radius-element);
+  overflow: hidden;
+}
+.tft-live-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+.tft-live-table th { text-align: start; }
+.tft-live-table thead {
+  background: color-mix(in srgb, var(--color-tft-metal-gold-shadow) 10%, var(--tft-live-panel));
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.tft-live-table thead th {
+  height: var(--spacing-10);
+  font-weight: var(--font-weight-semibold);
+}
+.tft-live-place, .tft-live-board, .tft-live-handle { text-align: center !important; }
+.tft-live-place { width: var(--spacing-12); }
+.tft-live-place abbr { text-decoration: none; }
+.tft-live-health { width: 31%; padding-inline-end: var(--spacing-3); }
+.tft-live-table .tft-live-board { width: 13%; }
+.tft-live-handle { width: var(--spacing-9); }
+.tft-live-table td {
+  padding-block: var(--spacing-2);
+  border-top: var(--border-width) solid var(--tft-live-line);
+  height: calc(var(--spacing-12) + var(--spacing-2));
+}
+.tft-live-pair th {
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-background-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.tft-live-pair .pk-icon { vertical-align: text-bottom; margin-inline-end: var(--spacing-1); }
+.tft-live-row[data-selected="true"] {
+  background: color-mix(in srgb, var(--color-tft-metal-gold-mid) 13%, var(--tft-live-panel));
+}
+.tft-live-row[data-out="true"] { color: var(--color-text-secondary); }
+.tft-live-row[data-dragging="true"], .tft-live-row[data-drop-target="true"] {
+  background: color-mix(in srgb, var(--tft-live-gold) 20%, var(--tft-live-panel));
+  outline: var(--border-width) dashed var(--tft-live-gold);
+  outline-offset: calc(0rem - var(--border-width));
+}
+.tft-live-row .tft-live-place {
+  font: 800 var(--font-size-2xl)/1 var(--live-display, var(--peaks-font-game));
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.tft-live-place[data-standing="1"] { color: var(--tft-live-gold); }
+.tft-live-place[data-standing="2"] { color: var(--color-tft-metal-silver-light); }
+.tft-live-place[data-standing="3"] { color: var(--color-tft-metal-bronze-light); }
+.tft-live-scout.ant-btn {
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) 0;
+  border: 0;
+  gap: var(--spacing-1);
+  justify-content: start;
+  color: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+  white-space: normal;
+}
+.tft-live-scout.ant-btn > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-width: 0;
+  max-width: 100%;
+}
+.tft-live-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tft-live-name small {
+  margin-inline-start: var(--spacing-0-5);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-normal);
+  letter-spacing: normal;
+}
+.tft-live-scout .pk-icon { flex: none; color: var(--tft-live-gold); opacity: 0; }
+.tft-live-scout:is(:hover, :focus-visible, [aria-pressed="true"]) .pk-icon { opacity: 1; }
+.tft-live-identity__status {
+  display: block;
+  color: var(--tft-live-gold);
+  line-height: 1;
+  font-size: var(--font-size-sm);
+}
+.tft-live-row[data-out="true"] .tft-live-identity__status { color: var(--color-text-secondary); }
+.tft-live-vital strong { min-width: 3ch; font-weight: var(--font-weight-semibold); }
+.tft-live-vital meter {
+  display: block;
+  appearance: none;
+  min-width: 0;
+  width: 100%;
+  height: var(--spacing-1-5);
+  border: 0;
+  background: none;
+}
+.tft-live-vital meter::-webkit-meter-bar {
+  height: 100%;
+  border: 0;
+  background: var(--color-track);
+  border-radius: var(--radius-full);
+}
+.tft-live-vital meter::-webkit-meter-optimum-value {
+  background: var(--color-tft-health);
+  border-radius: inherit;
+}
+.tft-live-vital meter[data-low="true"]::-webkit-meter-optimum-value { background: var(--color-warning); }
+.tft-live-board .pk-icon { color: var(--color-icon-secondary); }
+.tft-live-handle .ant-btn { color: var(--color-text-secondary); }
+.tft-scout:focus-visible { outline: var(--focus-outline-width) solid var(--tft-live-gold); outline-offset: var(--focus-outline-offset); }
+.tft-scout-identity {
+  min-height: var(--spacing-32);
+  isolation: isolate;
+  position: relative;
+  padding: var(--spacing-4);
+  background: var(--tft-live-panel);
+}
+.tft-scout-arena {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  mask-image: linear-gradient(to bottom, var(--color-on-light) 12%, transparent 100%);
+}
+.tft-scout-title.pk-heading {
+  display: flex;
+  color: var(--color-on-dark);
+  font-size: var(--font-size-2xl);
+  line-height: var(--text-display-1-leading);
+}
+.tft-scout-title .tft-live-name small { display: inline-block; }
+.tft-scout-subtitle { color: var(--tft-live-gold); }
+.tft-scout-body { padding: 0 var(--spacing-4) var(--spacing-4); }
+.tft-scout dl, .tft-scout dd, .tft-scout ul { margin: 0; }
+.tft-scout-metrics {
+  gap: var(--spacing-5);
+  padding: var(--spacing-2) 0 var(--spacing-4);
+  border-bottom: var(--border-width) solid var(--tft-live-line);
+}
+.tft-scout-metrics dl { flex: 1; }
+.tft-scout-metrics dt, .tft-scout-stat dt {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.tft-scout-metrics dt, .tft-scout-stat dd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+.tft-scout-metrics dd {
+  font: 800 var(--font-size-4xl)/1 var(--live-display, var(--peaks-font-game));
+  font-variant-numeric: tabular-nums;
+}
+.tft-scout-stat { padding-block: var(--spacing-1-5); }
+.tft-scout-stat dd { font-weight: var(--font-weight-semibold); }
+.tft-scout-stats:empty { display: none; }
+.tft-scout-rank { width: var(--spacing-5); height: var(--spacing-5); object-fit: contain; }
+.tft-scout-units { padding: 0; list-style: none; }
+.tft-scout-units li { display: flex; }
+.tft-scout-units img { width: var(--spacing-8); height: var(--spacing-8); object-fit: cover; border-radius: var(--radius-inner); }
+.tft-scout-profile.ant-btn { width: 100%; justify-content: space-between; }
+
+.tft-live-table thead th, .tft-scout-metrics dt, .tft-scout-stat dt, .tft-scout-time, .tft-live-remaining {
+  font-size: var(--font-size-base);
+}
+@media (max-height: 46rem) {
+  .tft-live-table td { height: var(--spacing-11); padding-block: var(--spacing-1); }
+  .tft-live { gap: var(--spacing-2); }
+}
+
+@container (max-width: 54rem) {
+  .tft-live-layout { grid-template-columns: minmax(0, 1fr); gap: var(--spacing-4); }
+  .tft-scout { display: grid; grid-template-columns: minmax(11rem, 0.8fr) minmax(0, 1.5fr); }
+  .tft-scout-body { padding: var(--spacing-4); }
+  .tft-scout-arena { object-position: center; }
+}
+@container (max-width: 32rem) {
+  .tft-live-table .tft-live-place { width: var(--spacing-8); }
+  .tft-live-table .tft-live-handle { width: var(--spacing-7); }
+  .tft-live-health { width: 20%; padding-inline-end: var(--spacing-1); }
+  .tft-live-vital { gap: var(--spacing-1); }
+  .tft-live-board .pk-icon { display: none; }
+  .tft-live-name small { display: none; }
+  .tft-scout { display: block; }
+}

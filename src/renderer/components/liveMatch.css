@@ -1,0 +1,70 @@
+@font-face {
+  font-family: "Peaks Live Display";
+  src: url("../assets/fonts/BarlowCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-display: swap;
+}
+
+.peaks-screen--current-match {
+  --live-display: "Peaks Live Display", var(--font-family-heading);
+}
+
+.peaks-screen__header:has(.live-match-header) {
+  container: live-header / inline-size;
+  padding-block: var(--spacing-4);
+}
+
+.peaks-screen__header .live-match-header {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.live-match-header__identity { min-width: 0; }
+.live-match-header__identity > .pk-vstack { min-width: 0; }
+.live-match-header__mark { width: var(--spacing-9); height: var(--spacing-9); object-fit: contain; }
+
+.live-match-header .live-match-header__title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.live-match-header__mode { line-height: var(--text-body-leading); }
+.live-match-header .live-match-header__score > .pmc-match-banner__score {
+  font-family: var(--live-display);
+  font-size: var(--font-size-4xl);
+  line-height: 1;
+}
+
+.live-match-header__telemetry {
+  grid-column: 3;
+  justify-self: end;
+  color: var(--color-text-secondary);
+}
+
+.live-match-header__telemetry > .pk-hstack { white-space: nowrap; }
+.live-match-header__status {
+  color: var(--color-success);
+  padding-inline-start: var(--spacing-4);
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+
+.live-match-header__status[data-stale] { color: var(--color-warning); }
+
+.peaks-screen--current-match [data-roster-row][data-drop-target="true"] {
+  outline: var(--focus-outline-width) solid var(--color-text-primary);
+  outline-offset: calc(-1 * var(--focus-outline-width));
+}
+
+.peaks-screen--current-match [data-roster-row][data-dragging="true"] {
+  background: var(--color-overlay-pressed);
+}
+
+@container live-header (max-width: 46rem) {
+  .peaks-screen__header .live-match-header { grid-template-columns: minmax(0, 1fr) auto; }
+  .live-match-header__telemetry { grid-column: 1 / -1; justify-self: start; }
+  .live-match-header__mark { width: var(--spacing-7); height: var(--spacing-7); }
+}

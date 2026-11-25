@@ -1,13 +1,14 @@
-import {displayText, formatNumber, localeTags, t, useLocale} from '../i18n'
-import {useId, useRef, useState, type Dispatch, type DragEvent, type KeyboardEvent, type SetStateAction} from 'react'
-import {Button, Card, Grid, GridSpan, Heading, HStack, Icon, IconButton, Skeleton, Text, Token, Tooltip, VStack, VisuallyHidden} from '../ui'
-import {ArrowUpRight, Check, Crown, EyeOff, GripVertical, RotateCcw, Shield, UsersRound} from 'lucide-react'
+import {displayText, localeTags, t, useLocale} from '../i18n'
+import {useId, useState, type Dispatch, type SetStateAction} from 'react'
+import {Button, Card, Grid, GridSpan, Heading, HStack, Icon, Skeleton, Text, Token, Tooltip, VStack, VisuallyHidden} from '../ui'
+import {ArrowUpRight, Check, Crown, EyeOff, Shield, UsersRound} from 'lucide-react'
 import {hasExactValorantRankAsset, rankAsset, valorantAgentName, valorantAgentPortraitAsset} from '../assets'
 import {historicalPerformanceTags, playerPerformanceTags, type PerformanceTag} from '../matchAnalytics'
-import {alignValorantMatchup, moveTeamCard} from '../matchCardOrder'
-import {fitsValorantRoster, isConfirmedDuo, matchGridColumns, resolveMatchLayout} from '../matchLayout'
+import {ReorderHandle, useMatchRoster, type CardReorder} from './useMatchRoster'
+import {fitsValorantRoster, isConfirmedDuo, matchGridColumns} from '../matchLayout'
 import {matchPlayerProfile} from '../playerProfiles'
-import type {Game, MatchPlayer, MatchTeam, Player, PlayerStats, SessionPhase} from '../types'
+import type {Game, MatchPlayer, MatchTeam, Player, SessionPhase} from '../types'
+import {average, hasNumbers, numeric, statsRows, validNumber} from '../matchStatRows'
 import {usePlayerPrivacy} from './PlayerPrivacy'
 
 interface PlayerMatchCardsProps {
@@ -29,46 +30,6 @@ interface PlayerMatchCardsProps {
   allowReorder?: boolean
   fitToHeight?: boolean
   onSelectPlayer: (player: Player) => void
-}
-
-const validNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0
-const hasNumbers = (stats?: PlayerStats) => Boolean(stats && Object.entries(stats).some(([key, value]) => !['matchesPlayed', 'wins', 'observedAt'].includes(key) && validNumber(value)))
-const numeric = (value?: number, decimals = 0) => validNumber(value) ? formatNumber(value, {maximumFractionDigits: decimals}) : '—'
-const average = (value?: number, count?: number) => validNumber(value) ? numeric(count && count > 0 ? value / count : value, count && count > 1 ? 1 : 0) : '—'
-const ratio = (numerator?: number, denominator?: number, decimals = 0) => validNumber(numerator) && validNumber(denominator) && denominator > 0 ? numeric(numerator / denominator, decimals) : '—'
-
-function headshotRate(stats?: PlayerStats) {
-  if (!stats || ![stats.headshots, stats.bodyshots, stats.legshots].every(validNumber)) return '—'
-  const hits = stats.headshots! + stats.bodyshots! + stats.legshots!
-  return hits > 0 ? `${Math.round(stats.headshots! / hits * 100)}%` : '—'
-}
-
-function statsRows(overall?: PlayerStats, match?: PlayerStats, preserveRowsFor?: Game) {
-  const count = overall?.matchesPlayed
-  const rows = [
-    {label: 'HP', overall: '—', match: numeric(match?.health, 1)},
-    {label: 'Standing', overall: '—', match: validNumber(match?.standing) ? `#${numeric(match.standing)}` : '—'},
-    {label: 'Board units', overall: '—', match: numeric(match?.boardUnits)},
-    {label: 'Augments', overall: '—', match: numeric(match?.augmentCount)},
-    {label: 'K/D', overall: ratio(overall?.kills, overall?.deaths, 2), match: ratio(match?.kills, match?.deaths, 2)},
-    {label: 'ACS', overall: ratio(overall?.combatScore, overall?.roundsPlayed), match: ratio(match?.combatScore, match?.roundsPlayed)},
-    {label: 'ADR', overall: ratio(overall?.damage, overall?.roundsPlayed), match: ratio(match?.damage, match?.roundsPlayed)},
-    {label: 'HS%', overall: headshotRate(overall), match: headshotRate(match)},
-    ...(['kills', 'deaths', 'assists'] as const).map(key => ({label: `${key[0].toUpperCase()}${key.slice(1)}`, overall: average(overall?.[key], count), match: numeric(match?.[key])})),
-    ...([
-      ['gold', 'Gold'], ['minions', 'CS'], ['vision', 'Vision'], ['placement', 'Placement'], ['playersEliminated', 'Eliminations'], ['level', 'Level'],
-    ] as const).map(([key, label]) => ({label, overall: average(overall?.[key], count), match: numeric(match?.[key])})),
-  ]
-  if ((overall?.combatScore != null && !overall.roundsPlayed) || (match?.combatScore != null && !match.roundsPlayed)) {
-    rows.push({label: 'Score', overall: !overall?.roundsPlayed ? average(overall?.combatScore, count) : '—', match: !match?.roundsPlayed ? numeric(match?.combatScore) : '—'})
-  }
-  if ((overall?.damage != null && !overall.roundsPlayed) || (match?.damage != null && !match.roundsPlayed)) {
-    rows.push({label: 'Damage', overall: !overall?.roundsPlayed ? average(overall?.damage, count) : '—', match: !match?.roundsPlayed ? numeric(match?.damage) : '—'})
-  }
-  const reservedLabels = preserveRowsFor === 'VALORANT' ? ['K/D', 'ACS', 'ADR', 'HS%', 'Kills', 'Deaths', 'Assists']
-    : preserveRowsFor === 'League of Legends' ? ['K/D', 'Kills', 'Deaths', 'Assists', 'Gold', 'CS', 'Vision']
-      : preserveRowsFor === 'Teamfight Tactics' ? ['Placement', 'Eliminations', 'Gold', 'Level'] : []
-  return rows.filter(row => reservedLabels.includes(row.label) || row.overall !== '—' || row.match !== '—')
 }
 
 function StatValue({value, loading = false, index = 0}: {value: string; loading?: boolean; index?: number}) {
@@ -114,22 +75,6 @@ function TagExplanation({tag, source, activeTagId, setActiveTagId}: {tag: Perfor
     onOpenChange={open => setActiveTagId(current => open ? tagId : current === tagId ? null : current)}>
     <Token className={`pmc-tag pmc-tag--${source}`} description={tag.detail} label={tag.label} onClick={() => setActiveTagId(current => current === tagId ? null : tagId)} size="sm" />
   </Tooltip>
-}
-
-interface CardReorder {
-  position: number
-  count: number
-  selected: boolean
-  dragging: boolean
-  dropTarget: boolean
-  instructionsId: string
-  onToggle: () => void
-  onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
-  onDragStart: (event: DragEvent<HTMLButtonElement>) => void
-  onDragEnd: () => void
-  onDragEnter: () => void
-  onDragOver: (event: DragEvent<HTMLElement>) => void
-  onDrop: (event: DragEvent<HTMLElement>) => void
 }
 
 function PlayerCard({player, index, team, tone, party, context, tagSelection, reorder, onSelectPlayer}: {
@@ -183,7 +128,7 @@ function PlayerCard({player, index, team, tone, party, context, tagSelection, re
             <Text className="pmc-card__side" type="supporting">{player.self ? t("YOU") : player.hidden ? t("PRIVATE PLAYER") : partner ? t("PARTNER") : tone === 'ally' ? t("ALLY") : tone === 'enemy' ? t("OPPONENT") : t("PLAYER")}</Text>
             <HStack align="center" gap={1}>
               {party ? <Tooltip content={t("Party {{number}} · players with this top border are grouped", {number: party.number})} hasHoverIndication={false}><HStack className="pmc-card__party" align="center" gap={1}><Icon className="pmc-card__party-icon" icon={UsersRound} label={t("Party {{number}}", {number: party.number})} /><Text className="pmc-card__party-number" type="supporting">{String(party.number).padStart(2, '0')}</Text></HStack></Tooltip> : null}
-              {reorder ? <IconButton className="pmc-card__drag-handle" label={t("Reorder {{name}}, position {{value2}} of {{count}}", {name: name, value2: reorder.position + 1, count: reorder.count})} icon={<Icon icon={GripVertical} />} variant="ghost" size="sm" tooltip={t("Drag to a new position, or select and use arrow keys")} draggable aria-pressed={reorder.selected} aria-describedby={reorder.instructionsId} onClick={reorder.onToggle} onKeyDown={reorder.onKeyDown} onDragStart={reorder.onDragStart} onDragEnd={reorder.onDragEnd} /> : null}
+              {reorder ? <ReorderHandle name={name} reorder={reorder} /> : null}
             </HStack>
           </HStack>
           {profile ? <Button className="pmc-card__name-button" label={name} onClick={() => onSelectPlayer(profile)} variant="ghost" size="sm" endContent={context.fitToHeight ? undefined : <Icon icon={ArrowUpRight} />}><Text className="pmc-card__name" maxLines={1} weight="bold">{name}</Text></Button> : <Text className="pmc-card__name" maxLines={1} weight="bold">{name}</Text>}
@@ -237,132 +182,16 @@ function PlayerCard({player, index, team, tone, party, context, tagSelection, re
 export function PlayerMatchCards({teams, onSelectPlayer, ...context}: PlayerMatchCardsProps) {
   useLocale()
   const [activeTagId, setActiveTagId] = useState<string | null>(null)
-  const [manualOrder, setManualOrder] = useState<{scope: string; teams: number[][]} | null>(null)
-  const [keyboardMove, setKeyboardMove] = useState<{scope: string; team: number; player: number; original: number[][]} | null>(null)
-  const [dragging, setDragging] = useState<{scope: string; team: number; player: number} | null>(null)
-  const [dropTarget, setDropTarget] = useState<{scope: string; team: number; player: number} | null>(null)
-  const [announcement, setAnnouncement] = useState('')
-  const dragSource = useRef<typeof dragging>(null)
-  const instructionsId = useId()
+  const {layout, canReorder, freeForAll, duos, sortedTeams, ownTeam, reorderableTeam, orders, hasCustomOrder, partyGroups, reorder, resetOrder, instructions} =
+    useMatchRoster({teams, ...context}, () => setActiveTagId(null))
   const tagSelection = {activeTagId, setActiveTagId}
-  const layout = resolveMatchLayout({teams, ...context})
-  const canReorder = context.allowReorder === true && context.completed !== true
-  const freeForAll = layout.kind === 'free-for-all'
-  const duos = layout.kind === 'duos'
   const fitToHeight = context.fitToHeight === true && fitsValorantRoster({teams, ...context})
   const cardContext = {...context, fitToHeight, ...(duos ? {teamMode: 'duos' as const} : {})}
   const inParty = Boolean(context.phase && ['lobby', 'matchmaking', 'readycheck'].includes(context.phase))
   const beforeGame = !context.completed && Boolean(context.phase && context.phase !== 'live')
-  const sortedTeams = [...layout.groups].sort((left, right) => {
-    if (duos && isConfirmedDuo(left) !== isConfirmedDuo(right)) return Number(isConfirmedDuo(right)) - Number(isConfirmedDuo(left))
-    return Number(right.players.some(player => player.self)) - Number(left.players.some(player => player.self))
-  })
-  const ownTeam = sortedTeams.find(team => (!duos || isConfirmedDuo(team)) && team.players.some(player => player.self))
-  const reorderableTeam = (team: MatchTeam) => canReorder && team.players.length > 1 && (!duos || isConfirmedDuo(team))
-  const alignedPlayers = layout.canAlignRoles
-    ? alignValorantMatchup(sortedTeams[0].players, sortedTeams[1].players)
-    : undefined
-  const suggestedOrder = sortedTeams.map((team, teamIndex) => {
-    const players = freeForAll
-      ? [...team.players].sort((left, right) => context.game === 'Teamfight Tactics'
-        ? ((context.completed ? left.stats?.placement : left.stats?.standing ?? left.stats?.placement) || Infinity) - ((context.completed ? right.stats?.placement : right.stats?.standing ?? right.stats?.placement) || Infinity)
-        : (right.stats?.kills ?? 0) - (left.stats?.kills ?? 0) || (left.stats?.deaths ?? 0) - (right.stats?.deaths ?? 0))
-      : alignedPlayers?.[teamIndex] ?? team.players
-    return players.map(player => team.players.indexOf(player))
-  })
-  // Stable across stat refreshes and agent selection. New match/roster identity
-  // invalidates local arrangements so positions never transfer to other people.
-  const scope = JSON.stringify([context.game, context.matchId, context.map, context.phase, layout.kind, canReorder,
-    sortedTeams.map(team => [team.name, team.players.map(player => [player.riotId, player.name, player.self])])])
-  const orders = canReorder && manualOrder?.scope === scope ? manualOrder.teams : suggestedOrder
-  const hasCustomOrder = orders.some((order, team) => order.some((player, position) => player !== suggestedOrder[team][position]))
-  const selected = keyboardMove?.scope === scope ? keyboardMove : null
-  const partyCounts = new Map<string, number>()
-  for (const team of sortedTeams) for (const player of team.players) if (player.partyId) partyCounts.set(player.partyId, (partyCounts.get(player.partyId) ?? 0) + 1)
-  const partyGroups = new Map([...partyCounts].filter(([, count]) => count >= 2).map(([id], index) => [id, {color: ['yellow', 'purple', 'blue'][index % 3], number: index + 1}]))
-
-  const finishDrag = () => { dragSource.current = null; setDragging(null); setDropTarget(null) }
-  const move = (team: number, player: number, target: number) => {
-    if (!canReorder) return
-    const from = orders[team].indexOf(player)
-    if (from < 0 || target < 0 || target >= orders[team].length || target === from) return
-    setManualOrder({scope, teams: moveTeamCard(orders, {team, index: from}, {team, index: target})})
-    setActiveTagId(null)
-    setAnnouncement(t('Card moved to position {{position}} of {{count}}.', {position: target + 1, count: orders[team].length}))
-  }
-  const reorder = (team: number, player: number, position: number): CardReorder => {
-    const isSelected = selected?.team === team && selected.player === player
-    return {
-      position,
-      count: orders[team].length,
-      selected: isSelected,
-      dragging: dragging?.scope === scope && dragging.team === team && dragging.player === player,
-      dropTarget: dropTarget?.scope === scope && dropTarget.team === team && dropTarget.player === player,
-      instructionsId,
-      onToggle: () => {
-        setActiveTagId(null)
-        if (isSelected) { setKeyboardMove(null); setAnnouncement(t('Card placed at position {{position}}.', {position: position + 1})); return }
-        setKeyboardMove({scope, team, player, original: orders.map(order => [...order])})
-        setAnnouncement(t('Card selected at position {{position}}. Use arrow keys to move, Enter to place, or Escape to cancel.', {position: position + 1}))
-      },
-      onKeyDown: event => {
-        if (!isSelected) return
-        if (event.key === 'Escape') {
-          event.preventDefault()
-          setManualOrder({scope, teams: selected.original})
-          setKeyboardMove(null)
-          setAnnouncement('Move cancelled. Previous card order restored.')
-        } else {
-          const target = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? position - 1
-            : event.key === 'ArrowRight' || event.key === 'ArrowDown' ? position + 1
-              : event.key === 'Home' ? 0 : event.key === 'End' ? orders[team].length - 1 : undefined
-          if (target === undefined) return
-          event.preventDefault()
-          move(team, player, target)
-        }
-        const handle = event.currentTarget
-        requestAnimationFrame(() => handle.focus({preventScroll: true}))
-      },
-      onDragStart: event => {
-        const source = {scope, team, player}
-        dragSource.current = source
-        setDragging(source)
-        setKeyboardMove(null)
-        setActiveTagId(null)
-        event.dataTransfer.effectAllowed = 'move'
-        event.dataTransfer.setData('application/x-peaks-player-card', '1')
-        const card = event.currentTarget.closest('.pmc-card')
-        if (card) {
-          const bounds = card.getBoundingClientRect()
-          event.dataTransfer.setDragImage(card, event.clientX - bounds.left, event.clientY - bounds.top)
-        }
-      },
-      onDragEnd: finishDrag,
-      onDragEnter: () => {
-        const source = dragSource.current
-        setDropTarget(source?.scope === scope && source.team === team && source.player !== player ? {scope, team, player} : null)
-      },
-      onDragOver: event => {
-        const source = dragSource.current
-        if (source?.scope !== scope || source.team !== team) return
-        event.preventDefault()
-        event.dataTransfer.dropEffect = 'move'
-      },
-      onDrop: event => {
-        const source = dragSource.current
-        if (source?.scope !== scope || source.team !== team) return
-        event.preventDefault()
-        move(team, source.player, position)
-        finishDrag()
-      },
-    }
-  }
-
-  const resetOrder = hasCustomOrder ? <Button label={t("Reset order")} icon={<Icon icon={RotateCcw} />} size="sm" variant="ghost" onClick={() => { setManualOrder(null); setKeyboardMove(null); finishDrag(); setAnnouncement('Suggested card order restored.') }} /> : null
 
   return <VStack className={`pmc-lineup${fitToHeight ? ' pmc-lineup--fit' : ''}`} gap={fitToHeight ? 2 : 6}>
-    {canReorder ? <VisuallyHidden id={instructionsId}>{freeForAll ? t('Drag cards within this lobby.') : t('Drag cards within the same team.')} {t('With a keyboard, press Enter or Space to select a card, use arrow keys to move, then Enter or Space to place. Escape cancels the move.')}</VisuallyHidden> : null}
-    {canReorder ? <VisuallyHidden role="status" aria-live="polite" aria-atomic="true">{displayText(announcement)}</VisuallyHidden> : null}
+    {instructions}
     {!fitToHeight && sortedTeams.some(reorderableTeam) ? <HStack className="pmc-reorder-toolbar" align="center" justify="between" gap={3}>
       <Text type="supporting">{hasCustomOrder ? freeForAll ? t("Custom order · drag within this lobby") : t("Custom order · drag within each team") : layout.canAlignRoles ? t("Matched by role · drag to arrange") : freeForAll ? t("Drag cards to arrange the lobby") : t("Drag cards to arrange each team")}</Text>
       {resetOrder}

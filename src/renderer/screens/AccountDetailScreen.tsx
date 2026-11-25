@@ -2,16 +2,18 @@ import {accountRegionLabels} from '../accountRegions'
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 import {useState} from 'react'
-import {AlertDialog, List, ListItem} from '../ui'
-import {Avatar, Badge, Button as AntButton, Card, Col, Descriptions, Dropdown, Flex, Row, Space, Spin, Tabs, Tag, Tooltip, Typography, type MenuProps} from 'antd'
-import {ArrowLeft, BarChart3, Copy, Ellipsis, History, KeyRound, MapPin, QrCode, Radio, RefreshCw, ShieldCheck, Star, Swords, Trash2, Trophy} from 'lucide-react'
+import {AlertDialog, Avatar, HStack, Icon, Text, VStack} from '../ui'
+import {Badge, Button as AntButton, Descriptions, Dropdown, Flex, Space, Spin, Tabs, Tooltip, Typography, type MenuProps} from 'antd'
+import {ArrowLeft, BarChart3, Copy, Ellipsis, History, KeyRound, QrCode, Radio, RefreshCw, ShieldCheck, Trash2} from 'lucide-react'
 import {gameProfileIcon} from '../profileAssets'
-import {valorantMapName} from '../assets'
+import {resolveAccountIcon} from '../accountIcons'
+import {AccountMatchHistory} from '../components/AccountMatchHistory'
+import './accountDetail.css'
 import {CompetitiveInsights} from '../components/CompetitiveInsights'
 import {PasteQrDialog} from '../components/PasteQrDialog'
 import type {QrImageRequest} from '../qrImage'
 import type {Account, Match} from '../types'
-import {AuthenticatedScreen, GAMES, MatchList, RankMedia, rankLabel, rankRatingLabel} from './shared'
+import {AuthenticatedScreen, GAMES, RankMedia, rankLabel, rankRatingLabel} from './shared'
 
 type AccountTab = 'matches' | 'insights' | 'security'
 
@@ -49,7 +51,9 @@ export function AccountDetailScreen({
   const [isDeleting, setDeleting] = useState(false)
   const [isPasteQrOpen, setPasteQrOpen] = useState(false)
   const connectionLabel = account.connected ? t('Connected') : t('Offline')
-  const latestMatch = account.matches?.[0]
+  const name = displayName(account.riotId)
+  const avatar = resolveAccountIcon(account)
+  const regions = accountRegionLabels(account)
 
   const deleteAccount = async () => {
     setDeleting(true)
@@ -74,17 +78,21 @@ export function AccountDetailScreen({
     {type: 'divider'},
     {key: 'delete-account', icon: <Trash2 size={16} />, label: t('Delete account'), danger: true, onClick: () => setDeleteOpen(true)},
   ]
-  const lastPlayed = latestMatch ? (latestMatch.game === 'VALORANT' ? valorantMapName(latestMatch.map) : latestMatch.map ?? latestMatch.game) : undefined
-
   return (
     <>
       <AuthenticatedScreen screen="account-detail" title={t("Account details")}
-        heading={<Flex gap={12} align="center">
-          {iconButton(t("All accounts"), ArrowLeft, onBack)}
-          <Avatar size={32}>{displayName(account.riotId).slice(0, 1).toUpperCase()}</Avatar>
-          <Typography.Title level={3} className="peaks-screen__title">{displayName(account.riotId)}</Typography.Title>
-          <Tooltip title={connectionLabel}><Badge status={account.connected ? 'success' : 'warning'} /></Tooltip>
-        </Flex>}
+        heading={<HStack className="account-detail__identity" align="center" gap={3}>
+          {iconButton(t('All accounts'), ArrowLeft, onBack)}
+          <Avatar src={avatar?.image} alt="" name={name} size="lg" shape="rounded" tooltip={false} />
+          <VStack gap={1}>
+            <Typography.Title level={3} className="peaks-screen__title">{name}</Typography.Title>
+            <HStack className="account-detail__meta" gap={3} wrap align="center">
+              <Badge status={account.connected ? 'success' : 'default'} text={connectionLabel} />
+              {regions.map(region => <Text key={region}>{region}</Text>)}
+              {account.level != null ? <Text>{t('Level {{level}}', {level: account.level})}</Text> : null}
+            </HStack>
+          </VStack>
+        </HStack>}
         actions={<>
           {onOpenProfile ? iconButton(t('VALORANT profile'), BarChart3, onOpenProfile) : null}
           {iconButton(t("Refresh account data"), RefreshCw, () => { void onRefresh() })}
@@ -98,37 +106,28 @@ export function AccountDetailScreen({
             </Dropdown>
           </Space.Compact>
         </>}>
-        <Row gutter={[16, 16]} className="pd-detail">
-          <Col xs={24} lg={8}>
-            <Flex vertical gap={16}>
-              <Card size="small">
-                <Descriptions column={1} size="small" colon={false} items={[
-                  {key: 'region', label: <Flex gap={8} align="center"><MapPin size={14} />{t('Region')}</Flex>,
-                    children: <Flex gap={4} wrap>{accountRegionLabels(account).map(label => <Tag key={label}>{label}</Tag>)}</Flex>},
-                  {key: 'level', label: <Flex gap={8} align="center"><Star size={14} />{t('Level')}</Flex>, children: account.level ?? '—'},
-                  {key: 'matches', label: <Flex gap={8} align="center"><Swords size={14} />{t('Matches')}</Flex>, children: account.matches?.length ?? 0},
-                  {key: 'last', label: <Flex gap={8} align="center"><History size={14} />{t('Last played')}</Flex>,
-                    children: lastPlayed ? <Flex vertical><span>{lastPlayed}</span>{latestMatch?.playedAt ? <Typography.Text type="secondary">{displayText(latestMatch.playedAt)}</Typography.Text> : null}</Flex> : t('No matches yet')},
-                  {key: 'synced', label: <Flex gap={8} align="center"><RefreshCw size={14} />{t('Synced')}</Flex>, children: displayText(account.lastUpdated ?? 'Last synced just now')},
-                ]} />
-              </Card>
-              <Card size="small" title={<Flex gap={8} align="center"><Trophy size={16} />{t("Ranks")}</Flex>} styles={{body: {padding: 4}}}>
-                <List className="pd-detail__rank-list" density="balanced" hasDividers>
-                  {GAMES.map(game => {
-                    const rank = account.ranks.find(item => item.game === game)
-                    return <ListItem key={game} label={displayText(rankLabel(rank))}
-                      startContent={<Tooltip title={game}><img className="pd-riot-game-icon pd-riot-game-icon--small" src={gameProfileIcon(game)} alt={game} /></Tooltip>}
-                      endContent={<Flex gap={8} align="center">{rank?.rating != null ? <Typography.Text type="secondary">{rankRatingLabel(game, rank.rating)}</Typography.Text> : null}<RankMedia rank={rank} /></Flex>} />
-                  })}
-                </List>
-              </Card>
-            </Flex>
-          </Col>
-          <Col xs={24} lg={16}>
-            <Card size="small" className="pd-detail__main">
-              <Tabs activeKey={tab} onChange={value => setTab(value as AccountTab)} items={[
-                {key: 'matches', icon: <History size={16} />, label: t("Matches"),
-                  children: <MatchList riotId={account.riotId} matches={account.matches ?? []} onSelect={onSelectMatch} />},
+        <VStack className="account-detail-body" gap={6}>
+          <section className="account-ranks" aria-label={t('Ranks')}>
+            {GAMES.map(game => {
+              const rank = account.ranks.find(item => item.game === game)
+              const ranked = rank && !/^(unranked|unknown|unavailable|rank unavailable)$/i.test(rank.tier)
+              return <HStack key={game} className="account-ranks__game" align="center" justify="between" gap={2} data-ranked={ranked || undefined}>
+                <VStack gap={2}>
+                  <HStack className="account-ranks__label" align="center" gap={2}><img src={gameProfileIcon(game)} alt="" />{game}</HStack>
+                  <HStack className="account-ranks__value" align="baseline" gap={2} wrap>
+                    <strong>{rank ? displayText(rankLabel(rank)) : t('Rank unavailable')}</strong>
+                    {ranked && rank.rating != null ? <Text hasTabularNumbers>{rankRatingLabel(game, rank.rating)}</Text> : null}
+                  </HStack>
+                </VStack>
+                {ranked ? <RankMedia rank={rank} /> : null}
+              </HStack>
+            })}
+          </section>
+          <Tabs className="account-detail-tabs" activeKey={tab} onChange={value => setTab(value as AccountTab)}
+            tabBarExtraContent={account.lastUpdated ? <HStack className="account-detail__synced" align="center" gap={1.5}><Icon icon={RefreshCw} size="sm" />{t('Synced')} · {displayText(account.lastUpdated)}</HStack> : undefined}
+            items={[
+                {key: 'matches', icon: <History size={16} />, label: <>{t('Matches')} <Badge className="account-detail__count" count={account.matches?.length ?? 0} showZero overflowCount={9999} /></>,
+                  children: <AccountMatchHistory account={account} onSelect={onSelectMatch} />},
                 {key: 'insights', icon: <BarChart3 size={16} />, label: t("Insights"),
                   children: <CompetitiveInsights matches={account.matches ?? []} riotId={account.riotId} />},
                 {key: 'security', icon: <ShieldCheck size={16} />, label: t("Security"), children: <Descriptions column={1} size="small" items={[
@@ -138,9 +137,7 @@ export function AccountDetailScreen({
                     children: <Badge status={account.hasTotp ? 'success' : 'default'} text={account.hasTotp ? t("Available") : t("Not configured")} />},
                 ]} />},
               ]} />
-            </Card>
-          </Col>
-        </Row>
+        </VStack>
       </AuthenticatedScreen>
       <AlertDialog
         actionLabel={t("Delete account")}

@@ -6,8 +6,11 @@ import {t, useLocale, displayText} from '../i18n'
 import {EmptyState, Icon, Text, VStack} from '../ui'
 import {Clock3, Radio, UsersRound} from 'lucide-react'
 import {valorantMapName} from '../assets'
-import {fitsValorantRoster} from '../matchLayout'
+import {fitsValorantRoster, resolveMatchLayout} from '../matchLayout'
 import {PlayerMatchCards} from '../components/PlayerMatchCards'
+import {TftLiveStandings} from '../components/TftLiveStandings'
+import {ValorantLiveScoreboard} from '../components/ValorantLiveScoreboard'
+import {LiveMatchHeader} from '../components/LiveMatchHeader'
 import type {AppState, Game, Player, SessionPhase} from '../types'
 import {AuthenticatedScreen, titleCase} from './shared'
 
@@ -67,7 +70,9 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
     ? match.game === 'VALORANT' ? valorantMapName(match.map) : match.map
     : undefined
   const title = isParty ? phase === 'lobby' ? t('Your lobby') : label : map || label
-  const hasScore = isLive && !match.freeForAll && teams.length === 2 && teams.every(team => team.score != null && /^\d+$/.test(String(team.score)))
+  const hasScore = isLive && match.game !== 'Teamfight Tactics' && teams.length === 2
+    && teams.every(team => team.score != null && /^\d+$/.test(String(team.score)))
+    && resolveMatchLayout({...match, teams, queueId: match.queue}).kind === 'teams'
   const playerCount = teams.reduce((total, team) => total + team.players.length, 0)
   const partyCount = match.partySize ?? playerCount
   const rosterLabel = isParty
@@ -84,6 +89,15 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
     <Text type="inherit" className={`pmc-score--${ownTeam ? 'enemy' : 'neutral'}`}>{scoreTeams[1].score}</Text>
   </Text> : null
   const pulsing = !match.isStale && (phase === 'matchmaking' || phase === 'readycheck' || isLive)
+  if (isLive && playerCount > 0 && (match.game === 'VALORANT' || match.game === 'Teamfight Tactics')) {
+    const liveTitle = map || match.game
+    return <AuthenticatedScreen screen="current-match" title={liveTitle}
+      heading={<LiveMatchHeader game={match.game} title={liveTitle} mode={mode} elapsed={match.elapsed} playerCount={playerCount} score={score} stale={match.isStale} />}>
+      {match.game === 'VALORANT'
+        ? <ValorantLiveScoreboard key={match.id} match={match} onSelectPlayer={onSelectPlayer} />
+        : <TftLiveStandings key={match.id} match={match} onSelectPlayer={onSelectPlayer} />}
+    </AuthenticatedScreen>
+  }
   return <AuthenticatedScreen
     fitContent={fitRoster}
     title={title}

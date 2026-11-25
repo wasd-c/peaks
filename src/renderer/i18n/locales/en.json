@@ -1,4 +1,13 @@
 {
+  "Lobby standings": "Lobby standings",
+  "Tactician": "Tactician",
+  "Board": "Board",
+  "Eliminated": "Eliminated",
+  "Scout {{name}}": "Scout {{name}}",
+  "{{alive}} / {{total}} alive": "{{alive}} / {{total}} alive",
+  "Recent games": "Recent games",
+  "Statistics source": "Statistics source",
+  "Rank": "Rank",
   "Use arrow keys to move by day or week, Home and End within a week, and Enter to open the timeline.": "Use arrow keys to move by day or week, Home and End within a week, and Enter to open the timeline.",
   "Activity analysis": "Activity analysis",
   "Rank history": "Rank history",
