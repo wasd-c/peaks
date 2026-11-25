@@ -1127,9 +1127,14 @@ class CurrentGameService:
             valorant = self._detect_valorant(discovery)
             valorant_available = self.detection_available
             previous_available = league_available if self._last_session_game in {"League", "TFT"} else valorant_available
-            if self._last_session_phase in {"live", "pregame", "readycheck"} and not previous_available:
+            other_live = any(
+                candidate and candidate.get("phase") == "live" and candidate.get("game") != self._last_session_game
+                for candidate in (league, valorant)
+            )
+            if self._last_session_phase in {"live", "pregame", "readycheck"} and not previous_available and not other_live:
                 # Another client's idle lobby is not evidence that the
                 # observed match ended when its own telemetry goes missing.
+                # A live match in the other game is: nobody plays both.
                 self.detection_available = False
                 return None
             priority = {"live": 4, "pregame": 3, "readycheck": 3, "matchmaking": 2, "lobby": 1}
@@ -1140,6 +1145,10 @@ class CurrentGameService:
             )
             if selected is None:
                 self.detection_available = league_available if self._last_session_game in {"League", "TFT"} else valorant_available if self._last_session_game == "VALORANT" else league_available or valorant_available
+                if self.detection_available:
+                    # The observed match is over; closing its client later
+                    # must not keep the next game's match hidden.
+                    self._last_session_phase = ""
                 return None
         self.detection_available = True
         self._last_session_game = str(selected["game"])

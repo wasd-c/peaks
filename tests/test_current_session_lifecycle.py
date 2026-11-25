@@ -125,6 +125,23 @@ def test_unavailable_active_provider_is_not_replaced_by_other_client_lobby(monke
     assert not service.detection_available
 
 
+def test_tft_live_is_shown_after_valorant_match_ended_and_client_closed(monkeypatch):
+    service, client = detector(monkeypatch, None)
+    service._last_session_game, service._last_session_phase = "VALORANT", "live"
+    assert service.detect() is None
+    assert service.detection_available
+    service._detect_valorant.side_effect = lambda _: setattr(service, "detection_available", False)
+    client.current_session = lambda: session(game="tft", phase="live")
+    assert service.detect()["game"] == "TFT"
+
+
+def test_live_match_in_other_game_replaces_vanished_valorant_match(monkeypatch):
+    service, _ = detector(monkeypatch, session(game="tft", phase="live"), valorant_available=False)
+    service._last_session_game, service._last_session_phase = "VALORANT", "live"
+    assert service.detect()["game"] == "TFT"
+    assert service.detection_available
+
+
 def test_previous_game_id_is_not_reused_for_new_lobby():
     from dataclasses import replace
 
