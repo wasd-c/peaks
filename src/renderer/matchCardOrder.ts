@@ -6,7 +6,7 @@ export type ValorantCardRole = 'space-duelist' | 'ego-duelist' | 'initiator' | '
 // Official roles come from Riot's agent roster. The two duelist groups are a
 // presentation choice: movement/infiltration entries versus isolated fights.
 const ROLE_AGENTS: Record<ValorantCardRole, readonly string[]> = {
-  'space-duelist': ['Jett', 'Raze', 'Neon', 'Waylay', 'Yoru'],
+  'space-duelist': ['Jett', 'Raze', 'Neon', 'Waylay', 'Yoru', 'Hush'],
   'ego-duelist': ['Phoenix', 'Reyna', 'Iso'],
   initiator: ['Breach', 'Sova', 'Skye', 'KAY/O', 'Fade', 'Gekko', 'Tejo'],
   controller: ['Brimstone', 'Viper', 'Omen', 'Astra', 'Harbor', 'Clove', 'Miks'],
