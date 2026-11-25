@@ -60,7 +60,7 @@
   color: color-mix(in srgb, var(--vls-ink) 45%, var(--color-text-secondary));
   font-size: var(--font-size-base);
 }
-.vls-table, .vls-compare {
+.vls-table {
   width: 100%;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
@@ -173,13 +173,10 @@ button.vls-identity:is(:hover, :focus-visible) .vls-name strong {
 .vls-party svg { width: var(--spacing-3); height: var(--spacing-3); }
 .vls-rank-cell, .vls-kda-cell { text-align: center; }
 .vls-rank-cell { width: var(--spacing-11); }
-.vls-rank { display: inline-grid; place-items: center; vertical-align: middle; }
-.vls-rank-emblem { width: var(--spacing-7); height: var(--spacing-7); object-fit: contain; }
-.vls-rank-name { overflow-wrap: anywhere; font-size: var(--font-size-sm); }
-.vls-rank-caption { display: none; }
+.vls-rank-cell { overflow-wrap: anywhere; }
+.vls-peak { display: inline-flex; align-items: center; gap: var(--spacing-2); }
+.vls-agent:empty { display: none; }
 @container vls-team (min-width: 41rem) {
-  .vls-table .vls-rank-cell { width: calc(var(--spacing-12) + var(--spacing-8)); }
-  .vls-rank-caption { display: block; color: var(--color-text-secondary); font-size: var(--font-size-base); }
   .vls-table .vls-metric { width: var(--spacing-12); font-size: var(--font-size-lg); }
   .vls-table > thead > tr > th { font-size: var(--font-size-base); }
 }
@@ -217,14 +214,18 @@ button.vls-identity:is(:hover, :focus-visible) .vls-name strong {
   color: var(--color-text-secondary);
 }
 .vls-breakdown strong, .vls-breakdown b { color: var(--color-text-primary); }
-.vls-compare th, .vls-compare td {
-  padding: var(--spacing-1) var(--spacing-2);
-  border-bottom: var(--border-width) solid var(--color-border);
+.vls-compare dl { display: flex; flex-wrap: wrap; gap: var(--spacing-3) var(--spacing-5); margin: var(--spacing-2) 0 0; }
+.vls-compare dd { margin: 0; color: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+.vls-compare dt { color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+/* Compact tables move these two metrics into the disclosure at their own breakpoint. */
+@container vls-team (min-width: 39.001rem) {
+  .vls-compare [data-overview="HS%"] { display: none; }
+  .vls-compare:not(:has(dl > :not([data-overview="HS%"], [data-overview="ADR"]))) { display: none; }
 }
-.vls-compare th { font-weight: var(--font-weight-medium); }
-.vls-compare :is(td, th):not(:first-child) { text-align: end; }
-.vls-compare td { color: var(--color-text-primary); }
-.vls-compare thead { background: var(--color-background-card); }
+@container vls-team (min-width: 34.001rem) {
+  .vls-compare [data-overview="ADR"] { display: none; }
+  .vls-compare:not(:has(dl > :not([data-overview="ADR"]))) { display: none; }
+}
 .vls-tags p { margin: 0; }
 .vls-tags b { margin-inline-end: var(--spacing-1); }
 

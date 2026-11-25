@@ -2,7 +2,7 @@ import {accountRegionForGame} from './accountRegions'
 import {t, useLocale, displayText} from './i18n'
 import {useCallback, useEffect, useMemo, useReducer, useRef, useState} from 'react'
 import {Layout as AntLayout} from 'antd'
-import {Button, Center, Heading, Spinner, Text, useToast, VStack} from './ui'
+import {Button, Center, Heading, MotionPreference, Spinner, Text, useToast, VStack} from './ui'
 import {AppNavigation, type Page} from './components/AppNavigation'
 import {WorkspaceBar} from './components/WorkspaceBar'
 import {AddAccountDialog, ConnectDialog} from './components/Dialogs'
@@ -145,7 +145,7 @@ export function App() {
 
   return (
     <PlayerPrivacyProvider state={state}>
-      <AuthenticatedApp state={state} setState={setState} />
+      <MotionPreference reduce={state.settings.reduceMotion}><AuthenticatedApp state={state} setState={setState} /></MotionPreference>
     </PlayerPrivacyProvider>
   )
 }

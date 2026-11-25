@@ -90,7 +90,7 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
   </Text> : null
   const pulsing = !match.isStale && (phase === 'matchmaking' || phase === 'readycheck' || isLive)
   if (isLive && playerCount > 0 && (match.game === 'VALORANT' || match.game === 'Teamfight Tactics')) {
-    const liveTitle = map || match.game
+    const liveTitle = (map && map !== match.game ? map : mode) || match.game
     return <AuthenticatedScreen screen="current-match" title={liveTitle}
       heading={<LiveMatchHeader game={match.game} title={liveTitle} mode={mode} elapsed={match.elapsed} players={teams.flatMap(team => team.players)} score={score} stale={match.isStale} />}>
       {match.game === 'VALORANT'

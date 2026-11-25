@@ -1,0 +1,126 @@
+.match-recap {
+  --recap-display: "Peaks Live Display", var(--peaks-font-game);
+  --recap-pad: clamp(var(--spacing-5), 4vw, var(--spacing-12));
+  padding-block-end: 0;
+}
+.match-recap .ant-modal-container {
+  border: var(--border-width) solid var(--color-border-emphasized);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-high);
+}
+.match-recap__sheet {
+  --recap-ink: var(--color-text-accent);
+  background: var(--color-background-surface);
+  color: var(--color-text-primary);
+}
+.match-recap__sheet[data-result="Victory"] { --recap-ink: var(--color-text-teal); }
+.match-recap__sheet[data-result="Defeat"] { --recap-ink: var(--color-text-red); }
+.match-recap__sheet[data-game="Teamfight Tactics"][data-result="Victory"] { --recap-ink: var(--color-tft-metal-gold-light); }
+.match-recap__scene {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  min-height: clamp(calc(var(--spacing-12) * 5.5), 42dvh, calc(var(--spacing-12) * 9));
+  background: linear-gradient(115deg, var(--color-background-body) 15%, var(--peaks-team-self));
+}
+.match-recap__landscape, .match-recap__scene::after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.match-recap__landscape { z-index: -3; object-fit: cover; object-position: 50% 43%; }
+.match-recap__scene::after {
+  content: '';
+  z-index: -2;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-background-body) 90%, transparent), color-mix(in srgb, var(--color-background-body) 48%, transparent) 43%, transparent 80%),
+    linear-gradient(0deg, var(--color-background-body), transparent 28%, transparent 82%, color-mix(in srgb, var(--color-background-body) 55%, transparent));
+}
+.match-recap__agent {
+  position: absolute;
+  z-index: -1;
+  inset: 0 -11% auto auto;
+  width: 78%;
+  height: 162%;
+  object-fit: contain;
+  object-position: 50% 0;
+  filter: drop-shadow(0 var(--spacing-2) var(--spacing-6) var(--color-shadow));
+  mask-image: linear-gradient(to bottom, black 42%, transparent 72%);
+}
+.match-recap__top { margin: var(--spacing-5) var(--spacing-5) 0 var(--recap-pad); min-width: 0; color: var(--color-on-dark); font-weight: var(--font-weight-semibold); }
+.match-recap__top > img { width: var(--spacing-6); height: var(--spacing-6); object-fit: contain; flex: none; }
+.match-recap__top > span { text-shadow: 0 var(--border-width) var(--spacing-2) var(--color-overlay); }
+.match-recap__close.ant-btn { margin-inline-start: auto; background: var(--color-overlay); color: var(--color-on-dark); border-radius: var(--radius-full); }
+.match-recap__finish { padding: var(--spacing-6) var(--recap-pad) var(--spacing-7); }
+.match-recap__outcome {
+  display: flex;
+  align-items: baseline;
+  gap: .08em;
+  margin: 0;
+  font: 800 clamp(var(--font-size-4xl), 7vw, calc(var(--font-size-5xl) * 2))/.94 var(--recap-display);
+  letter-spacing: -.025em;
+  text-transform: uppercase;
+  color: var(--recap-ink);
+  overflow-wrap: anywhere;
+}
+.match-recap__outcome[data-numeric] { font-size: clamp(calc(var(--font-size-5xl) * 2), min(15vw, 24dvh), calc(var(--font-size-5xl) * 4.3)); }
+.match-recap__outcome b { font-weight: inherit; }
+.match-recap__outcome i { font-style: normal; font-size: .44em; align-self: center; color: var(--recap-ink); opacity: .8; }
+.match-recap__outcome b:last-child:not(:only-of-type) { color: var(--color-on-dark); }
+.match-recap__signature { margin-top: var(--spacing-3); color: var(--color-text-primary); }
+.match-recap__signature bdi { font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+.match-recap__signature span { display: inline-flex; align-items: center; gap: var(--spacing-1); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.match-recap__stage:has(.match-recap__board) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: end;
+  gap: var(--spacing-4);
+}
+.match-recap__board {
+  margin: var(--spacing-4) var(--recap-pad) var(--spacing-5) 0;
+  padding: var(--spacing-4);
+  border-radius: var(--radius-element);
+  background: color-mix(in srgb, var(--color-background-body) 80%, transparent);
+  backdrop-filter: blur(var(--spacing-1));
+  overflow-wrap: anywhere;
+}
+.match-recap__board > .pk-vstack { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; }
+.match-recap__board [role="list"] { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; }
+.match-recap__board [role="list"]:has(> :nth-child(9)) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.match-recap__board .pd-tft-unit { --pd-tft-unit-size: clamp(var(--spacing-10), 6vw, calc(var(--spacing-8) * 2)); }
+.match-recap__board .pd-tft-champion-trigger, .tft-scout-body .pd-tft-champion-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.match-recap__board .pd-tft-unit-portrait { object-fit: cover; }
+.match-recap__performance { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-5); padding: var(--spacing-4) var(--recap-pad); border-block-start: var(--border-width) solid var(--color-border); }
+.match-recap__performance dl { display: flex; flex-wrap: wrap; gap: var(--spacing-3) clamp(var(--spacing-4), 3vw, var(--spacing-10)); margin: 0; }
+.match-recap__performance dt { color: var(--color-text-secondary); font-size: var(--font-size-base); font-weight: var(--font-weight-medium); }
+.match-recap__performance dd, .match-recap__rating b { margin: 0; font: 800 var(--font-size-2xl)/1.2 var(--recap-display); font-variant-numeric: tabular-nums; }
+.match-recap__rating { margin-inline-start: auto; }
+.match-recap__rating .account-rank-emblem img { width: var(--spacing-11); height: var(--spacing-11); }
+.match-recap__rating b[data-direction="1"] { color: var(--color-success); }
+.match-recap__rating b[data-direction="-1"] { color: var(--color-error); }
+.match-recap__rating small { font: var(--font-weight-semibold) var(--font-size-sm) var(--font-family-body); }
+.match-recap__footer { display: flex; align-items: center; justify-content: flex-end; gap: var(--spacing-2); padding: var(--spacing-3) var(--recap-pad) var(--spacing-4); border-top: var(--border-width) solid var(--color-border); }
+@media (prefers-reduced-motion: no-preference) {
+  body:not(:has(.reduce-motion, [data-reduce-motion="true"])) .match-recap__agent { animation: match-recap-arrival var(--duration-slow) var(--ease-standard); }
+}
+@keyframes match-recap-arrival { from { transform: translateX(3%); opacity: .2; } }
+@media (max-height: 46rem) {
+  .match-recap__scene { min-height: clamp(calc(var(--spacing-12) * 4), 36dvh, calc(var(--spacing-12) * 6)); }
+  .match-recap__finish { padding-block: var(--spacing-3) var(--spacing-5); }
+}
+@media (max-width: 36rem) {
+  .match-recap__agent { right: -24%; }
+  .match-recap__stage:has(.match-recap__board) { display: block; }
+  .match-recap__board { margin: 0 var(--recap-pad) var(--spacing-4); }
+  .match-recap__performance { gap: var(--spacing-2); }
+}

@@ -386,7 +386,9 @@ if (webPostMatchPreview) {
 
 const webInvoke = async <T,>(command: string, payload: Record<string, unknown> = {}): Promise<T> => {
   if (command === 'activity' && webPostMatchPreview && !webState.locked && webState.currentMatch.id) {
-    const completed = {...accounts[0].matches![0], id: webState.currentMatch.id, playedAt: 'just now'}
+    const fixture = accounts[0].matches?.find(match => match.game === webState.currentMatch.game)
+    if (!fixture) return clone(webState) as T
+    const completed = {...fixture, id: webState.currentMatch.id, playedAt: 'just now'}
     webState = {
       ...webState,
       accounts: webState.accounts.map(account => account.id === accounts[0].id
@@ -394,7 +396,7 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
         : account),
       currentMatch: {},
       gameDetected: false,
-      riotClient: {detected: true, label: 'VALORANT · In menus', game: 'VALORANT'},
+      riotClient: {detected: true, label: fixture.game + ' · In menus', game: fixture.game},
     }
   }
   if (command === 'state' || command === 'activity' || command === 'refresh') return clone(webState) as T
