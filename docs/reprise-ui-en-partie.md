@@ -10,6 +10,8 @@ Le travail se trouve sur `antd-ui`, dans `C:\Users\Anis\Desktop\peaks-antd`. Ce 
 
 `CurrentMatchScreen.tsx` choisit la vue selon la phase. `LiveRoster.tsx` et `useMatchRoster.tsx` centralisent l’ordre, les déplacements clavier/souris et les identités affichées. Les dictionnaires français, anglais et coréen se trouvent dans `src/renderer/i18n/locales`.
 
+L’utilisateur veut des interfaces sobres en texte. Garder les logos de jeu, les onglets de la fiche compte et les résultats sous forme d’icônes nommées pour les lecteurs d’écran. Les infobulles donnent les précisions à la demande.
+
 ## Revoir le rendu sans compte Riot
 
 Dans ce dossier, lancer `npx vite --host 127.0.0.1 --port 5839`. Ouvrir le serveur local et déverrouiller **la démo navigateur** avec `2580`.

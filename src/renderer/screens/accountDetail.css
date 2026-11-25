@@ -14,15 +14,14 @@
 }
 .account-ranks__game { min-width: 0; padding: var(--spacing-4) var(--spacing-5); }
 .account-ranks__game + .account-ranks__game { border-inline-start: var(--border-width) solid var(--color-border); }
-.account-ranks__label { color: var(--color-text-secondary); font-weight: var(--font-weight-medium); }
-.account-ranks__label img { width: var(--spacing-4); height: var(--spacing-4); object-fit: contain; }
+.account-ranks__logo { width: var(--spacing-6); height: var(--spacing-6); object-fit: contain; }
 .account-ranks__value strong { font-size: var(--font-size-xl); color: var(--color-text-secondary); }
 .account-ranks__game[data-ranked] .account-ranks__value strong { color: var(--color-text-primary); }
 .account-ranks__value .pk-text { color: var(--color-text-secondary); }
 .account-ranks__game .peaks-rank-media { width: var(--spacing-12); height: var(--spacing-12); flex: none; }
 .account-detail-tabs > .ant-tabs-nav { margin-bottom: 0; }
 .account-detail-tabs .ant-tabs-tab { font-weight: var(--font-weight-semibold); }
-.account-detail__count { margin-inline-start: var(--spacing-1); }
+.account-detail-tabs .ant-tabs-tab { min-width: var(--spacing-10); justify-content: center; }
 .account-detail__count .ant-badge-count { color: var(--color-text-primary); background: var(--color-background-gray); box-shadow: none; }
 .account-detail-tabs :is(.ant-descriptions, .ant-tabs-tabpane > .pk-vstack) { margin-block-start: var(--spacing-4); }
 
@@ -68,7 +67,6 @@
 @container account-detail (max-width: 39rem) {
   .account-ranks { grid-template-columns: 1fr; }
   .account-ranks__game + .account-ranks__game { border-inline-start: 0; border-block-start: var(--border-width) solid var(--color-border); }
-  .account-ranks__game > .pk-vstack { flex: 1; flex-direction: row; align-items: center; justify-content: space-between; }
   .account-ranks__value strong { font-size: var(--font-size-lg); }
   .account-history :is(th, td) { padding-inline: var(--spacing-1); }
   .account-history__media > img:first-child { width: var(--spacing-7); height: var(--spacing-7); }

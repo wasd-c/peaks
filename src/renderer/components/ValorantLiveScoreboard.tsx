@@ -106,13 +106,12 @@ export function ValorantLiveScoreboard({match, onSelectPlayer}: LiveGameProps) {
 
   return <LiveRoster match={match} onSelectPlayer={onSelectPlayer}>{({groups, resetOrder}) =>
     <section className="vls" aria-label={t('Scoreboard')}>
-      <HStack className="vls-toolbar" justify="between" align="center" gap={3} wrap>
-        <h2>{t('Scoreboard')}</h2>
+      {resetOrder || hasHistory ? <HStack className="vls-toolbar" justify="end" align="center" gap={3} wrap>
         <HStack align="center" gap={2} wrap>{resetOrder}{hasHistory && <SegmentedControl value={source} onChange={next => setPreferred(next === 'overall' ? 'overall' : 'match')} label={t('Statistics source')}>
           <SegmentedControlItem value="match" label={t('Match')} />
           <SegmentedControlItem value="overall" label={t('Recent games')} />
         </SegmentedControl>}</HStack>
-      </HStack>
+      </HStack> : null}
       <section className="vls-teams" data-multiple={groups.length > 1 || undefined}>
         {groups.map((group, index) => <section key={`${group.team.name}-${index}`} className="vls-team" data-side={group.tone}>
           <HStack className="vls-team-head" justify="between" align="center" gap={2}>
@@ -120,10 +119,7 @@ export function ValorantLiveScoreboard({match, onSelectPlayer}: LiveGameProps) {
               <Icon icon={group.tone === 'ally' ? Shield : group.tone === 'enemy' ? Crosshair : UsersRound} />
               <h3>{group.heading}</h3>
             </HStack>
-            <HStack align="center" gap={3}>
-              {groups.length > 2 && group.team.score != null && <strong>{t('Score')} {group.team.score}</strong>}
-              <span>{t('{{count}} players', {count: group.rows.length})}</span>
-            </HStack>
+            {groups.length > 2 && group.team.score != null ? <strong title={t('Score')}>{group.team.score}</strong> : null}
           </HStack>
           <table className="vls-table" aria-label={group.heading}>
             <thead><tr>

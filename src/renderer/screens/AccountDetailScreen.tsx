@@ -2,7 +2,7 @@ import {accountRegionLabels} from '../accountRegions'
 import {t, useLocale, displayText} from '../i18n'
 import {usePlayerPrivacy} from '../components/PlayerPrivacy'
 import {useState} from 'react'
-import {AlertDialog, Avatar, HStack, Icon, Text, VStack} from '../ui'
+import {AlertDialog, Avatar, HStack, Icon, Text, VisuallyHidden, VStack} from '../ui'
 import {Badge, Button as AntButton, Descriptions, Dropdown, Flex, Space, Spin, Tabs, Tooltip, Typography, type MenuProps} from 'antd'
 import {ArrowLeft, BarChart3, Copy, Ellipsis, History, KeyRound, QrCode, Radio, RefreshCw, ShieldCheck, Trash2} from 'lucide-react'
 import {gameProfileIcon} from '../profileAssets'
@@ -70,6 +70,11 @@ export function AccountDetailScreen({
   const canQr = account.canConnectQr ?? account.connected
   const iconButton = (label: string, Glyph: typeof RefreshCw, onClick: () => void) =>
     <Tooltip title={label}><AntButton type="text" icon={<Glyph size={18} />} aria-label={label} onClick={onClick} /></Tooltip>
+  const tabLabel = (label: string, glyph: typeof History, count?: number) => <Tooltip title={label}>
+    <HStack as="span" align="center" gap={1.5}><Icon icon={glyph} /><VisuallyHidden>{label}</VisuallyHidden>
+      {count != null ? <Badge className="account-detail__count" count={count} showZero overflowCount={9999} /> : null}
+    </HStack>
+  </Tooltip>
   const menu: MenuProps['items'] = [
     ...(canQr ? [{key: 'paste-qr', icon: <QrCode size={16} />, label: t('Paste a QR'), onClick: () => setPasteQrOpen(true)}] : []),
     {key: 'enable-mfa', icon: <ShieldCheck size={16} />, label: account.hasTotp ? t('Authenticator saved') : t('Enable MFA'),
@@ -87,7 +92,7 @@ export function AccountDetailScreen({
           <VStack gap={1}>
             <Typography.Title level={3} className="peaks-screen__title">{name}</Typography.Title>
             <HStack className="account-detail__meta" gap={3} wrap align="center">
-              <Badge status={account.connected ? 'success' : 'default'} text={connectionLabel} />
+              <Tooltip title={connectionLabel}><Badge status={account.connected ? 'success' : 'default'} aria-label={connectionLabel} /></Tooltip>
               {regions.map(region => <Text key={region}>{region}</Text>)}
               {account.level != null ? <Text>{t('Level {{level}}', {level: account.level})}</Text> : null}
             </HStack>
@@ -112,25 +117,25 @@ export function AccountDetailScreen({
               const rank = account.ranks.find(item => item.game === game)
               const ranked = rank && !/^(unranked|unknown|unavailable|rank unavailable)$/i.test(rank.tier)
               return <HStack key={game} className="account-ranks__game" align="center" justify="between" gap={2} data-ranked={ranked || undefined}>
-                <VStack gap={2}>
-                  <HStack className="account-ranks__label" align="center" gap={2}><img src={gameProfileIcon(game)} alt="" />{game}</HStack>
+                <HStack className="account-ranks__summary" align="center" gap={3}>
+                  <Tooltip title={game}><img className="account-ranks__logo" src={gameProfileIcon(game)} alt={game} /></Tooltip>
                   <HStack className="account-ranks__value" align="baseline" gap={2} wrap>
-                    <strong>{rank ? displayText(rankLabel(rank)) : t('Rank unavailable')}</strong>
+                    {ranked ? <strong>{displayText(rankLabel(rank))}</strong> : <Tooltip title={rank ? displayText(rankLabel(rank)) : t('Rank unavailable')}><span role="img" aria-label={rank ? displayText(rankLabel(rank)) : t('Rank unavailable')}>—</span></Tooltip>}
                     {ranked && rank.rating != null ? <Text hasTabularNumbers>{rankRatingLabel(game, rank.rating)}</Text> : null}
                   </HStack>
-                </VStack>
+                </HStack>
                 {ranked ? <RankMedia rank={rank} /> : null}
               </HStack>
             })}
           </section>
           <Tabs className="account-detail-tabs" activeKey={tab} onChange={value => setTab(value as AccountTab)}
-            tabBarExtraContent={account.lastUpdated ? <HStack className="account-detail__synced" align="center" gap={1.5}><Icon icon={RefreshCw} size="sm" />{t('Synced')} · {displayText(account.lastUpdated)}</HStack> : undefined}
+            tabBarExtraContent={account.lastUpdated ? <Tooltip title={t('Synced')}><HStack className="account-detail__synced" align="center" gap={1.5}><Icon icon={RefreshCw} size="sm" label={t('Synced')} />{displayText(account.lastUpdated)}</HStack></Tooltip> : undefined}
             items={[
-                {key: 'matches', icon: <History size={16} />, label: <>{t('Matches')} <Badge className="account-detail__count" count={account.matches?.length ?? 0} showZero overflowCount={9999} /></>,
+                {key: 'matches', label: tabLabel(t('Matches'), History, account.matches?.length ?? 0),
                   children: <AccountMatchHistory account={account} onSelect={onSelectMatch} />},
-                {key: 'insights', icon: <BarChart3 size={16} />, label: t("Insights"),
+                {key: 'insights', label: tabLabel(t('Insights'), BarChart3),
                   children: <CompetitiveInsights matches={account.matches ?? []} riotId={account.riotId} />},
-                {key: 'security', icon: <ShieldCheck size={16} />, label: t("Security"), children: <Descriptions column={1} size="small" items={[
+                {key: 'security', label: tabLabel(t('Security'), ShieldCheck), children: <Descriptions column={1} size="small" items={[
                   {key: 'session', label: <Flex gap={8} align="center"><Radio size={14} />{t("Riot session")}</Flex>,
                     children: <Badge status={account.connected ? 'success' : 'warning'} text={canQr ? t("Ready to connect through a Riot QR code.") : t("Sign in to Riot again to reconnect this account.")} />},
                   {key: 'totp', label: <Flex gap={8} align="center"><KeyRound size={14} />{t("Authenticator")}</Flex>,

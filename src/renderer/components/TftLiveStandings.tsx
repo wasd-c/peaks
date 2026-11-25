@@ -1,11 +1,11 @@
 import {useId, useRef, useState, type ReactNode} from 'react'
-import {ArrowUpRight, ChevronRight, Clock3, Heart, Hexagon, ListOrdered, Trophy, UsersRound} from 'lucide-react'
+import {ArrowUpRight, ChevronRight, Clock3, Heart, Hexagon, ListOrdered, UsersRound} from 'lucide-react'
 import {gameArtwork, rankAsset} from '../assets'
 import {displayText, formatNumber, localeTags, t, useLocale} from '../i18n'
 import {statsRows, validNumber as known} from '../matchStatRows'
 import {tftAssetLabel, tftUnitPortrait} from '../profileAssets'
 import type {MatchPlayer, TftComposition} from '../types'
-import {Button, Heading, HStack, Icon, Text, Tooltip, VisuallyHidden, VStack} from '../ui'
+import {Button, Heading, HStack, Icon, IconButton, Text, Tooltip, VisuallyHidden, VStack} from '../ui'
 import {LiveRoster, type LiveGameProps, type LiveRosterGroup, type LiveRosterRow} from './LiveRoster'
 import './tftLiveStandings.css'
 
@@ -70,16 +70,19 @@ function ScoutDetail({row, headingId}: {row: LiveRosterRow; headingId: string}) 
     <VStack className="tft-scout-identity" justify="end">
       <img className="tft-scout-arena" src={gameArtwork('Teamfight Tactics')} alt="" />
       <VStack className="tft-scout-identity__text" gap={1}>
-        <Heading level={3} id={headingId} className="tft-scout-title"><TacticianName name={row.name} /></Heading>
-        {player.self || (!player.hidden && known(player.accountLevel)) ? <Text type="supporting" className="tft-scout-subtitle">
-          {[player.self ? t('You') : null, !player.hidden && known(player.accountLevel) ? t('Level {{level}}', {level: player.accountLevel}) : null].filter(Boolean).join(' · ')}
+        <HStack align="center" justify="between" gap={2}>
+          <Heading level={3} id={headingId} className="tft-scout-title"><TacticianName name={row.name} /></Heading>
+          {row.onSelect ? <IconButton variant="ghost" size="sm" icon={<Icon icon={ArrowUpRight} />} label={t('Open profile for {{name}}', {name: row.name})} onClick={row.onSelect} /> : null}
+        </HStack>
+        {!player.hidden && known(player.accountLevel) ? <Text type="supporting" className="tft-scout-subtitle">
+          {t('Level {{level}}', {level: player.accountLevel})}
         </Text> : null}
       </VStack>
     </VStack>
     <VStack className="tft-scout-body" gap={4}>
       {standing != null || known(stats?.health) ? <HStack className="tft-scout-metrics">
-        {standing != null ? <VStack as="dl" gap={1}><dt><Icon icon={ListOrdered} size="sm" />{t('Standing')}</dt><dd>#{stat(standing)}</dd></VStack> : null}
-        {known(stats?.health) ? <VStack as="dl" gap={1}><dt><Icon icon={Heart} size="sm" />{t('Health')}</dt><dd>{stat(stats.health)}</dd></VStack> : null}
+        {standing != null ? <VStack as="dl" gap={1}><dt title={t('Standing')}><Icon icon={ListOrdered} size="sm" label={t('Standing')} /></dt><dd>#{stat(standing)}</dd></VStack> : null}
+        {known(stats?.health) ? <VStack as="dl" gap={1}><dt title={t('Health')}><Icon icon={Heart} size="sm" label={t('Health')} /></dt><dd>{stat(stats.health)}</dd></VStack> : null}
       </HStack> : null}
       <VStack className="tft-scout-stats">
         {metrics.map(([label, value]) => known(value) ? <HStack as="dl" key={label} className="tft-scout-stat" align="center" justify="between" gap={2}><dt>{label}</dt><dd>{stat(value)}</dd></HStack> : null)}
@@ -97,11 +100,8 @@ function ScoutDetail({row, headingId}: {row: LiveRosterRow; headingId: string}) 
         </HStack>)}
       </VStack> : null}
       {updated && Number.isFinite(updated.getTime()) ? <Tooltip content={t('TFT refreshes this snapshot periodically. It does not update after every damage event.')}>
-        <HStack className="tft-scout-time" align="center" gap={1}><Icon icon={Clock3} size="xsm" />{t('Updated')} <time dateTime={updated.toISOString()}>{updated.toLocaleTimeString(localeTags[locale], {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</time></HStack>
+        <HStack className="tft-scout-time" align="center" gap={1}><Icon icon={Clock3} size="xsm" /><time dateTime={updated.toISOString()}>{updated.toLocaleTimeString(localeTags[locale], {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</time></HStack>
       </Tooltip> : null}
-      {row.onSelect ? <Button variant="secondary" className="tft-scout-profile" label={t('Open profile for {{name}}', {name: row.name})} onClick={row.onSelect}>
-        {t('Player profile')}<Icon icon={ArrowUpRight} size="sm" />
-      </Button> : null}
     </VStack>
   </>
 }
@@ -122,13 +122,7 @@ function Standings({groups, duos, resetOrder, hyperRoll}: {groups: LiveRosterGro
   }
   if (!selected) return null
   return <VStack className="tft-live">
-    <HStack className="tft-live-heading" align="center" justify="between" gap={3} wrap>
-      <HStack align="center" gap={2}><Icon icon={Trophy} className="tft-live-heading__mark" size="lg" /><Heading level={2}>{t('Lobby standings')}</Heading></HStack>
-      <HStack align="center" gap={2} wrap>
-        {resetOrder}
-        {health.length === rows.length && rows.length >= 8 ? <HStack className="tft-live-remaining" align="center" gap={1}><Icon icon={UsersRound} size="sm" />{t('{{alive}} / {{total}} alive', {alive: health.filter(value => value > 0).length, total: rows.length})}</HStack> : null}
-      </HStack>
-    </HStack>
+    {resetOrder ? <HStack justify="end">{resetOrder}</HStack> : null}
     <section className="tft-live-layout" aria-label={t('Lobby standings')}>
       <section className="tft-live-ladder">
         <table className="tft-live-table" aria-label={t('Lobby standings')}>

@@ -7,12 +7,7 @@
   min-width: 0;
 }
 
-.tft-live-heading .pk-heading {
-  font-size: var(--font-size-2xl);
-  line-height: var(--text-display-1-leading);
-}
-.tft-live-heading__mark { color: var(--tft-live-gold); }
-.tft-live-remaining, .tft-scout-time {
+.tft-scout-time {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   font-variant-numeric: tabular-nums;
@@ -197,9 +192,8 @@
 .tft-scout-units { padding: 0; list-style: none; }
 .tft-scout-units li { display: flex; }
 .tft-scout-units img { width: var(--spacing-8); height: var(--spacing-8); object-fit: cover; border-radius: var(--radius-inner); }
-.tft-scout-profile.ant-btn { width: 100%; justify-content: space-between; }
 
-.tft-live-table thead th, .tft-scout-metrics dt, .tft-scout-stat dt, .tft-scout-time, .tft-live-remaining {
+.tft-live-table thead th, .tft-scout-metrics dt, .tft-scout-stat dt, .tft-scout-time {
   font-size: var(--font-size-base);
 }
 @media (max-height: 46rem) {

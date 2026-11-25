@@ -92,7 +92,7 @@ export function CurrentMatchScreen({state, onSelectPlayer}: CurrentMatchScreenPr
   if (isLive && playerCount > 0 && (match.game === 'VALORANT' || match.game === 'Teamfight Tactics')) {
     const liveTitle = map || match.game
     return <AuthenticatedScreen screen="current-match" title={liveTitle}
-      heading={<LiveMatchHeader game={match.game} title={liveTitle} mode={mode} elapsed={match.elapsed} playerCount={playerCount} score={score} stale={match.isStale} />}>
+      heading={<LiveMatchHeader game={match.game} title={liveTitle} mode={mode} elapsed={match.elapsed} players={teams.flatMap(team => team.players)} score={score} stale={match.isStale} />}>
       {match.game === 'VALORANT'
         ? <ValorantLiveScoreboard key={match.id} match={match} onSelectPlayer={onSelectPlayer} />
         : <TftLiveStandings key={match.id} match={match} onSelectPlayer={onSelectPlayer} />}

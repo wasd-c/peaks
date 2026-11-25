@@ -1,11 +1,11 @@
-import {ChevronRight, History} from 'lucide-react'
+import {Check, ChevronRight, Equal, History, X} from 'lucide-react'
 import {valorantMapName} from '../assets'
 import {displayText, t, useLocale} from '../i18n'
 import {matchHistoryRow} from '../matchHistoryRow'
 import {gameProfileIcon} from '../profileAssets'
 import {gameMode} from '../riotProfile'
 import type {Account, Match} from '../types'
-import {EmptyState, HStack, Icon, VStack} from '../ui'
+import {EmptyState, HStack, Icon, Tooltip, VisuallyHidden, VStack} from '../ui'
 
 export function AccountMatchHistory({account, onSelect}: {account: Account; onSelect: (match: Match) => void}) {
   useLocale()
@@ -14,7 +14,7 @@ export function AccountMatchHistory({account, onSelect}: {account: Account; onSe
   const matches = [...account.matches].sort((left, right) => (right.playedAtTimestamp ?? 0) - (left.playedAtTimestamp ?? 0))
   return <table className="account-history" aria-label={t('Match history')}>
     <thead><tr>
-      <th scope="col">{t('Match')}</th><th scope="col">{t('Result')}</th><th scope="col">{t('Score')}</th>
+      <th scope="col"><VisuallyHidden>{t('Match')}</VisuallyHidden></th><th scope="col">{t('Result')}</th><th scope="col">{t('Score')}</th>
       <th scope="col">{t('Rank')}</th><th scope="col">{t('Played')}</th>
     </tr></thead>
     <tbody>{matches.map((match, index) => {
@@ -38,7 +38,9 @@ export function AccountMatchHistory({account, onSelect}: {account: Account; onSe
             </VStack>
           </button>
         </th>
-        <td><strong className="account-history__result" data-result={row.result}>{row.result === 'Unknown' ? '—' : t(row.result)}</strong></td>
+        <td>{row.result === 'Unknown' ? '—' : <Tooltip content={t(row.result)}>
+          <span className="account-history__result" data-result={row.result}><Icon icon={row.result === 'Victory' ? Check : row.result === 'Defeat' ? X : Equal} label={t(row.result)} /></span>
+        </Tooltip>}</td>
         <td className="account-history__score">{score}</td>
         <td><HStack as="span" className="account-history__rating" align="center" gap={2} wrap>
           {row.rank ? <span>{displayText(row.rank)}</span> : null}
