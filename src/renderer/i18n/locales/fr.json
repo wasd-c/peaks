@@ -1087,6 +1087,7 @@
   "Riot cannot switch accounts right now. Finish the current game or sign out, then retry.": "Riot ne peut pas changer de compte pour le moment. Termine la partie en cours ou déconnecte-toi, puis réessaie.",
   "Install Riot Client, then try Connect again.": "Installe le client Riot, puis réessaie de te connecter.",
   "Riot Client is not ready. Wait a moment and try Connect again.": "Le client Riot n’est pas encore prêt. Patiente un instant, puis réessaie de te connecter.",
+  "Riot Client could not restart. A game may still be starting. Close Riot Client, then try Connect again.": "Le client Riot n’a pas pu redémarrer. Une partie est peut-être encore en cours de lancement. Ferme le client Riot, puis réessaie de te connecter.",
   "Account view": "Affichage des comptes",
   "Grid view": "Vue en grille",
   "Table view": "Vue en tableau",

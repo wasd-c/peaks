@@ -6,7 +6,7 @@ from unittest.mock import Mock, call
 import pytest
 
 from peaks.adapters.riot import qr_session
-from peaks.adapters.riot.client import RiotClientError
+from peaks.adapters.riot.client import RiotClientError, RiotClientUnavailable
 from peaks.adapters.riot.discovery import RiotLockfile
 from peaks.adapters.riot.qr import QRLoginPayload
 
@@ -174,6 +174,26 @@ def test_restart_wait_is_bounded_without_force_killing_the_client(client: Mock) 
     client.request.assert_called_once_with("POST", "/riot-client-lifecycle/v1/quit")
     assert qr_session.sleep.call_count == 39
     qr_session.open_riot_client.assert_called_once()
+    client.json.assert_not_called()
+
+
+def test_deferred_quit_without_a_reply_still_waits_for_the_restart(client: Mock) -> None:
+    # Riot holds the quit request open while a game launch is in progress.
+    old = qr_session.discover_riot_client.return_value
+    new_lock = RiotLockfile("Riot Client", 43, 12346, "new-local-test-secret")
+    qr_session.discover_riot_client.side_effect = [old, old, old, SimpleNamespace(lockfile=new_lock)]
+    ok = SimpleNamespace(status_code=204)
+    client.request.side_effect = [RiotClientUnavailable("timed out"), ok]
+    assert qr_session.start_local_qr("selected") is not None
+    assert client.request.call_args_list == [
+        call("POST", "/riot-client-lifecycle/v1/quit"), call("DELETE", qr_session._AUTHENTICATION),
+    ]
+
+
+def test_deferred_quit_that_never_closes_reports_a_busy_client(client: Mock) -> None:
+    client.request.side_effect = RiotClientUnavailable("timed out")
+    with pytest.raises(RuntimeError, match=r"has not finished closing\. A game may still be starting"):
+        qr_session.start_local_qr("selected")
     client.json.assert_not_called()
 
 

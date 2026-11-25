@@ -10,7 +10,7 @@ from collections.abc import Callable
 from contextlib import ExitStack
 from time import sleep
 
-from .client import RiotClientError, RiotClientHTTP
+from .client import RiotClientError, RiotClientHTTP, RiotClientUnavailable
 from .discovery import RiotLockfile, discover_riot_client
 from .launcher import open_riot_client
 from .qr import QRLoginPayload, QRParseError, parse_qr_text
@@ -80,8 +80,15 @@ def _restart_signed_out_client(
     # Riot can retain broken League configuration observers after sign-out.
     # The same empty League client occurs with Riot's own Play button. Use
     # Riot's normal quit action, never terminate a process or a running game.
-    response = client.request("POST", "/riot-client-lifecycle/v1/quit")
-    _require_success(response.status_code, "Riot Client could not restart after sign-out. Close it and try Connect again.")
+    try:
+        response = client.request("POST", "/riot-client-lifecycle/v1/quit")
+    except RiotClientUnavailable:
+        # Riot holds the quit request open while it defers quitting, e.g.
+        # during a game launch that has not finished. Wait for it below
+        # instead of reporting a client that is merely not ready yet.
+        response = None
+    if response is not None:
+        _require_success(response.status_code, "Riot Client could not restart after sign-out. Close it and try Connect again.")
     for attempt in range(40):
         _check_cancelled(cancelled)
         current = discover_riot_client().lockfile
@@ -92,7 +99,7 @@ def _restart_signed_out_client(
             return current
         if attempt < 39:
             sleep(0.5)
-    raise RuntimeError("Riot Client has not finished closing. Close it and try Connect again.")
+    raise RuntimeError("Riot Client has not finished closing. A game may still be starting. Close Riot Client and try Connect again.")
 
 
 def start_local_qr(

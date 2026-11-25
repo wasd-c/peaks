@@ -1087,6 +1087,7 @@
   "Riot cannot switch accounts right now. Finish the current game or sign out, then retry.": "지금은 Riot 계정을 전환할 수 없습니다. 진행 중인 게임을 마치거나 로그아웃한 뒤 다시 시도하세요.",
   "Install Riot Client, then try Connect again.": "Riot 클라이언트를 설치한 뒤 다시 연결하세요.",
   "Riot Client is not ready. Wait a moment and try Connect again.": "Riot 클라이언트가 아직 준비되지 않았습니다. 잠시 기다린 뒤 다시 연결하세요.",
+  "Riot Client could not restart. A game may still be starting. Close Riot Client, then try Connect again.": "Riot 클라이언트를 다시 시작하지 못했습니다. 게임이 아직 실행 중일 수 있습니다. Riot 클라이언트를 닫은 뒤 다시 연결하세요.",
   "Account view": "계정 보기",
   "Grid view": "그리드 보기",
   "Table view": "표 보기",

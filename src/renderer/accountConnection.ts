@@ -12,6 +12,9 @@ export function accountConnectionError(error: unknown): string {
   if (/Riot Client was not found/i.test(message)) {
     return 'Install Riot Client, then try Connect again.'
   }
+  if (/has not finished closing|could not restart after sign-out/i.test(message)) {
+    return 'Riot Client could not restart. A game may still be starting. Close Riot Client, then try Connect again.'
+  }
   if (/taking too long to open|could not open|not ready for QR|could not prepare QR|could not create a QR|did not return a QR|invalid sign-in state|has not finished signing out|has not finished signing in|could not finish signing in/i.test(message)) {
     return 'Riot Client is not ready. Wait a moment and try Connect again.'
   }

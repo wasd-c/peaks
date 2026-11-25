@@ -11,6 +11,7 @@ const fallback = 'Connection failed. Please try again.'
 const switchBlocked = 'Riot cannot switch accounts right now. Finish the current game or sign out, then retry.'
 const notInstalled = 'Install Riot Client, then try Connect again.'
 const notReady = 'Riot Client is not ready. Wait a moment and try Connect again.'
+const restartBlocked = 'Riot Client could not restart. A game may still be starting. Close Riot Client, then try Connect again.'
 
 describe('account connection notifications', () => {
   it.each([
@@ -19,6 +20,8 @@ describe('account connection notifications', () => {
     ['Riot Client is taking too long to open.', notReady],
     ['Riot Client could not prepare QR sign-in.', notReady],
     ['Riot Client has not finished signing out.', notReady],
+    ['Riot Client has not finished closing. A game may still be starting.', restartBlocked],
+    ['Riot Client could not restart after sign-out. Close it and try Connect again.', restartBlocked],
   ])('explains automatic connection failures safely: %s', (message, expected) => {
     expect(accountConnectionError(new Error(message))).toBe(expected)
   })
@@ -58,7 +61,7 @@ describe('account connection notifications', () => {
   })
 
   it('has a complete translated notification for each outcome', () => {
-    for (const message of [noQr, expired, rejected, fallback, switchBlocked, notInstalled, notReady]) {
+    for (const message of [noQr, expired, rejected, fallback, switchBlocked, notInstalled, notReady, restartBlocked]) {
       for (const catalog of [en, fr, ko]) {
         expect(catalog[message as keyof typeof en]?.trim()).toBeTruthy()
       }
