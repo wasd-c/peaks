@@ -1,8 +1,9 @@
 import { configDefaults, defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { webpAssets } from './scripts/viteWebpAssets.mts'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), webpAssets()],
   base: './',
   publicDir: false,
   test: {

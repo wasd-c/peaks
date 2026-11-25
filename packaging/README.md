@@ -38,6 +38,13 @@ Electron output lives under `release/electron`, separate from Vite's `dist`,
 and the package allowlist includes only `dist/index.html` and `dist/assets/**`
 so a repeated build cannot recursively ingest an older unpacked application.
 
+Electron Builder also copies every package listed under `dependencies` into
+`app.asar`. Vite already bundles the renderer's libraries, so only modules the
+compiled main process `require`s at runtime (today `electron-updater`) belong
+there; everything else is a `devDependency`. The Vite build re-encodes bundled
+PNG art as WebP, capped at 2560 px, through `scripts/viteWebpAssets.mts`. The
+source PNGs stay untouched for the Python UI and `scripts/fetch_assets.py`.
+
 ## Patchright packaging boundary
 
 `PeaksBridge.spec` collects the pinned Patchright Python package, its native
