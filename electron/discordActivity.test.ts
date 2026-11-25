@@ -3,6 +3,7 @@ import {describe, expect, it} from 'vitest'
 import {buildDiscordActivity, DISCORD_AGENT_ASSETS, DISCORD_PEAKS_IMAGE, DISCORD_TFT_IMAGE} from './discordActivity'
 
 const omenImage = 'https://media.valorant-api.com/agents/8e253930-4c05-31dd-1b6c-968525494517/displayicon.png'
+const ascentImage = 'https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/splash.png'
 
 const selfPlayer = (stats: unknown = {kills: 9, deaths: 9}) => ({
   name: 'PrivateIdentity#EU', riotId: 'PrivateIdentity#EU', self: true, agent: 'Omen', stats,
@@ -242,7 +243,8 @@ describe('Discord activity projection', () => {
       const activity = buildDiscordActivity(snapshot(null, {teams: [{score: 9, players}, {score: 5, players: []}]}))
       expect(activity?.details).toBe('Playing on Ascent')
       expect(activity?.state).toBe('Competitive')
-      expect(activity?.assets).not.toHaveProperty('large_image')
+      // Map art is a public game fact; no player-specific agent is disclosed.
+      expect(activity?.assets).toMatchObject({large_image: ascentImage, large_text: 'Ascent'})
     }
   })
 
@@ -414,7 +416,7 @@ describe('Discord activity projection', () => {
 
   it('bounds aggregate roster traversal across individually valid teams', () => {
     const teams = Array.from({length: 2}, (_, index) => ({players: Array.from({length: 33}, (_, player) => ({...selfPlayer(null), self: index === 1 && player === 32}))}))
-    expect(buildDiscordActivity(snapshot(null, {teams}))?.assets).not.toHaveProperty('large_image')
+    expect(buildDiscordActivity(snapshot(null, {teams}))?.assets.large_image).toBe(ascentImage)
   })
 
   it('resolves all bundled agent UUIDs and map paths without a packaged JSON dependency', () => {
@@ -447,5 +449,32 @@ describe('Discord activity projection', () => {
     expect(JSON.stringify(state)).toBe(original)
     expect(activity!.details.length).toBeLessThanOrEqual(128)
     expect(activity!.state.length).toBeLessThanOrEqual(128)
+  })
+
+  it('labels a Duel map as Skirmish and caps a lobby-wide party capacity to the 2v2 roster', () => {
+    const teams = [
+      {score: 3, players: [{...selfPlayer(null), agent: 'Hush'}, {...selfPlayer(null), self: false}]},
+      {score: 1, players: [{...selfPlayer(null), self: false}, {...selfPlayer(null), self: false}]},
+    ]
+    const activity = buildDiscordActivity(snapshot(null, {map: '/Game/Maps/Duel/Duel_1/Skirmish_A', mode: undefined, teams, partySize: 4, partyMax: 12}))
+    expect(activity?.details).toBe('Playing on Skirmish A')
+    expect(activity?.state).toBe('Skirmish · 3:1')
+    expect(activity?.party?.size).toEqual([4, 4])
+    expect(activity?.assets.large_image).toBe('https://media.valorant-api.com/agents/ddd5a15c-4fbe-42fa-3789-11a55ca5ee04/displayicon.png')
+    expect(activity?.assets.large_text).toBe('Hush')
+  })
+
+  it('caps a 1v1 Skirmish party to two players', () => {
+    const teams = [{players: [selfPlayer(null)]}, {players: [{...selfPlayer(null), self: false}]}]
+    const activity = buildDiscordActivity(snapshot(null, {queue: 'skirmish', map: 'Skirmish B', teams, partySize: 1, partyMax: 12}))
+    expect(activity?.party?.size).toEqual([1, 2])
+  })
+
+  it('shows the map splash instead of a duplicate Peaks icon when the agent is unknown', () => {
+    const activity = buildDiscordActivity(snapshot(null, {map: 'Skirmish A', teams: [{players: [{...selfPlayer(null), agent: 'Unreleased'}]}]}))
+    expect(activity?.assets).toMatchObject({
+      large_image: 'https://media.valorant-api.com/maps/a9009649-421f-d5d5-f80c-0cbe02c125bb/splash.png',
+      large_text: 'Skirmish A',
+    })
   })
 })

@@ -49,6 +49,7 @@ const AGENT_CATALOG = [
   ["Neon","bb2a4828-46eb-8cd1-e765-15848195d751"],
   ["Deadlock","cc8b64c8-4b25-4ff9-6e7f-37b4da43d235"],
   ["Fade","dade69b4-4f5a-8528-247b-219e5a1facd6"],
+  ["Hush","ddd5a15c-4fbe-42fa-3789-11a55ca5ee04"],
   ["Waylay","df1cb487-4902-002e-5c17-d28e83e78588"],
   ["Gekko","e370fa57-4757-3604-3648-499e1f642d3f"],
   ["Phoenix","eb93336a-449b-9c1b-0a54-a891f7921d69"],
@@ -79,6 +80,7 @@ const MAP_CATALOG = [
   ["Fracture","b529448b-4d60-346e-e89e-00a4c527a405","/Game/Maps/Canyon/Canyon","valorant/maps/b529448b-4d60-346e-e89e-00a4c527a405.png"],
   ["Glitch","d6336a5a-428f-c591-98db-c8a291159134","/Game/Maps/HURM/HURM_HighTide/HURM_HighTide","valorant/maps/d6336a5a-428f-c591-98db-c8a291159134.png"],
   ["Split","d960549e-485c-e861-8d71-aa9d1aed12a2","/Game/Maps/Bonsai/Bonsai","valorant/maps/d960549e-485c-e861-8d71-aa9d1aed12a2.png"],
+  ["Gauntlet","dd3a1cd9-41b1-50ea-3bd6-a7bb3c5978bd","/Game/Maps/AbilityDraft/AbilityDraft","valorant/maps/dd3a1cd9-41b1-50ea-3bd6-a7bb3c5978bd.png"],
   ["Piazza","de28aa9b-4cbe-1003-320e-6cb3ec309557","/Game/Maps/HURM/HURM_Yard/HURM_Yard","valorant/maps/de28aa9b-4cbe-1003-320e-6cb3ec309557.png"],
   ["Icebox","e2ad5c54-4114-a870-9641-8ea21279579a","/Game/Maps/Port/Port","valorant/maps/e2ad5c54-4114-a870-9641-8ea21279579a.png"],
   ["The Range","ee613ee9-28b7-4beb-9666-08db13bb2244","/Game/Maps/Poveglia/Range","valorant/maps/ee613ee9-28b7-4beb-9666-08db13bb2244.png"],
@@ -288,10 +290,16 @@ for (const agent of DISCORD_AGENT_ASSETS) {
   for (const alias of [agent.name, agent.uuid, agent.key]) agentLookup.set(alias.toLowerCase(), {name: agent.name, image})
 }
 
-const mapLookup = new Map<string, string>()
+const mapLookup = new Map<string, {name: string; image: string; skirmish: boolean}>()
 for (const [name, uuid, mapUrl, path] of MAP_CATALOG) {
-  for (const alias of [name, uuid, mapUrl, path, `riot/${path}`]) mapLookup.set(alias.toLowerCase(), name)
+  // Same rule as agents: only bundled catalog UUIDs ever form an artwork URL.
+  const map = {name, image: `https://media.valorant-api.com/maps/${uuid}/splash.png`, skirmish: mapUrl.startsWith('/Game/Maps/Duel/')}
+  for (const alias of [name, uuid, mapUrl, path, `riot/${path}`]) mapLookup.set(alias.toLowerCase(), map)
 }
+
+// Skirmish is 1v1 or 2v2. Riot's party presence can still report the generic
+// lobby capacity (e.g. 12), which would read as "4 of 12" on Discord.
+const SKIRMISH_MAX_PLAYERS = 4
 
 const modeLookup = new Map<string, string>([
   ['competitive', 'Competitive'],
@@ -523,8 +531,9 @@ export function buildDiscordActivity(snapshot: unknown): DiscordActivity | null 
   const map = mapLookup.get(key(match.map) ?? '')
   const agent = self ? agentLookup.get(key(self.player.agent) ?? '') : undefined
   const verb = match.phase === 'live' && self ? performance(self.player.stats) : 'Playing'
-  const details = map ? `${verb} on ${map}` : verb === 'Playing' ? 'Playing VALORANT' : `${verb} in VALORANT`
-  const mode = gameMode(match.queue) ?? gameMode(match.queueId) ?? gameMode(match.modeId) ?? gameMode(match.mode) ?? 'VALORANT'
+  const details = map ? `${verb} on ${map.name}` : verb === 'Playing' ? 'Playing VALORANT' : `${verb} in VALORANT`
+  const mode = gameMode(match.queue) ?? gameMode(match.queueId) ?? gameMode(match.modeId) ?? gameMode(match.mode)
+    ?? (map?.skirmish ? 'Skirmish' : 'VALORANT')
   const parts = [mode]
 
   if (match.phase === 'pregame') {
@@ -541,7 +550,12 @@ export function buildDiscordActivity(snapshot: unknown): DiscordActivity | null 
   const partyMode = nativeQueue ? gameMode(nativeQueue) : mode
   const defaultPartyMax = match.partyMax === undefined && match.freeForAll !== true && teams.length <= 2
     && partySize !== undefined && partySize <= 5 && FIVE_PLAYER_PARTY_MODES.has(partyMode ?? '') ? 5 : undefined
-  const partyMax = count(match.partyMax, 20) && match.partyMax >= (partySize ?? 1) ? match.partyMax : defaultPartyMax
+  const reportedPartyMax = count(match.partyMax, 20) && match.partyMax >= (partySize ?? 1) ? match.partyMax : defaultPartyMax
+  const rosterSize = teams.reduce((total, team) => total + (team.players as unknown[]).length, 0)
+  const skirmishMax = rosterSize === 2 || rosterSize === SKIRMISH_MAX_PLAYERS ? rosterSize : SKIRMISH_MAX_PLAYERS
+  const partyMax = mode === 'Skirmish' && reportedPartyMax !== undefined
+    ? Math.max(partySize ?? 1, Math.min(reportedPartyMax, skirmishMax))
+    : reportedPartyMax
   // A known party max is sent as party.size, which Discord renders as "(2 of 5)" itself.
   if (partySize !== undefined && partyMax === undefined) parts.push(`Party of ${partySize}`)
 
@@ -550,7 +564,10 @@ export function buildDiscordActivity(snapshot: unknown): DiscordActivity | null 
     details,
     state: parts.join(' · '),
     assets: {
-      ...(agent ? {large_image: agent.image, large_text: agent.name} : {}),
+      // Without a large image Discord falls back to the application icon,
+      // which duplicates the Peaks small image. The map splash fills the slot.
+      ...(agent ? {large_image: agent.image, large_text: agent.name}
+        : map ? {large_image: map.image, large_text: map.name} : {}),
       small_image: DISCORD_PEAKS_IMAGE,
       small_text: 'Peaks',
     },
