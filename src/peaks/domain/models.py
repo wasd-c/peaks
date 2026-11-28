@@ -605,6 +605,9 @@ class MatchRecord:
 Match = MatchRecord
 
 
+GAME_LAUNCH_MODES = frozenset({"favorite", "ask", "off"})
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     """User preferences persisted by :class:`~peaks.adapters.persistence.Database`."""
@@ -616,6 +619,9 @@ class Settings:
     reduce_motion: bool = False
     favorite_game: Game = Game.VALORANT
     auto_launch_favorite_game: bool = False
+    #: "favorite" launches the favorite game after sign-in, "ask" lets the
+    #: user pick a game before each sign-in, "off" never launches one.
+    game_launch_mode: str = ""
 
     def __post_init__(self) -> None:
         if isinstance(self.lock_timeout_seconds, bool) or not isinstance(
@@ -626,6 +632,11 @@ class Settings:
             raise ValueError("lock_timeout_seconds cannot be negative")
         object.__setattr__(self, "layout", AccountLayout.parse(self.layout))
         object.__setattr__(self, "favorite_game", Game.parse(self.favorite_game))
+        if self.game_launch_mode not in GAME_LAUNCH_MODES:
+            object.__setattr__(
+                self, "game_launch_mode", "favorite" if self.auto_launch_favorite_game is True else "off"
+            )
+        object.__setattr__(self, "auto_launch_favorite_game", self.game_launch_mode == "favorite")
 
     @property
     def lock_timeout_minutes(self) -> float:
@@ -640,6 +651,7 @@ class Settings:
             "reduce_motion": self.reduce_motion,
             "favorite_game": self.favorite_game.value,
             "auto_launch_favorite_game": self.auto_launch_favorite_game,
+            "game_launch_mode": self.game_launch_mode,
         }
 
     @classmethod
@@ -655,6 +667,7 @@ class Settings:
             reduce_motion=bool(data.get("reduce_motion", False)),
             favorite_game=Game.parse(data.get("favorite_game", Game.VALORANT)),
             auto_launch_favorite_game=data.get("auto_launch_favorite_game", False) is True,
+            game_launch_mode=str(data.get("game_launch_mode") or ""),
         )
 
 

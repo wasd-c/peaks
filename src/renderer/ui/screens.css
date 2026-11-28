@@ -65,3 +65,45 @@
 .pd-live-status .ant-badge-status-text { font-weight: var(--font-weight-semibold); }
 .peaks-screen__actions .pmc-match-banner__score { font-size: var(--font-size-xl); }
 .pd-rank-card__empty { color: var(--color-text-disabled); flex-shrink: 0; margin: 12px; }
+
+/* Game launch mode: a controller with a status badge (launch favorite / ask / none). */
+.pd-launch-mode__glyph { position: relative; display: inline-flex; }
+.pd-launch-mode__badge {
+  position: absolute; right: calc(var(--spacing-1) * -1.5); bottom: calc(var(--spacing-1) * -1.5);
+  display: inline-flex; padding: 1px; border-radius: var(--radius-full);
+  background: var(--color-background-body); line-height: 0;
+}
+.pd-launch-mode__badge .pk-icon { width: var(--spacing-3); height: var(--spacing-3); stroke-width: 3.5; }
+.pd-launch-mode[data-mode="favorite"] .pd-launch-mode__badge { color: var(--color-icon-green); }
+.pd-launch-mode[data-mode="ask"] .pd-launch-mode__badge { color: var(--color-text-primary); }
+.pd-launch-mode[data-mode="off"] .pd-launch-mode__badge { color: var(--color-error); }
+.pd-launch-mode[data-mode="off"] .pd-launch-mode__glyph > .pk-icon { opacity: .55; }
+
+/* Game chooser shown on "Use" when the launch mode asks. */
+.pd-game-chooser-layout { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-8); }
+.pd-game-chooser { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--spacing-6); }
+.pd-game-chooser__game.ant-btn {
+  position: relative; overflow: hidden; width: calc(var(--spacing-8) * 7); height: calc(var(--spacing-8) * 9);
+  padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--spacing-3);
+  padding-bottom: var(--spacing-6);
+  border: 1px solid var(--color-border); border-radius: var(--radius-container);
+  background: var(--color-background-card);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.pd-game-chooser__game.ant-btn:hover, .pd-game-chooser__game.ant-btn:focus-visible {
+  transform: translateY(calc(var(--spacing-1) * -1)); border-color: var(--color-border-emphasized);
+  box-shadow: 0 var(--spacing-3) var(--spacing-8) color-mix(in srgb, var(--color-background-body) 80%, transparent);
+}
+.pd-game-chooser__art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; transition: opacity .18s ease; }
+.pd-game-chooser__game.ant-btn:hover .pd-game-chooser__art { opacity: .8; }
+.pd-game-chooser__game.ant-btn::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top, var(--color-background-body) 10%, transparent 70%);
+}
+.pd-game-chooser__logo, .pd-game-chooser__name { position: relative; z-index: 1; }
+.pd-game-chooser__logo { width: var(--spacing-8); height: var(--spacing-8); object-fit: contain; }
+.pd-game-chooser__name { font-weight: 600; color: var(--color-text-primary); }
+@media (prefers-reduced-motion: reduce) {
+  .pd-game-chooser__game.ant-btn, .pd-game-chooser__art { transition: none; }
+  .pd-game-chooser__game.ant-btn:hover { transform: none; }
+}

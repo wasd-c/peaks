@@ -6,8 +6,9 @@ credential injection, UI modification or screen coordinates are involved.
 
 from __future__ import annotations
 
+import platform
 from collections.abc import Callable
-from contextlib import ExitStack
+from contextlib import ExitStack, suppress
 from time import sleep
 
 from .client import RiotClientError, RiotClientHTTP, RiotClientUnavailable
@@ -100,6 +101,76 @@ def _restart_signed_out_client(
         if attempt < 39:
             sleep(0.5)
     raise RuntimeError("Riot Client has not finished closing. A game may still be starting. Close Riot Client and try Connect again.")
+
+
+# Game processes only; Riot Client and the League client stay for Riot's own sign-out.
+_GAME_PROCESSES = frozenset({
+    "valorant-win64-shipping.exe", "valorant.exe", "tftclient-win64-shipping.exe", "league of legends.exe",
+})
+
+
+def close_running_games() -> int:
+    """Close running Riot games for an explicitly confirmed sign-out.
+
+    Asks each game to exit, then forces any that remain. Returns how many
+    game processes were closed.
+    """
+    if platform.system() != "Windows":
+        return 0
+    import psutil  # type: ignore[import-untyped]
+
+    targets = []
+    for process in psutil.process_iter(["name"]):
+        name = process.info.get("name") if isinstance(process.info, dict) else None
+        if isinstance(name, str) and name.casefold() in _GAME_PROCESSES:
+            targets.append(process)
+    for process in targets:
+        with suppress(psutil.NoSuchProcess, psutil.AccessDenied):
+            process.terminate()
+    _gone, alive = psutil.wait_procs(targets, timeout=5)
+    for process in alive:
+        with suppress(psutil.NoSuchProcess, psutil.AccessDenied):
+            process.kill()
+    _gone, remaining = psutil.wait_procs(alive, timeout=3)
+    if remaining:
+        raise RuntimeError("Peaks could not close the running game. Close it, then try again.")
+    return len(targets)
+
+
+def sign_out_local_riot(expected_puuid: str, *, close_games: bool = False) -> bool:
+    """Sign the selected identity out of the running Riot Client.
+
+    Uses Riot's own session sign-out, the same call as switching accounts.
+    Returns False when Riot Client is closed or already signed out. Refuses to
+    sign out any identity other than the selected one. With ``close_games``,
+    running games close first, only once the signed-in identity is confirmed.
+    """
+    if not expected_puuid:
+        raise ValueError("The selected account identity is incomplete")
+    lockfile = discover_riot_client().lockfile
+    if lockfile is None:
+        return False
+    try:
+        with RiotClientHTTP(lockfile, timeout=3.0) as client:
+            subject = _subject(client)
+            if subject is None:
+                return False
+            if subject != expected_puuid:
+                raise RuntimeError("Riot Client is signed in to a different account.")
+            if close_games:
+                close_running_games()
+            response = client.request("DELETE", _SESSION)
+            _require_success(response.status_code, "Riot Client could not sign out. Finish the current game, then try again.")
+            for attempt in range(10):
+                if _subject(client) is None:
+                    return True
+                if attempt < 9:
+                    sleep(0.5)
+    except RiotClientUnavailable:
+        raise RuntimeError("Riot Client is not responding. Try again shortly.") from None
+    except RiotClientError:
+        raise RuntimeError("Riot Client could not sign out. Try again shortly.") from None
+    raise RuntimeError("Riot Client has not finished signing out. Try again shortly.")
 
 
 def start_local_qr(

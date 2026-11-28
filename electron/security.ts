@@ -25,6 +25,7 @@ export const BACKEND_COMMANDS = new Set([
   'search',
   'set_account_icon',
   'settings',
+  'sign_out_riot',
   'state',
   'toggle_follow',
   'toggle_watchlist',
@@ -32,10 +33,14 @@ export const BACKEND_COMMANDS = new Set([
 
 export const MAX_PASTED_QR_IMAGE_BYTES = 8 * 1024 * 1024
 
-export function localRiotConnectPayload(value: unknown): {accountId: string; qrCaptureState: 'automatic'} {
+const LAUNCHABLE_GAMES = new Set(['VALORANT', 'League of Legends', 'Teamfight Tactics'])
+
+export function localRiotConnectPayload(value: unknown): {accountId: string; qrCaptureState: 'automatic'; game?: string} {
   const candidate = value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown> : {}
-  return {accountId: typeof candidate.accountId === 'string' ? candidate.accountId : '', qrCaptureState: 'automatic'}
+  // The game picked in "ask" launch mode rides along; anything else is dropped.
+  const game = typeof candidate.game === 'string' && LAUNCHABLE_GAMES.has(candidate.game) ? candidate.game : undefined
+  return {accountId: typeof candidate.accountId === 'string' ? candidate.accountId : '', qrCaptureState: 'automatic', ...(game ? {game} : {})}
 }
 
 /** Match posters accept bounded PNGs only, validated before native decoding. */

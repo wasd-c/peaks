@@ -303,6 +303,7 @@ let webState: AppState = {
     autoLockMinutes: 15,
     favoriteGame: 'VALORANT',
     autoLaunchFavoriteGame: false,
+    gameLaunchMode: 'off',
     streamerMode: false,
     lockOnBlur: true,
     reduceMotion: false,
@@ -451,6 +452,7 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
         autoLockMinutes: 15,
         favoriteGame: 'VALORANT',
         autoLaunchFavoriteGame: false,
+        gameLaunchMode: 'off',
         streamerMode: false,
         lockOnBlur: true,
         reduceMotion: false,
@@ -499,7 +501,11 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
     webPin = String(newPin)
   }
   if (command === 'lock') webState = {...webState, locked: true}
-  if (command === 'settings') webState = {...webState, settings: {...webState.settings, ...payload}}
+  if (command === 'settings') {
+    const launch = typeof payload.gameLaunchMode === 'string' ? {autoLaunchFavoriteGame: payload.gameLaunchMode === 'favorite'}
+      : typeof payload.autoLaunchFavoriteGame === 'boolean' ? {gameLaunchMode: payload.autoLaunchFavoriteGame ? 'favorite' as const : 'off' as const} : {}
+    webState = {...webState, settings: {...webState.settings, ...payload, ...launch}}
+  }
   if (command === 'window_behavior') {
     if (typeof payload.minimizeOnClose === 'boolean') webMinimizeOnClose = payload.minimizeOnClose
     return {minimizeOnClose: webMinimizeOnClose} as T
@@ -543,6 +549,11 @@ const webInvoke = async <T,>(command: string, payload: Record<string, unknown> =
         : account),
     }
     return {...clone(webState), openedAccountId: String(payload.accountId)} as T
+  }
+  if (command === 'sign_out_riot') {
+    if (webState.gameDetected && payload.closeGame !== true) throw new Error('Signing out will close your current game. Confirm to sign out anyway.')
+    webState = {...webState, activeAccountId: null, gameDetected: false}
+    return {...clone(webState), operationNotice: 'Signed out of Riot Client'} as T
   }
   if (command === 'set_account_icon') {
     const accountId = String(payload.accountId ?? '')

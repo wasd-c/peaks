@@ -48,7 +48,8 @@ describe('optional bounded app diagnostics', () => {
   })
   it('covers tracked backend operations without copying sensitive fields', () => {
     for (const command of BACKEND_COMMANDS) {
-      if (command === 'launch_favorite_game') continue
+      // Not yet accepted by the relay, so these are never reported.
+      if (command === 'launch_favorite_game' || command === 'sign_out_riot') continue
       expect(safeTelemetryEvent('command.completed', {
         command, outcome: 'failure', duration_ms: 149,
         accountId: 'private-account', riotId: 'Private#EU', pin: '1234', code: '123456',

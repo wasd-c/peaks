@@ -25,6 +25,7 @@ describe('Electron privilege boundary', () => {
     expect(isBackendCommand('toggle_watchlist')).toBe(true)
     expect(isBackendCommand('toggle_follow')).toBe(true)
     expect(isBackendCommand('set_account_icon')).toBe(true)
+    expect(isBackendCommand('sign_out_riot')).toBe(true)
     expect(isBackendCommand('scan_qr')).toBe(false)
     expect(isBackendCommand('read_file')).toBe(false)
     expect(isBackendCommand({command: 'state'})).toBe(false)
@@ -58,6 +59,12 @@ describe('Electron privilege boundary', () => {
     })
     for (const value of [null, [], 'account', {accountId: 2}]) {
       expect(localRiotConnectPayload(value)).toEqual({accountId: '', qrCaptureState: 'automatic'})
+    }
+    expect(localRiotConnectPayload({accountId: 'selected', game: 'VALORANT'})).toEqual({
+      accountId: 'selected', qrCaptureState: 'automatic', game: 'VALORANT',
+    })
+    for (const game of ['calc.exe', 'valorant', 7]) {
+      expect(localRiotConnectPayload({accountId: 'selected', game})).toEqual({accountId: 'selected', qrCaptureState: 'automatic'})
     }
   })
 

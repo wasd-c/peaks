@@ -230,3 +230,99 @@ def test_local_sign_in_wait_is_bounded_and_hides_errors(client: Mock) -> None:
         qr_session.wait_for_local_sign_in("selected", QRLoginPayload("approved-qr", "eu"))
     assert qr_session.sleep.call_count == 39
     assert "private" not in str(error.value)
+
+
+def test_sign_out_ends_only_the_selected_local_session(client: Mock) -> None:
+    client.get_json.side_effect = [{"subject": "selected"}, {"subject": "selected"}, {}]
+    assert qr_session.sign_out_local_riot("selected") is True
+    client.request.assert_called_once_with("DELETE", qr_session._SESSION)
+    qr_session.open_riot_client.assert_not_called()
+
+
+def test_sign_out_refuses_a_different_signed_in_identity(client: Mock) -> None:
+    client.get_json.side_effect = None
+    client.get_json.return_value = {"subject": "someone-else"}
+    with pytest.raises(RuntimeError, match="different account"):
+        qr_session.sign_out_local_riot("selected")
+    client.request.assert_not_called()
+
+
+def test_sign_out_is_a_no_op_when_riot_is_closed_or_signed_out(client: Mock) -> None:
+    assert qr_session.sign_out_local_riot("selected") is False
+    qr_session.discover_riot_client.return_value = SimpleNamespace(lockfile=None)
+    assert qr_session.sign_out_local_riot("selected") is False
+    client.request.assert_not_called()
+    qr_session.open_riot_client.assert_not_called()
+
+
+def test_sign_out_reports_a_rejected_session_end(client: Mock) -> None:
+    client.get_json.side_effect = None
+    client.get_json.return_value = {"subject": "selected"}
+    client.request.return_value = SimpleNamespace(status_code=409)
+    with pytest.raises(RuntimeError, match="could not sign out"):
+        qr_session.sign_out_local_riot("selected")
+
+
+def test_confirmed_sign_out_closes_games_only_after_identity_check(
+    client: Mock, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    closer = Mock(return_value=1)
+    monkeypatch.setattr(qr_session, "close_running_games", closer)
+    client.get_json.side_effect = None
+    client.get_json.return_value = {"subject": "someone-else"}
+    with pytest.raises(RuntimeError, match="different account"):
+        qr_session.sign_out_local_riot("selected", close_games=True)
+    closer.assert_not_called()
+
+    client.get_json.side_effect = [{"subject": "selected"}, {}]
+    assert qr_session.sign_out_local_riot("selected", close_games=True) is True
+    closer.assert_called_once_with()
+    client.request.assert_called_once_with("DELETE", qr_session._SESSION)
+
+
+def test_unconfirmed_sign_out_never_closes_games(client: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
+    closer = Mock()
+    monkeypatch.setattr(qr_session, "close_running_games", closer)
+    client.get_json.side_effect = [{"subject": "selected"}, {}]
+    assert qr_session.sign_out_local_riot("selected") is True
+    closer.assert_not_called()
+
+
+class _FakeProcess:
+    def __init__(self, name: str) -> None:
+        self.info = {"name": name}
+        self.terminated = False
+        self.killed = False
+
+    def terminate(self) -> None:
+        self.terminated = True
+
+    def kill(self) -> None:
+        self.killed = True
+
+
+def test_close_running_games_targets_games_and_forces_stragglers(monkeypatch: pytest.MonkeyPatch) -> None:
+    import psutil
+
+    game, league, client_process, stubborn = (
+        _FakeProcess("VALORANT-Win64-Shipping.exe"), _FakeProcess("League of Legends.exe"),
+        _FakeProcess("RiotClientServices.exe"), _FakeProcess("TFTClient-Win64-Shipping.exe"),
+    )
+    monkeypatch.setattr(qr_session.platform, "system", lambda: "Windows")
+    monkeypatch.setattr(psutil, "process_iter", lambda *_args, **_kwargs: [game, league, client_process, stubborn])
+    waits = iter([([game, league], [stubborn]), ([stubborn], [])])
+    monkeypatch.setattr(psutil, "wait_procs", lambda *_args, **_kwargs: next(waits))
+    assert qr_session.close_running_games() == 3
+    assert game.terminated and league.terminated and stubborn.terminated and stubborn.killed
+    assert not client_process.terminated and not game.killed
+
+
+def test_close_running_games_reports_a_game_that_will_not_exit(monkeypatch: pytest.MonkeyPatch) -> None:
+    import psutil
+
+    stuck = _FakeProcess("VALORANT-Win64-Shipping.exe")
+    monkeypatch.setattr(qr_session.platform, "system", lambda: "Windows")
+    monkeypatch.setattr(psutil, "process_iter", lambda *_args, **_kwargs: [stuck])
+    monkeypatch.setattr(psutil, "wait_procs", lambda procs, **_kwargs: ([], list(procs)))
+    with pytest.raises(RuntimeError, match="could not close the running game"):
+        qr_session.close_running_games()

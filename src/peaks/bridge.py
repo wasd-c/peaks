@@ -547,6 +547,7 @@ class Bridge:
             "autoLockMinutes": 15,
             "favoriteGame": "VALORANT",
             "autoLaunchFavoriteGame": False,
+            "gameLaunchMode": "off",
             "lockOnBlur": True,
             "streamerMode": False,
             "reduceMotion": False,
@@ -815,6 +816,12 @@ class Bridge:
                         "autoLockMinutes": max(0, round(timeout_seconds / 60)),
                         "favoriteGame": _game(getattr(stored_settings, "favorite_game", "valorant")),
                         "autoLaunchFavoriteGame": getattr(stored_settings, "auto_launch_favorite_game", False) is True,
+                        "gameLaunchMode": (
+                            mode
+                            if (mode := getattr(stored_settings, "game_launch_mode", "")) in {"favorite", "ask", "off"}
+                            else "favorite" if getattr(stored_settings, "auto_launch_favorite_game", False) is True
+                            else "off"
+                        ),
                         "lockOnBlur": bool(
                             getattr(stored_settings, "lock_on_blur", True)
                         ),
@@ -865,12 +872,28 @@ class Bridge:
                 raise ValueError("Choose a valid desktop preference")
             updates[renderer_key] = value
             persisted[storage_key] = value
+        if "autoLaunchFavoriteGame" in updates:
+            updates["gameLaunchMode"] = persisted["game_launch_mode"] = (
+                "favorite" if updates["autoLaunchFavoriteGame"] else "off"
+            )
+        if "gameLaunchMode" in payload:
+            mode = payload["gameLaunchMode"]
+            if mode not in {"favorite", "ask", "off"}:
+                raise ValueError("Choose a valid desktop preference")
+            updates["gameLaunchMode"] = persisted["game_launch_mode"] = mode
+            updates["autoLaunchFavoriteGame"] = persisted["auto_launch_favorite_game"] = mode == "favorite"
 
         if persisted and self._repository:
             update_setting = getattr(self._repository, "update_setting", None)
             if callable(update_setting):
                 update_setting(persisted)
         self.settings.update(updates)
+
+    @staticmethod
+    def _game_labels() -> set[str]:
+        from peaks.domain.models import Game
+
+        return {game.label for game in Game}
 
     def _launch_favorite_game(self, *, after_qr_account_id: str | None = None, game: object = None) -> str:
         if self.demo:
@@ -999,6 +1022,7 @@ class Bridge:
             "autoLockMinutes": 15,
             "favoriteGame": "VALORANT",
             "autoLaunchFavoriteGame": False,
+            "gameLaunchMode": "off",
             "lockOnBlur": True,
             "streamerMode": False,
             "reduceMotion": False,
@@ -2137,6 +2161,7 @@ class Bridge:
         if self.demo:
             account["connected"] = True
             account["lastUpdated"] = "Demo Riot Client connection"
+            self._demo_signed_out = False
             return
         if not self._vault:
             raise RuntimeError("Secure vault is unavailable")
@@ -2927,6 +2952,35 @@ class Bridge:
         # just been deleted. Drop all one-time confirmations immediately.
         self._close_totp_setup_service()
 
+    def _sign_out_riot(self, account_id: str, *, close_game: bool = False) -> None:
+        """Sign the followed account out of Riot Client.
+
+        During a live game the user must confirm closing it (``close_game``).
+        """
+        account = next((item for item in self.accounts if str(item.get("id", "")) == account_id), None)
+        if account is None:
+            raise ValueError("That account is no longer available")
+        if not account.get("owned", True):
+            raise ValueError("Only owned accounts can sign out of Riot Client")
+        in_game = bool(getattr(self, "_game_detected", False))
+        if in_game and not close_game:
+            raise RuntimeError("Signing out will close your current game. Confirm to sign out anyway.")
+        if self.demo:
+            self._demo_signed_out = True
+        else:
+            puuid = str(account.get("puuid") or "").strip()
+            from peaks.adapters.riot.qr_session import sign_out_local_riot
+
+            sign_out_local_riot(puuid, close_games=close_game)
+        if close_game:
+            self._current_match = {}
+            self._game_detected = False
+        if self.demo:
+            return
+        if getattr(self, "_active_account_id", None) == account_id:
+            self._active_account_id = None
+        self._riot_client_status = {**getattr(self, "_riot_client_status", {}), "sessionState": "signed_out"}
+
     def _set_account_icon(self, account_id: str, value: Any, **preferences: Any) -> None:
         account = next(
             (item for item in self.accounts if str(item.get("id", "")) == account_id),
@@ -2998,7 +3052,7 @@ class Bridge:
                 visible_accounts.append(presented)
         current_match = (
             demo_current_match()
-            if self.demo and visible
+            if self.demo and visible and not getattr(self, "_demo_signed_out", False)
             else dict(getattr(self, "_current_match", {}))
             if visible
             else {}
@@ -3036,7 +3090,7 @@ class Bridge:
             "settings": self.settings,
             "riotClient": riot_client,
             "activeAccountId": (
-                visible_accounts[0]["id"] if self.demo and visible_accounts
+                visible_accounts[0]["id"] if self.demo and visible_accounts and not getattr(self, "_demo_signed_out", False)
                 else self._renderer_account_id(str(active_id))
                 if visible and (active_id := getattr(self, "_active_account_id", None))
                 and any(account.get("id") == active_id for account in self.accounts)
@@ -3195,6 +3249,12 @@ class Bridge:
             self._remove_account(internal_id)
             if removed:
                 self._dismissed_active_subject = removed.get("puuid")
+        elif command == "sign_out_riot":
+            self._sign_out_riot(
+                self._internal_account_id(str(payload.get("accountId", ""))),
+                close_game=payload.get("closeGame") is True,
+            )
+            return {**self.state(), "operationNotice": "Signed out of Riot Client"}
         elif command == "set_account_icon":
             if "icon" not in payload:
                 raise ValueError("Choose a character icon or restore the automatic icon")
@@ -3282,9 +3342,19 @@ class Bridge:
                 if command == "connect_riot_qr_image"
                 else "Riot Client connected to the selected identity"
             )
-            if self.settings.get("autoLaunchFavoriteGame") is True:
+            launch_requested = self.settings.get("autoLaunchFavoriteGame") is True
+            launch_game: object = None
+            if not launch_requested and self.settings.get("gameLaunchMode") == "ask":
+                # The renderer asked which game to start before this sign-in;
+                # no game (the chooser was dismissed) means no launch.
+                chosen = payload.get("game")
+                if isinstance(chosen, str) and chosen in self._game_labels():
+                    launch_requested, launch_game = True, chosen
+            if launch_requested:
                 try:
-                    result["operationNotice"] += " · " + self._launch_favorite_game(after_qr_account_id=account_id)
+                    result["operationNotice"] += " · " + self._launch_favorite_game(
+                        after_qr_account_id=account_id, **({"game": launch_game} if launch_game else {}),
+                    )
                 except Exception as exc:
                     # A launcher failure must not turn an approved sign-in into
                     # a failed connection or cause a second QR approval.
@@ -3415,6 +3485,7 @@ _DIAGNOSTIC_BRIDGE_COMMANDS = frozenset(
         "refresh",
         "remove_account",
         "set_account_icon",
+        "sign_out_riot",
         "reset_application",
         "scan_qr",
         "search",
@@ -3428,7 +3499,7 @@ _CONNECTION_COMMANDS = frozenset({"add_account", "import_session", "connect_riot
 _COMMANDS_DURING_SESSION_IMPORT = frozenset({"activity", "copy_totp", "lock", "state"})
 # The connection worker reads these when sign-in completes, so changing them
 # mid-connection decides whether the favorite game launches afterwards.
-_SETTINGS_DURING_CONNECTION = frozenset({"autoLaunchFavoriteGame", "favoriteGame"})
+_SETTINGS_DURING_CONNECTION = frozenset({"autoLaunchFavoriteGame", "favoriteGame", "gameLaunchMode"})
 
 
 def _allowed_during_connection(command: str, request: object, active_command: str) -> bool:

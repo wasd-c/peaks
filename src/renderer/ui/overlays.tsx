@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {createPortal} from 'react-dom'
 import type {CSSProperties, ReactElement, ReactNode} from 'react'
-import {App, Button as AntButton, Dropdown, Flex, Input, Modal, Popover, Tooltip as AntTooltip} from 'antd'
+import {Alert, App, Button as AntButton, Dropdown, Flex, Input, Modal, Popover, Tooltip as AntTooltip} from 'antd'
 import type {InputRef, MenuProps} from 'antd'
 import {X} from 'lucide-react'
 import {Button, type ButtonProps, type ButtonVariant} from './controls'
@@ -67,6 +68,38 @@ export function Dialog({isOpen, onOpenChange, label, purpose = 'info', width, ma
   </Modal>
 }
 
+/** A full-window layer that blurs the app behind it; Escape or the corner close button dismisses it. */
+export function FullscreenOverlay({isOpen, onClose, label, closeLabel, closeText, className, children}: {
+  isOpen: boolean
+  onClose: () => void
+  label: string
+  closeLabel: string
+  /** Visible text beside the close cross, when the cross alone would be ambiguous. */
+  closeText?: string
+  className?: string
+  children: ReactNode
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!isOpen) return
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    ref.current?.querySelector<HTMLElement>('[data-autofocus], button')?.focus()
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); onClose() }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => { window.removeEventListener('keydown', onKey); previous?.focus() }
+  }, [isOpen, onClose])
+  if (!isOpen || typeof document === 'undefined') return null
+  return createPortal(<div ref={ref} role="dialog" aria-modal="true" aria-label={label} className={['pk-fullscreen-overlay', className].filter(Boolean).join(' ')}>
+    <AntTooltip title={closeLabel}>
+      <AntButton className="pk-fullscreen-overlay__close" type="text" size="large" icon={<X size={24} />} iconPlacement="end"
+        aria-label={closeText ? undefined : closeLabel} onClick={onClose}>{closeText}</AntButton>
+    </AntTooltip>
+    {children}
+  </div>, document.body)
+}
+
 export function DialogHeader({title, subtitle, onOpenChange, startContent, endContent}: {
   title: string
   subtitle?: string
@@ -86,11 +119,13 @@ export function DialogHeader({title, subtitle, onOpenChange, startContent, endCo
   </Flex>
 }
 
-export function AlertDialog({isOpen, onOpenChange, title, description, cancelLabel = 'Cancel', actionLabel, actionVariant = 'destructive', isActionLoading, onAction, width}: {
+export function AlertDialog({isOpen, onOpenChange, title, description, warning, cancelLabel = 'Cancel', actionLabel, actionVariant = 'destructive', isActionLoading, onAction, width}: {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => unknown
   title: string
   description: string
+  /** An exceptional consequence the user must see before confirming. */
+  warning?: string
   cancelLabel?: string
   actionLabel: string
   actionVariant?: ButtonVariant
@@ -103,7 +138,10 @@ export function AlertDialog({isOpen, onOpenChange, title, description, cancelLab
       <Button label={cancelLabel} variant="secondary" isDisabled={isActionLoading} onClick={() => onOpenChange(false)} />
       <Button label={actionLabel} variant={actionVariant} isLoading={isActionLoading} onClick={() => void onAction()} />
     </Flex>}>
-    <Text color="secondary">{description}</Text>
+    <Flex vertical gap={12}>
+      {warning ? <Alert type="warning" showIcon title={warning} /> : null}
+      <Text color="secondary">{description}</Text>
+    </Flex>
   </Modal>
 }
 

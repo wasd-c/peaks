@@ -233,10 +233,14 @@ export interface CurrentMatch {
   teams?: MatchTeam[]
 }
 
+export type GameLaunchMode = 'favorite' | 'ask' | 'off'
+
 export interface Settings {
   autoLockMinutes: number
   favoriteGame?: Game
   autoLaunchFavoriteGame?: boolean
+  /** What happens to games when an account is used: launch the favorite, ask which one, or none. */
+  gameLaunchMode?: GameLaunchMode
   streamerMode?: boolean
   lockOnBlur: boolean
   reduceMotion: boolean
@@ -280,6 +284,9 @@ export interface TotpSetupResult {
 
 declare global {
   interface Window {
-    peaks?: {invoke<T>(command: string, payload?: unknown): Promise<T>}
+    peaks?: {
+      invoke<T>(command: string, payload?: unknown): Promise<T>
+      onConnectAccount?(listener: (accountId: string) => void): () => void
+    }
   }
 }

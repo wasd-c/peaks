@@ -133,10 +133,16 @@ export function SettingsScreen({state, action}: SettingsScreenProps) {
           changeAction={value => action('settings', {reduceMotion: value})} />} />
     </>)},
     {key: 'games', icon: Gamepad2, label: t('Games'), children: section(
-      <ListItem startContent={<Icon icon={Rocket} color="secondary" />} label={t('Launch favorite game on sign-in')}
-        description={settings.favoriteGame ?? 'VALORANT'}
-        endContent={<Switch label={t('Launch favorite game on sign-in')} isLabelHidden size="sm" value={Boolean(settings.autoLaunchFavoriteGame)}
-          changeAction={value => action('settings', {autoLaunchFavoriteGame: value}, true)} />} />,
+      <ListItem startContent={<Icon icon={Rocket} color="secondary" />} label={t('Game launch on sign-in')}
+        description={t('Favorite game: {{game}}', {game: settings.favoriteGame ?? 'VALORANT'})}
+        endContent={<Selector label={t('Game launch on sign-in')} isLabelHidden size="sm"
+          value={settings.gameLaunchMode ?? (settings.autoLaunchFavoriteGame ? 'favorite' : 'off')}
+          onChange={value => { void action('settings', {gameLaunchMode: value}, true) }}
+          options={[
+            {value: 'favorite', label: t('Favorite game')},
+            {value: 'ask', label: t('Ask every time')},
+            {value: 'off', label: t('No game')},
+          ]} />} />,
     )},
     {key: 'data', icon: Database, label: t('Riot data'), children: <Flex vertical gap={16}>
       {section(<>

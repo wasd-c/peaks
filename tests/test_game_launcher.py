@@ -456,3 +456,38 @@ def test_launch_failures_are_actionable_and_hide_local_paths(monkeypatch: pytest
     monkeypatch.setattr(launcher.platform, "system", lambda: "Linux")
     with pytest.raises(RuntimeError, match="Windows only"):
         launcher.launch_game(Game.VALORANT)
+
+
+def test_game_launch_mode_persists_and_derives_legacy_flag() -> None:
+    assert Settings.from_dict({"auto_launch_favorite_game": True}).game_launch_mode == "favorite"
+    assert Settings.from_dict({}).game_launch_mode == "off"
+    ask = Settings.from_dict({"game_launch_mode": "ask", "auto_launch_favorite_game": True})
+    assert ask.game_launch_mode == "ask" and not ask.auto_launch_favorite_game
+
+
+@pytest.mark.parametrize(("mode", "game", "expected"), [
+    ("ask", "League of Legends", "League of Legends"),
+    ("ask", None, None),
+    ("ask", "shell.exe", None),
+    ("off", "VALORANT", None),
+    ("favorite", "VALORANT", "Teamfight Tactics"),
+])
+def test_launch_mode_decides_the_game_after_sign_in(
+    bridge: Bridge, monkeypatch: pytest.MonkeyPatch, mode: str, game: str | None, expected: str | None,
+) -> None:
+    monkeypatch.setattr(bridge, "_connect_riot_client", lambda *_args: None)
+    launched: list[object] = []
+    monkeypatch.setattr(
+        bridge, "_launch_favorite_game",
+        lambda **kwargs: launched.append(kwargs.get("game") or bridge.settings["favoriteGame"]) or "sent",
+    )
+    bridge.handle("settings", {"gameLaunchMode": mode, "favoriteGame": "Teamfight Tactics"})
+    assert bridge.settings["autoLaunchFavoriteGame"] is (mode == "favorite")
+    payload = {"accountId": bridge.accounts[0]["id"]} | ({"game": game} if game else {})
+    bridge.handle("connect_riot_client", payload)
+    assert launched == ([expected] if expected else [])
+
+
+def test_invalid_launch_mode_is_rejected(bridge: Bridge) -> None:
+    with pytest.raises(ValueError):
+        bridge.handle("settings", {"gameLaunchMode": "always"})

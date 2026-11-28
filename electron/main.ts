@@ -1,4 +1,4 @@
-import {app, BrowserWindow, clipboard, ipcMain, Menu, nativeImage, nativeTheme, shell, Tray, type IpcMainInvokeEvent} from 'electron'
+import {app, BrowserWindow, clipboard, ipcMain, Menu, nativeImage, nativeTheme, Notification, shell, Tray, type IpcMainInvokeEvent, type JumpListCategory} from 'electron'
 import {spawn, type ChildProcessWithoutNullStreams} from 'node:child_process'
 import {existsSync, writeFileSync} from 'node:fs'
 import path from 'node:path'
@@ -23,6 +23,7 @@ import {PEAKS_RELEASE_PROVIDER, PeaksUpdater} from './appUpdater'
 import {ReleaseHistory} from './releaseHistory'
 import {protectStdio} from './stdio'
 import {readWindowBehavior, writeWindowBehavior} from './windowBehavior'
+import {connectAccountSwitch, recentAccountShortcuts, requestedAccountConnection, shortcutsSignature, type RecentAccountShortcut} from './accountJumpList'
 
 protectStdio()
 
@@ -42,6 +43,10 @@ let appUpdater: PeaksUpdater | null = null
 let releaseHistory: ReleaseHistory | null = null
 let activityRequest: {epoch: number | undefined; promise: Promise<unknown>} | null = null
 const totpClipboard = createSensitiveClipboard(clipboard)
+let recentAccounts: RecentAccountShortcut[] = []
+let jumpListSignature: string | null = null
+// Connections started from the taskbar, so a failure is reported natively while hidden.
+const taskbarConnections = new Set<string>()
 const pending = new Map<number, {resolve: (value: unknown) => void, reject: (error: Error) => void, presenceEpoch: number | undefined}>()
 
 function startBackend() {
@@ -73,6 +78,8 @@ function startBackend() {
         // Resolve callers normally, but a reply dispatched before a privacy
         // clear must never restore the old Discord activity.
         if (request.presenceEpoch !== undefined) discordPresence?.observe(response.result, request.presenceEpoch)
+        const shortcuts = recentAccountShortcuts(response.result)
+        if (shortcuts) updateJumpList(shortcuts)
         request.resolve(response.result)
       }
     } catch { /* malformed backend output is ignored */ }
@@ -230,9 +237,71 @@ function showWindow() {
 
 function nativeWindowLabels() {
   const locale = app.getLocale().toLowerCase()
-  if (locale.startsWith('fr')) return {open: 'Ouvrir Peaks', quit: 'Quitter Peaks', quitDescription: 'Fermer complètement Peaks'}
-  if (locale.startsWith('ko')) return {open: 'Peaks 열기', quit: 'Peaks 종료', quitDescription: 'Peaks 완전히 종료'}
-  return {open: 'Open Peaks', quit: 'Quit Peaks', quitDescription: 'Close Peaks completely'}
+  if (locale.startsWith('fr')) return {open: 'Ouvrir Peaks', quit: 'Quitter Peaks', quitDescription: 'Fermer complètement Peaks', recent: 'Comptes récents', connect: 'Se connecter à ce compte Riot', connectFailed: 'Connexion impossible'}
+  if (locale.startsWith('ko')) return {open: 'Peaks 열기', quit: 'Peaks 종료', quitDescription: 'Peaks 완전히 종료', recent: '최근 계정', connect: '이 Riot 계정으로 로그인', connectFailed: '로그인할 수 없음'}
+  return {open: 'Open Peaks', quit: 'Quit Peaks', quitDescription: 'Close Peaks completely', recent: 'Recent accounts', connect: 'Sign in to this Riot account', connectFailed: 'Could not sign in'}
+}
+
+/** Relaunch arguments for a taskbar shortcut; development builds also name the app folder. */
+function shortcutArguments(argument: string) {
+  return app.isPackaged ? argument : `"${app.getAppPath()}" ${argument}`
+}
+
+function updateJumpList(shortcuts: RecentAccountShortcut[]) {
+  recentAccounts = shortcuts
+  if (process.platform !== 'win32') return
+  const signature = shortcutsSignature(shortcuts)
+  if (signature === jumpListSignature) return
+  jumpListSignature = signature
+  const labels = nativeWindowLabels()
+  const accounts = shortcuts.map(({accountId, title}) => ({
+    type: 'task' as const,
+    program: process.execPath,
+    args: shortcutArguments(`${connectAccountSwitch}=${accountId}`),
+    iconPath: process.execPath,
+    iconIndex: 0,
+    title,
+    description: labels.connect,
+  }))
+  const quit = {
+    type: 'task' as const,
+    program: process.execPath,
+    args: shortcutArguments(quitSwitch),
+    iconPath: process.execPath,
+    iconIndex: 0,
+    title: labels.quit,
+    description: labels.quitDescription,
+  }
+  const categories: JumpListCategory[] = [
+    ...(accounts.length ? [{type: 'custom' as const, name: labels.recent, items: accounts}] : []),
+    {type: 'tasks', items: [quit]},
+  ]
+  try {
+    // Windows refuses a custom category holding an entry the user removed;
+    // keep the accounts reachable as tasks instead.
+    if (app.setJumpList(categories) !== 'ok') app.setJumpList([{type: 'tasks', items: [...accounts, quit]}])
+  } catch {
+    jumpListSignature = null
+  }
+}
+
+function connectFromTaskbar(accountId: string) {
+  const ready = window && !window.isDestroyed() && !window.webContents.isLoading()
+  if (!ready || !recentAccounts.some(account => account.accountId === accountId)) { showWindow(); return }
+  taskbarConnections.add(accountId)
+  window!.webContents.send('peaks:connect-account', accountId)
+}
+
+function reportTaskbarConnectionFailure(error: unknown) {
+  if (window?.isVisible() && window.isFocused()) return
+  if (!Notification.isSupported()) return
+  const notification = new Notification({
+    title: nativeWindowLabels().connectFailed,
+    body: error instanceof Error ? error.message : '',
+    silent: false,
+  })
+  notification.on('click', showWindow)
+  notification.show()
 }
 
 function createTray() {
@@ -253,6 +322,8 @@ function createTray() {
 
 app.on('second-instance', (_event, commandLine) => {
   if (commandLine.includes(quitSwitch)) { quitting = true; app.quit(); return }
+  const accountId = requestedAccountConnection(commandLine)
+  if (accountId) { connectFromTaskbar(accountId); return }
   showWindow()
 })
 
@@ -271,17 +342,10 @@ app.whenReady().then(() => {
   appUpdater.start()
   discordPresence = new DiscordPresence(path.join(app.getPath('userData'), 'discord-presence.json'), process.env.PEAKS_DEMO === '1', process.env.PEAKS_DISCORD_APPLICATION_ID)
   createTray()
-  if (process.platform === 'win32' && app.isPackaged) {
-    const labels = nativeWindowLabels()
-    app.setAppUserModelId('local.peaks.desktop')
-    app.setUserTasks([{
-      program: process.execPath,
-      arguments: quitSwitch,
-      iconPath: process.execPath,
-      iconIndex: 0,
-      title: labels.quit,
-      description: labels.quitDescription,
-    }])
+  if (process.platform === 'win32') {
+    if (app.isPackaged) app.setAppUserModelId('local.peaks.desktop')
+    // Accounts appear once the vault is unlocked and the first state arrives.
+    updateJumpList([])
   }
   // Keep match capture running when the renderer is throttled in the tray.
   discordHeartbeat = new DiscordActivityHeartbeat({
@@ -329,6 +393,15 @@ app.whenReady().then(() => {
     // The Python service obtains Riot's own local challenge after validating
     // the chosen identity. The renderer cannot supply a challenge or endpoint.
     backendPayload = localRiotConnectPayload(payload)
+    const accountId = (backendPayload as {accountId: string}).accountId
+    if (taskbarConnections.delete(accountId)) {
+      try {
+        return await callBackend(command, backendPayload, presenceEpoch)
+      } catch (error) {
+        reportTaskbarConnectionFailure(error)
+        throw error
+      }
+    }
   } else if (command === 'connect_riot_qr_image') {
     const safePayload = payload && typeof payload === 'object' && !Array.isArray(payload)
       ? payload as Record<string, unknown>
@@ -351,6 +424,8 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
 app.on('before-quit', () => {
   quitting = true
+  // Stale shortcuts would only reopen Peaks; do not leave Riot IDs in the taskbar.
+  updateJumpList([])
   tray?.destroy()
   tray = null
   telemetry?.dispose()

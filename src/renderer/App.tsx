@@ -2,8 +2,8 @@ import {accountRegionForGame} from './accountRegions'
 import {t, useLocale, displayText} from './i18n'
 import {useCallback, useEffect, useMemo, useReducer, useRef, useState} from 'react'
 import {Layout as AntLayout} from 'antd'
-import {Button, Center, Heading, MotionPreference, Spinner, Text, useToast, VStack} from './ui'
-import {AppNavigation, type Page} from './components/AppNavigation'
+import {AlertDialog, Button, Center, Heading, MotionPreference, Spinner, Text, useToast, VStack} from './ui'
+import {AppNavigation, useSidebarCollapsed, type Page} from './components/AppNavigation'
 import {WorkspaceBar} from './components/WorkspaceBar'
 import {AddAccountDialog, ConnectDialog} from './components/Dialogs'
 import {LockScreen} from './components/LockScreen'
@@ -51,7 +51,9 @@ import {
   type PostMatchReview,
   type PostMatchTracker,
 } from './postMatch'
-import type {Account, AppState, Player, TotpSetupResult} from './types'
+import type {Account, AppState, Game, Player, TotpSetupResult} from './types'
+import {GameChooser} from './components/GameChooser'
+import {gameLaunchMode} from './components/GameLaunchModeButton'
 import {EditAccountDialog} from './components/EditAccountDialog'
 import {accountConnectionError} from './accountConnection'
 import {useAccountConnection} from './useAccountConnection'
@@ -209,6 +211,9 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
     }
   }, [state, openAccountProfile, page])
   const currentProfile = profileAccount(state, profileAccountId)
+  const [isSidebarCollapsed, setSidebarCollapsed] = useSidebarCollapsed()
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null)
+  const [signingOutAccountId, setSigningOutAccountId] = useState<string | null>(null)
   const [isAddOpen, setAddOpen] = useState(false)
   const [connectAccountId, setConnectAccountId] = useState<string | null>(null)
   const [postMatchReviews, setPostMatchReviews] = useState<PostMatchReview[]>([])
@@ -339,21 +344,26 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
 
   return (
     <AntLayout className={state.settings.reduceMotion ? 'peaks-app reduce-motion' : 'peaks-app'} style={{height: '100vh'}}>
-      <WorkspaceBar state={state} profileAccount={currentProfile} onStateChange={setState} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
-        setPage('overview')
-        navigate({type: 'reset'})
-        setSelectedAccountId(account.id)
-      }} />
-      <AntLayout>
-        <AntLayout.Sider width="var(--peaks-sidebar-width)" className="peaks-sider">
+      <AntLayout hasSider style={{flex: 1, minHeight: 0}}>
+        <AntLayout.Sider width={isSidebarCollapsed ? 'var(--peaks-sidebar-width)' : 'var(--peaks-sidebar-width-expanded)'} className="peaks-sider">
         <AppNavigation
-          hasAccount={Boolean(currentProfile)}
+          profileAccount={currentProfile}
+          isCollapsed={isSidebarCollapsed}
+          onCollapsedChange={setSidebarCollapsed}
+          onEditAccount={account => setEditingAccountId(account.id)}
+          onSignOutAccount={account => setSigningOutAccountId(account.id)}
           page={page}
           state={state}
           onLock={() => void requestLock('manual').catch(() => undefined)}
           onPage={changePage}
         />
         </AntLayout.Sider>
+        <AntLayout style={{minWidth: 0}}>
+        <WorkspaceBar state={state} onStateChange={setState} onPage={changePage} onAdd={() => setAddOpen(true)} onLock={() => void requestLock('manual').catch(() => undefined)} onSelect={account => {
+        setPage('overview')
+        navigate({type: 'reset'})
+        setSelectedAccountId(account.id)
+      }} />
         <AntLayout.Content className="peaks-content">
       <Workspace
         profileAccount={currentProfile}
@@ -384,8 +394,13 @@ function AuthenticatedApp({state, setState}: AuthenticatedAppProps) {
         runWithAutoLockPaused={runWithAutoLockPaused}
         view={view}
         onView={setView}
+        editingAccountId={editingAccountId}
+        onEditAccount={setEditingAccountId}
+        signingOutAccountId={signingOutAccountId}
+        onSignOutAccount={setSigningOutAccountId}
       />
         </AntLayout.Content>
+        </AntLayout>
       </AntLayout>
       <ReleaseNotesDialog isOpen={release.pending && !isAddOpen && !connectAccount} onClose={() => { void release.dismiss() }}
         currentVersion={release.currentVersion} busy={release.busy} error={release.error} />
@@ -438,6 +453,10 @@ interface WorkspaceProps {
   runWithAutoLockPaused: <Result>(operation: () => Promise<Result>) => Promise<Result>
   view: AuthenticatedView
   onView: (view: AuthenticatedView) => void
+  editingAccountId: string | null
+  onEditAccount: (accountId: string | null) => void
+  signingOutAccountId: string | null
+  onSignOutAccount: (accountId: string | null) => void
 }
 
 function Workspace({
@@ -463,12 +482,17 @@ function Workspace({
   runWithAutoLockPaused,
   view,
   onView,
+  editingAccountId,
+  onEditAccount: setEditingAccountId,
+  signingOutAccountId,
+  onSignOutAccount: setSigningOutAccountId,
 }: WorkspaceProps) {
   useLocale()
   const showToast = useToast()
-  const {redact} = usePlayerPrivacy()
-  const [editingAccountId, setEditingAccountId] = useState<string | null>(null)
+  const {redact, displayName} = usePlayerPrivacy()
   const editingAccount = state.accounts.find(account => account.id === editingAccountId)
+  const signingOutAccount = state.accounts.find(account => account.id === signingOutAccountId)
+  const [isSigningOut, setSigningOut] = useState(false)
   const pendingMfa = useRef(new Map<string, Promise<TotpSetupResult>>())
   const [enablingMfaAccounts, setEnablingMfaAccounts] = useState<ReadonlySet<string>>(new Set())
   const [stoppedReport, setStoppedReport] = useState<string | null>(null)
@@ -548,10 +572,23 @@ function Workspace({
     await execute()
   }, [onRequestLock, onOpenAccountProfile, redact, runWithAutoLockPaused, setState, showToast])
 
+  // In "ask" mode, Use first shows the game chooser; the pick rides along with the sign-in.
+  const launchChoice = useRef(new Map<string, Game>())
+  const [choosingGameFor, setChoosingGameFor] = useState<Account | null>(null)
   const {connection, connect, cancel: cancelAccountConnection} = useAccountConnection({
-    approve: accountId => action('connect_riot_client', {accountId}, true, true),
+    approve: accountId => {
+      const game = launchChoice.current.get(accountId)
+      launchChoice.current.delete(accountId)
+      return action('connect_riot_client', game ? {accountId, game} : {accountId}, true, true)
+    },
     onError: error => showToast({body: t(accountConnectionError(error)), type: 'error', uniqueID: 'account-connection', isAutoHide: true}),
   })
+  // Taskbar shortcuts sign in directly, in the background: there is no window to ask for a game.
+  const knownAccounts = useRef(state.accounts)
+  useEffect(() => { knownAccounts.current = state.accounts }, [state.accounts])
+  useEffect(() => window.peaks?.onConnectAccount?.(accountId => {
+    if (knownAccounts.current.some(account => account.id === accountId && account.canConnectQr)) void connect(accountId)
+  }), [connect])
 
   const profileId = currentProfile?.id
   const [profileLoading, setProfileLoading] = useState(false)
@@ -687,7 +724,7 @@ function Workspace({
     <OverviewScreen
       onAdd={() => onAddOpen(true)}
       onSelect={onSelectAccount}
-      onUse={account => void connect(account.id)}
+      onUse={account => gameLaunchMode(state) === 'ask' ? setChoosingGameFor(account) : void connect(account.id)}
       onCancel={() => { void cancelAccountConnection() }}
       onEdit={account => setEditingAccountId(account.id)}
       connection={connection}
@@ -712,6 +749,14 @@ function Workspace({
         ...detailPath,
       ]}>{screen}</WorkspaceHistory></AccountArrival>
 
+      <GameChooser isOpen={Boolean(choosingGameFor)} onChoose={game => {
+        const account = choosingGameFor
+        setChoosingGameFor(null)
+        if (!account) return
+        launchChoice.current.clear()
+        if (game) launchChoice.current.set(account.id, game)
+        void connect(account.id)
+      }} onCancel={() => setChoosingGameFor(null)} />
       <AddAccountDialog
         isOpen={isAddOpen}
         onOpenChange={onAddOpen}
@@ -722,6 +767,20 @@ function Workspace({
         onClose={() => setEditingAccountId(null)}
         onSave={async preferences => { await action('set_account_icon', {accountId: editingAccount.id, ...preferences}, true) }}
         onDelete={async () => { await action('remove_account', {accountId: editingAccount.id}, true) }} />}
+      <AlertDialog isOpen={Boolean(signingOutAccount)} onOpenChange={isOpen => { if (!isOpen && !isSigningOut) setSigningOutAccountId(null) }}
+        title={t('Sign out of Riot?')}
+        description={t('{{name}} will be signed out of Riot Client. Connect it again from Accounts when you want to play.', {name: signingOutAccount ? displayName(signingOutAccount.riotId) : ''})}
+        warning={state.gameDetected ? t('Important: you seem to be in a game. Signing out will close it.') : undefined}
+        cancelLabel={t('Cancel')} actionLabel={state.gameDetected ? t('Close game and sign out') : t('Sign out')}
+        actionVariant={state.gameDetected ? 'destructive' : 'primary'} isActionLoading={isSigningOut}
+        onAction={async () => {
+          if (!signingOutAccount) return
+          setSigningOut(true)
+          try { await action('sign_out_riot', {accountId: signingOutAccount.id, closeGame: state.gameDetected}) } finally {
+            setSigningOut(false)
+            setSigningOutAccountId(null)
+          }
+        }} />
       <ConnectDialog
         account={connectAccount}
         isOpen={Boolean(connectAccount)}

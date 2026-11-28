@@ -55,11 +55,10 @@ body { min-width: 0; }
   overflow: hidden;
 }
 .pd-workspace-bar { min-height: calc(var(--spacing-8) * 2); padding-inline: var(--spacing-6); background: transparent; border: 0; }
-.pd-wordmark { font-size: var(--font-size-lg); letter-spacing: var(--peaks-tracking-label); }
 .pd-workspace-label { letter-spacing: var(--peaks-tracking-label); font-size: var(--font-size-xs); }
 .pd-command-trigger { min-width: calc(var(--spacing-12) * 4); background: var(--color-background-surface); border: var(--border-width) solid var(--color-border); }
 .pd-key-hint { margin-inline-start: var(--spacing-6); padding-inline: var(--spacing-1-5); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-inner); font-family: var(--font-family-code); }
-.pd-navigation { width: var(--peaks-sidebar-width) !important; min-width: var(--peaks-sidebar-width) !important; background: transparent; border: 0; }
+.pd-navigation { background: transparent; border: 0; }
 
 
 
@@ -103,7 +102,6 @@ body { min-width: 0; }
 }
 @media (max-width: 36rem) {
   .peaks-app { padding: 0; }
-  .pd-navigation { width: calc(var(--spacing-8) * 2) !important; min-width: calc(var(--spacing-8) * 2) !important; }
 
   .pd-key-hint, .pd-workspace-bar .pk-icon[aria-label] { display: none; }
   .pd-overview-strip { gap: var(--spacing-3); }
