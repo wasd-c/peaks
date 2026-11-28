@@ -10,6 +10,20 @@ const text = (html: string) => html.replace(/<[^>]*>/g, '')
 const displayedKda = (html: string) => [...html.matchAll(/<td class="vls-kda-cell">(.*?)<\/td>/g)].map(match => text(match[1]))
 
 describe('live Valorant scoreboard statistics', () => {
+  it('presents the exact rank and agent once and keeps unresolved names legible', () => {
+    const html = render([
+      {name: 'First#EU', agent: 'Jett', currentRank: 'Ascendant 1'},
+      {name: 'Second#EU', agent: 'New agent', currentRank: 'Regional qualifier'},
+    ])
+    expect(html).toContain('aria-label="Ascendant 1"')
+    expect(html).toContain('alt="Jett"')
+    const visible = text(html)
+    expect(visible).not.toContain('Ascendant 1')
+    expect(visible).not.toContain('Jett')
+    expect(visible).toContain('New agent')
+    expect(visible).toContain('Regional qualifier')
+  })
+
   it('defaults to recent per-game averages when the game has shared only player history', () => {
     const html = render([{name: 'Jett#EU', overallStats: {matchesPlayed: 5, kills: 64, deaths: 50, assists: 25}}])
     expect(displayedKda(html)).toEqual(['12.8 / 10 / 5'])

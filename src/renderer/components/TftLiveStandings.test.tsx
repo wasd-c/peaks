@@ -6,22 +6,20 @@ import {TftLiveStandings} from './TftLiveStandings'
 const render = (players: MatchPlayer[], overrides?: Partial<CurrentMatch>) =>
   renderToStaticMarkup(<TftLiveStandings match={{game: 'Teamfight Tactics', phase: 'live', teams: [{name: 'Players', players}], ...overrides}} onSelectPlayer={() => undefined} />)
 const table = (html: string) => html.slice(html.indexOf('<table'), html.indexOf('</table>'))
-const scout = (html: string) => html.slice(html.indexOf('<aside'))
 
 describe('TFT live standings', () => {
-  it('orders the lobby by observed standing while opening scouting on the local player', () => {
+  it('orders the standings and offers scouting only for extra information', () => {
     const html = render([
       {name: 'Local#TEST', self: true, stats: {health: 72.5, standing: 4, boardUnits: 0, observedAt: 1_800_000_000}, overallStats: {matchesPlayed: 4, placement: 10}},
       {name: 'Leader#TEST', stats: {health: 132, standing: 1, boardUnits: 7}},
     ])
-    expect(table(html).indexOf('Scout Leader#TEST')).toBeLessThan(table(html).indexOf('Scout Local#TEST'))
+    expect(table(html)).toMatch(/Leader[\s\S]*Local/)
     expect(table(html)).toContain('max="132"')
-    expect(scout(html)).toContain('Local')
-    expect(scout(html)).toContain('72.5')
-    expect(scout(html)).toMatch(/Board units<\/dt><dd>0<\/dd>/)
-    expect(scout(html)).toMatch(/Average placement<\/dt><dd>2.5<\/dd>/)
-    expect(scout(html)).toContain('dateTime=')
-    expect(scout(html)).not.toContain('Leader')
+    expect(table(html)).toContain('Scout Local#TEST')
+    expect(table(html)).not.toContain('Scout Leader#TEST')
+    expect(table(html)).toContain('aria-expanded="false"')
+    expect(table(html)).toContain('>72.5</strong>')
+    expect(html).not.toContain('<aside')
   })
 
   it('keeps a missing snapshot distinct from zero HP and suppresses unavailable rank blocks', () => {
@@ -30,11 +28,9 @@ describe('TFT live standings', () => {
       {name: 'Out#TEST', stats: {standing: 8, health: 0}},
     ])
     expect(table(html).match(/<meter\b/g)).toHaveLength(1)
-    expect(table(html).match(/>Eliminated</g)).toHaveLength(1)
-    expect(scout(html)).toContain('Statistics unavailable')
-    expect(scout(html)).not.toContain('tft-scout-metrics')
-    expect(scout(html)).not.toContain('Current rating')
-    expect(scout(html)).not.toContain('Board units')
+    expect(table(html)).toContain('title="Eliminated">0</strong>')
+    expect(table(html)).not.toContain('aria-expanded=')
+    expect(table(html)).not.toContain('Statistics unavailable')
   })
 
   it('keeps verified Double Up pairs together and disables movement for stale or unassigned rosters', () => {

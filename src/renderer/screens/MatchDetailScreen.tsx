@@ -6,7 +6,7 @@ import {EmptyState, Icon, VStack} from '../ui'
 import {ArrowLeft, BarChart3, CalendarDays, Clock3, Share2, UsersRound} from 'lucide-react'
 import {valorantMapName} from '../assets'
 import {ShareMatchDialog} from '../components/ShareMatchDialog'
-import {MatchInsights} from '../components/MatchInsights'
+import {MatchInsights, MatchStandouts} from '../components/MatchInsights'
 import {PlayerMatchCards} from '../components/PlayerMatchCards'
 import {fitsValorantRoster} from '../matchLayout'
 import {gameMode} from '../riotProfile'
@@ -58,7 +58,7 @@ export function MatchDetailScreen({match, region, onBack, onSelectPlayer}: Match
         <Tooltip title={t("Share match")}><AntButton icon={<Share2 size={16} />} aria-label={t("Share match")} onClick={() => setShareOpen(true)} /></Tooltip>
       </>}>
       <VStack className="pd-detail pmc-match-screen" height={fitRoster ? '100%' : undefined} gap={fitRoster ? 2 : 4}>
-        {activeTab === 'performance' ? <section className="pd-detail__panel" aria-label={t("Performance")} id="match-performance-panel"><MatchInsights match={match} /></section> : <VStack className="pd-detail__panel" aria-label={t("Scoreboard")} gap={5} id="match-scoreboard-panel">
+        {activeTab === 'performance' ? <section className="pd-detail__panel" aria-label={t("Performance")} id="match-performance-panel"><VStack gap={5}><MatchInsights match={match} /><MatchStandouts match={match} /></VStack></section> : <VStack className="pd-detail__panel" aria-label={t("Scoreboard")} gap={5} id="match-scoreboard-panel">
           {teams.length > 0 ? <PlayerMatchCards teams={teams} game={match.game} mode={match.mode} map={match.map} matchId={match.id} result={match.result} label={displayText(match.playedAt ?? 'Recent match')} freeForAll={match.freeForAll} teamMode={match.teamMode} region={region} completed fitToHeight={fitRoster} onSelectPlayer={onSelectPlayer} /> : <EmptyState description={t("Refresh the account to try again.")} icon={<Icon color="secondary" icon={UsersRound} />} title={t("Players unavailable")} />}
         </VStack>}
       </VStack>

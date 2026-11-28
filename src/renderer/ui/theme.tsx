@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react'
+import {useSyncExternalStore, type ReactNode} from 'react'
 import {App, ConfigProvider, theme as antTheme} from 'antd'
 import type {ThemeConfig} from 'antd'
 
@@ -55,6 +55,20 @@ export function antThemeFor(name: PeaksTheme): ThemeConfig {
       Menu: {itemBg: 'transparent', darkItemBg: 'transparent'},
     },
   }
+}
+
+const systemMotion = typeof window !== 'undefined' && window.matchMedia
+  ? window.matchMedia('(prefers-reduced-motion: reduce)') : undefined
+
+function subscribeMotion(change: () => void) {
+  systemMotion?.addEventListener('change', change)
+  return () => systemMotion?.removeEventListener('change', change)
+}
+
+export function MotionPreference({reduce, children}: {reduce?: boolean; children: ReactNode}) {
+  // CSS-only cancellation can strand an Ant dialog at its initial opacity.
+  const systemReduced = useSyncExternalStore(subscribeMotion, () => Boolean(systemMotion?.matches), () => false)
+  return <ConfigProvider theme={{token: {motion: !(reduce || systemReduced)}}}>{children}</ConfigProvider>
 }
 
 /** Root provider: Ant Design's dark theme with Peaks's palette, plus toasts. */

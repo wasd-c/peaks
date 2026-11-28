@@ -1,0 +1,29 @@
+.account-rank-emblem {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-1);
+  vertical-align: middle;
+}
+.account-rank-emblem img { width: var(--spacing-8); height: var(--spacing-8); object-fit: contain; }
+.account-rank-emblem small { font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); }
+.account-rank-strip {
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding-block-end: var(--spacing-4);
+  font-variant-numeric: tabular-nums;
+}
+.account-rank-strip__game + .account-rank-strip__game {
+  border-inline-start: var(--border-width) solid var(--color-border);
+  padding-inline-start: var(--spacing-5);
+}
+.account-rank-strip__game .account-rank-emblem img { width: var(--spacing-12); height: var(--spacing-12); }
+.account-rank-strip__logo { width: var(--spacing-5); height: var(--spacing-5); object-fit: contain; }
+.account-rank-strip__meter {
+  display: block;
+  width: var(--spacing-24);
+  height: var(--spacing-1);
+  appearance: none;
+  border: none;
+}
+.account-rank-strip__meter::-webkit-meter-bar { height: 100%; background: var(--color-track); border: none; border-radius: var(--radius-full); }
+.account-rank-strip__meter::-webkit-meter-optimum-value { background: var(--color-text-primary); border-radius: inherit; }

@@ -99,12 +99,12 @@ export const valorantMapName = (map?: string) => (
   valorantMapEntry(map)?.displayName ?? map ?? 'Unknown map'
 )
 
-export const valorantMapAsset = (map?: string) => {
+export const knownValorantMapAsset = (map?: string) => {
   const entry = valorantMapEntry(map)
-  return entry
-    ? localAsset(`riot/${entry.path}`)
-    : localAsset('riot/artwork/valorant-ascent.png')
+  return entry ? localAsset(`riot/${entry.path}`) : undefined
 }
+
+export const valorantMapAsset = (map?: string) => knownValorantMapAsset(map) ?? localAsset('riot/artwork/valorant-ascent.png')
 
 export const gameArtwork = (game?: Game, map?: string) => {
   if (game === 'VALORANT') return valorantMapAsset(map)

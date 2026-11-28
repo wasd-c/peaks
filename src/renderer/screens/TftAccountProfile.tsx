@@ -47,11 +47,11 @@ function TftUnitStars({stars}: {stars: number}) {
   </svg>
 }
 
-export function TftBoard({composition}: {composition?: TftComposition}) {
-  if (!composition?.units) return <Text color="secondary" type="supporting">{t('Composition unavailable for this match.')}</Text>
+export function TftBoard({composition, compact = false, label = t('Final board')}: {composition?: TftComposition; compact?: boolean; label?: string}) {
+  if (!composition || (!compact && !composition.units)) return <Text color="secondary" type="supporting">{t('Composition unavailable for this match.')}</Text>
   return <VStack gap={4}>
-    <HStack gap={3} align="start" wrap="wrap" role="list" aria-label={t('Final board')}>
-      {[...composition.units].sort((a, b) => b.stars - a.stars || (tftUnitCost(b.id, composition.setNumber) ?? 0) - (tftUnitCost(a.id, composition.setNumber) ?? 0)).map((unit, index) => <VStack key={`${unit.id}-${index}`} className="pd-tft-unit" gap={1} paddingInlineStart={3} paddingBlockStart={3} align="center" role="listitem" aria-label={t('{{unit}}, {{stars}} stars', {unit: tftAssetLabel('champion', unit.id, composition.setNumber), stars: unit.stars})}>
+    <HStack gap={compact ? 1 : 3} align="start" wrap="wrap" role="list" aria-label={label}>
+      {[...(composition.units ?? [])].sort((a, b) => b.stars - a.stars || (tftUnitCost(b.id, composition.setNumber) ?? 0) - (tftUnitCost(a.id, composition.setNumber) ?? 0)).map((unit, index) => <VStack key={`${unit.id}-${index}`} className="pd-tft-unit" gap={1} paddingInlineStart={3} paddingBlockStart={3} align="center" role="listitem" aria-label={t('{{unit}}, {{stars}} stars', {unit: tftAssetLabel('champion', unit.id, composition.setNumber), stars: unit.stars})}>
         <HStack className="pd-tft-unit__frame" align="center" justify="center">
           <TftIcon kind="champion" id={unit.id} stars={unit.stars} setNumber={composition.setNumber} variant={composition.setVariant} />
           <TftUnitStars stars={unit.stars} />
@@ -59,16 +59,16 @@ export function TftBoard({composition}: {composition?: TftComposition}) {
             {unit.items.map((id, itemIndex) => <TftIcon key={`${id}-${itemIndex}`} kind="item" id={id} small />)}
           </VStack> : null}
         </HStack>
-        <Text className="pd-tft-unit-name" type="supporting">{tftAssetLabel('champion', unit.id, composition.setNumber)}</Text>
+        {(!compact || (!tftUnitPortrait(unit.id, composition.setNumber) && !tftSpriteStyle('champion', unit.id))) && <Text className="pd-tft-unit-name" type="supporting">{tftAssetLabel('champion', unit.id, composition.setNumber)}</Text>}
       </VStack>)}
     </HStack>
     {composition.traits?.some(trait => trait.tier > 0) ? <HStack gap={3} wrap="wrap" aria-label={t('Active traits')}>
       {composition.traits.filter(trait => trait.tier > 0).sort((a, b) => b.tier - a.tier || b.count - a.count).map(trait => <HStack key={trait.id} gap={1} align="center">
-        <TftIcon kind="trait" id={trait.id} small /><Text type="supporting">{tftAssetLabel('trait', trait.id)} · {trait.count}</Text>
+        <TftIcon kind="trait" id={trait.id} small /><Text type="supporting">{(!compact || !tftSpriteStyle('trait', trait.id)) && tftAssetLabel('trait', trait.id) + ' · '}{trait.count}</Text>
       </HStack>)}
     </HStack> : null}
     {composition.augments?.length ? <HStack gap={4} wrap="wrap" aria-label={t('Augments')}>
-      {composition.augments.map((id, index) => <HStack key={`${id}-${index}`} align="center" gap={1}><TftIcon kind="augments" id={id} small /><Text type="supporting" color="secondary">{tftAssetLabel('augments', id)}</Text></HStack>)}
+      {composition.augments.map((id, index) => <HStack key={`${id}-${index}`} align="center" gap={1}><TftIcon kind="augments" id={id} small />{(!compact || !tftSpriteStyle('augments', id)) && <Text type="supporting" color="secondary">{tftAssetLabel('augments', id)}</Text>}</HStack>)}
     </HStack> : null}
   </VStack>
 }

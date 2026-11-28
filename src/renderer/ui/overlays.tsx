@@ -5,6 +5,7 @@ import type {InputRef, MenuProps} from 'antd'
 import {X} from 'lucide-react'
 import {Button, type ButtonProps, type ButtonVariant} from './controls'
 import {Text} from './typography'
+import {VisuallyHidden} from './layout'
 
 type Placement = 'above' | 'below' | 'start' | 'end'
 const PLACEMENT = {above: 'top', below: 'bottom', start: 'left', end: 'right'} as const
@@ -44,10 +45,11 @@ export function HoverCard({content, children, placement = 'end', className, labe
 
 /* ---------- Dialogs ---------- */
 
-export function Dialog({isOpen, onOpenChange, purpose = 'info', width, maxHeight, padding = 5, className, style, children}: {
+export function Dialog({isOpen, onOpenChange, label, purpose = 'info', width, maxHeight, padding = 5, className, style, children}: {
   style?: CSSProperties
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => unknown
+  label?: string
   purpose?: 'info' | 'form' | 'required'
   width?: number | string
   maxHeight?: number | string
@@ -57,10 +59,10 @@ export function Dialog({isOpen, onOpenChange, purpose = 'info', width, maxHeight
   children: ReactNode
 }) {
   const dismissible = purpose !== 'required'
-  if (typeof document === 'undefined') return isOpen ? <div role="dialog" className={className}>{children}</div> : null
-  return <Modal open={isOpen} onCancel={() => dismissible && onOpenChange(false)} footer={null} closable={false} centered
+  if (typeof document === 'undefined') return isOpen ? <div role="dialog" aria-label={label} className={className}>{children}</div> : null
+  return <Modal open={isOpen} title={label ? <VisuallyHidden>{label}</VisuallyHidden> : undefined} onCancel={() => dismissible && onOpenChange(false)} footer={null} closable={false} centered
     mask={{closable: dismissible}} keyboard={dismissible} width={width ?? 560} destroyOnHidden className={className}
-    styles={{container: {padding: 0, overflow: 'hidden'}, body: {padding: padding * 4, maxHeight, overflowY: 'auto', display: 'flex', flexDirection: 'column', ...style}}}>
+    styles={{header: label ? {margin: 0} : undefined, container: {padding: 0, overflow: 'hidden'}, body: {padding: padding * 4, maxHeight, overflowY: 'auto', display: 'flex', flexDirection: 'column', ...style}}}>
     {children}
   </Modal>
 }
