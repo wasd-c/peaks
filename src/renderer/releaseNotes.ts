@@ -2,20 +2,25 @@
  * Update this content as part of preparing a release, before changing its version.
  */
 export const releaseNotes = {
-  summary: "A new interface built on Ant Design, and support for the standalone Teamfight Tactics client.",
+  summary: "Sign out of Riot from Peaks, choose a game at each sign-in, and play League and TFT on PBE.",
   added: [
-    "Detect Teamfight Tactics lobbies, queues and live games from the standalone TFT client, and save finished games to your history.",
-    "See the Riot account Peaks follows next to the wordmark, one click from its profile.",
-    "Switch game profiles with their logos, and open a game from its rank card.",
+    "Sign out of the Riot account Peaks follows from the sidebar, closing a running game only after you confirm.",
+    "Choose what signing in does: launch your favorite game, pick a game each time, or launch none.",
+    "Sign in to your three most recent accounts from the Windows taskbar.",
+    "Launch League of Legends and Teamfight Tactics on PBE when the signed-in account belongs to PBE.",
+    "Show VALORANT lobbies, queues and found matches in Discord activity, with Skirmish and map art.",
+    "Add Hush and the Gauntlet map to the VALORANT catalog.",
   ],
   fixed: [
-    "Show the party size once in Discord activity.",
-    "Recognize Double Up from its queue type, so event modes keep the right layout.",
+    "Show TFT and League matches after a finished VALORANT match, instead of hiding them until Peaks restarts.",
+    "Keep the map name and art in Discord activity for maps Riot reports by codename.",
+    "Keep waiting when Riot Client delays quitting during a game launch, instead of reporting it as not ready.",
   ],
   changed: [
-    "Rebuild the interface on Ant Design, with one header per page and icons with tooltips instead of repeated text.",
-    "Group settings into tabs, and show each game breakdown once with a 7, 30 and 90-day switch.",
-    "Launch Teamfight Tactics as its own game.",
+    "Redesign live TFT and VALORANT rosters, the saved account detail and each game’s post-match recap.",
+    "Show match outcomes through scores and the recorded rank emblems.",
+    "Move the followed Riot account from the header to the sidebar.",
+    "Ship a smaller package with only the runtime modules and WebP art.",
   ],
   removed: [],
   knownIssues: ['Enabling MFA directly from Peaks is not yet functional. Configure MFA through your Riot account for now.'],

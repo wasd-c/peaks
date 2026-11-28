@@ -1138,5 +1138,19 @@
   "Important: you seem to be in a game. Signing out will close it.": "Important: you seem to be in a game. Signing out will close it.",
   "Close game and sign out": "Close game and sign out",
   "Signing out will close your current game. Confirm to sign out anyway.": "Signing out will close your current game. Confirm to sign out anyway.",
-  "Peaks could not close the running game. Close it, then try again.": "Peaks could not close the running game. Close it, then try again."
+  "Peaks could not close the running game. Close it, then try again.": "Peaks could not close the running game. Close it, then try again.",
+  "Sign out of Riot from Peaks, choose a game at each sign-in, and play League and TFT on PBE.": "Sign out of Riot from Peaks, choose a game at each sign-in, and play League and TFT on PBE.",
+  "Sign out of the Riot account Peaks follows from the sidebar, closing a running game only after you confirm.": "Sign out of the Riot account Peaks follows from the sidebar, closing a running game only after you confirm.",
+  "Choose what signing in does: launch your favorite game, pick a game each time, or launch none.": "Choose what signing in does: launch your favorite game, pick a game each time, or launch none.",
+  "Sign in to your three most recent accounts from the Windows taskbar.": "Sign in to your three most recent accounts from the Windows taskbar.",
+  "Launch League of Legends and Teamfight Tactics on PBE when the signed-in account belongs to PBE.": "Launch League of Legends and Teamfight Tactics on PBE when the signed-in account belongs to PBE.",
+  "Show VALORANT lobbies, queues and found matches in Discord activity, with Skirmish and map art.": "Show VALORANT lobbies, queues and found matches in Discord activity, with Skirmish and map art.",
+  "Add Hush and the Gauntlet map to the VALORANT catalog.": "Add Hush and the Gauntlet map to the VALORANT catalog.",
+  "Show TFT and League matches after a finished VALORANT match, instead of hiding them until Peaks restarts.": "Show TFT and League matches after a finished VALORANT match, instead of hiding them until Peaks restarts.",
+  "Keep the map name and art in Discord activity for maps Riot reports by codename.": "Keep the map name and art in Discord activity for maps Riot reports by codename.",
+  "Keep waiting when Riot Client delays quitting during a game launch, instead of reporting it as not ready.": "Keep waiting when Riot Client delays quitting during a game launch, instead of reporting it as not ready.",
+  "Redesign live TFT and VALORANT rosters, the saved account detail and each game’s post-match recap.": "Redesign live TFT and VALORANT rosters, the saved account detail and each game’s post-match recap.",
+  "Show match outcomes through scores and the recorded rank emblems.": "Show match outcomes through scores and the recorded rank emblems.",
+  "Move the followed Riot account from the header to the sidebar.": "Move the followed Riot account from the header to the sidebar.",
+  "Ship a smaller package with only the runtime modules and WebP art.": "Ship a smaller package with only the runtime modules and WebP art."
 }

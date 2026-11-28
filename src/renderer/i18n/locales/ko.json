@@ -1138,5 +1138,19 @@
   "Important: you seem to be in a game. Signing out will close it.": "중요: 게임 중인 것 같습니다. 로그아웃하면 게임이 종료됩니다.",
   "Close game and sign out": "게임 종료 후 로그아웃",
   "Signing out will close your current game. Confirm to sign out anyway.": "로그아웃하면 진행 중인 게임이 종료됩니다. 그래도 로그아웃하려면 확인하세요.",
-  "Peaks could not close the running game. Close it, then try again.": "Peaks가 실행 중인 게임을 종료할 수 없습니다. 게임을 종료한 후 다시 시도하세요."
+  "Peaks could not close the running game. Close it, then try again.": "Peaks가 실행 중인 게임을 종료할 수 없습니다. 게임을 종료한 후 다시 시도하세요.",
+  "Sign out of Riot from Peaks, choose a game at each sign-in, and play League and TFT on PBE.": "Peaks에서 Riot 로그아웃, 로그인할 때마다 게임 선택, PBE에서 League와 TFT 플레이를 지원합니다.",
+  "Sign out of the Riot account Peaks follows from the sidebar, closing a running game only after you confirm.": "사이드바에서 Peaks가 따라가는 Riot 계정을 로그아웃할 수 있으며, 실행 중인 게임은 확인한 후에만 종료됩니다.",
+  "Choose what signing in does: launch your favorite game, pick a game each time, or launch none.": "로그인 시 동작을 선택할 수 있습니다: 즐겨찾는 게임 실행, 매번 게임 선택, 또는 실행하지 않음.",
+  "Sign in to your three most recent accounts from the Windows taskbar.": "Windows 작업 표시줄에서 최근 계정 3개로 로그인할 수 있습니다.",
+  "Launch League of Legends and Teamfight Tactics on PBE when the signed-in account belongs to PBE.": "로그인한 계정이 PBE 계정이면 League of Legends와 Teamfight Tactics를 PBE에서 실행합니다.",
+  "Show VALORANT lobbies, queues and found matches in Discord activity, with Skirmish and map art.": "Discord 활동에 VALORANT 로비, 대기열, 매치 찾음 단계가 표시되며 스커미시와 맵 이미지도 함께 표시됩니다.",
+  "Add Hush and the Gauntlet map to the VALORANT catalog.": "VALORANT 카탈로그에 Hush와 Gauntlet 맵을 추가했습니다.",
+  "Show TFT and League matches after a finished VALORANT match, instead of hiding them until Peaks restarts.": "VALORANT 매치가 끝난 뒤에도 TFT와 League 매치가 Peaks를 다시 시작할 때까지 숨겨지지 않고 표시됩니다.",
+  "Keep the map name and art in Discord activity for maps Riot reports by codename.": "Riot이 코드명으로 알려 주는 맵도 Discord 활동에 맵 이름과 이미지가 유지됩니다.",
+  "Keep waiting when Riot Client delays quitting during a game launch, instead of reporting it as not ready.": "게임 실행 중 Riot Client 종료가 늦어져도 준비되지 않았다고 표시하지 않고 계속 기다립니다.",
+  "Redesign live TFT and VALORANT rosters, the saved account detail and each game’s post-match recap.": "실시간 TFT 및 VALORANT 로스터, 저장된 계정 상세, 게임별 매치 후 요약을 새롭게 디자인했습니다.",
+  "Show match outcomes through scores and the recorded rank emblems.": "매치 결과를 점수와 기록된 랭크 엠블럼으로 표시합니다.",
+  "Move the followed Riot account from the header to the sidebar.": "따라가는 Riot 계정이 헤더에서 사이드바로 이동했습니다.",
+  "Ship a smaller package with only the runtime modules and WebP art.": "실행 모듈과 WebP 이미지만 포함해 패키지 크기를 줄였습니다."
 }

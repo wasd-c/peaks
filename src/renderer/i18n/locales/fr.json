@@ -1138,5 +1138,19 @@
   "Important: you seem to be in a game. Signing out will close it.": "Important : vous semblez être en partie. La déconnexion fermera le jeu.",
   "Close game and sign out": "Fermer le jeu et se déconnecter",
   "Signing out will close your current game. Confirm to sign out anyway.": "La déconnexion fermera votre partie en cours. Confirmez pour vous déconnecter quand même.",
-  "Peaks could not close the running game. Close it, then try again.": "Peaks n'a pas pu fermer le jeu en cours. Fermez-le, puis réessayez."
+  "Peaks could not close the running game. Close it, then try again.": "Peaks n'a pas pu fermer le jeu en cours. Fermez-le, puis réessayez.",
+  "Sign out of Riot from Peaks, choose a game at each sign-in, and play League and TFT on PBE.": "Déconnexion de Riot depuis Peaks, choix du jeu à chaque connexion, et League et TFT sur le PBE.",
+  "Sign out of the Riot account Peaks follows from the sidebar, closing a running game only after you confirm.": "Déconnexion du compte Riot suivi par Peaks depuis la barre latérale, avec fermeture du jeu en cours seulement après confirmation.",
+  "Choose what signing in does: launch your favorite game, pick a game each time, or launch none.": "Choix de ce que fait la connexion : lancer le jeu favori, choisir un jeu à chaque fois, ou n’en lancer aucun.",
+  "Sign in to your three most recent accounts from the Windows taskbar.": "Connexion aux trois comptes les plus récents depuis la barre des tâches Windows.",
+  "Launch League of Legends and Teamfight Tactics on PBE when the signed-in account belongs to PBE.": "League of Legends et Teamfight Tactics se lancent sur le PBE quand le compte connecté appartient au PBE.",
+  "Show VALORANT lobbies, queues and found matches in Discord activity, with Skirmish and map art.": "Les salons, files et parties trouvées de VALORANT apparaissent dans l’activité Discord, avec l’Escarmouche et les illustrations des cartes.",
+  "Add Hush and the Gauntlet map to the VALORANT catalog.": "Hush et la carte Gauntlet rejoignent le catalogue VALORANT.",
+  "Show TFT and League matches after a finished VALORANT match, instead of hiding them until Peaks restarts.": "Les parties de TFT et de League s’affichent après une partie de VALORANT terminée, au lieu de rester masquées jusqu’au redémarrage de Peaks.",
+  "Keep the map name and art in Discord activity for maps Riot reports by codename.": "Le nom et l’illustration de la carte restent dans l’activité Discord pour les cartes que Riot désigne par leur nom de code.",
+  "Keep waiting when Riot Client delays quitting during a game launch, instead of reporting it as not ready.": "Peaks continue d’attendre quand Riot Client tarde à se fermer pendant le lancement d’un jeu, au lieu de le signaler comme non prêt.",
+  "Redesign live TFT and VALORANT rosters, the saved account detail and each game’s post-match recap.": "Nouvelle présentation des compositions en direct de TFT et VALORANT, du détail des comptes enregistrés et du récapitulatif d’après-partie de chaque jeu.",
+  "Show match outcomes through scores and the recorded rank emblems.": "Les résultats des parties s’affichent par leur score et l’emblème de rang enregistré.",
+  "Move the followed Riot account from the header to the sidebar.": "Le compte Riot suivi passe de l’en-tête à la barre latérale.",
+  "Ship a smaller package with only the runtime modules and WebP art.": "Un paquet plus léger, avec seulement les modules d’exécution et les illustrations WebP."
 }
