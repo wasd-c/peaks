@@ -290,8 +290,9 @@ def test_verified_league_lockfile_is_disabled_off_windows(tmp_path: Path) -> Non
     )
 
 
-def test_verified_league_lockfile_finds_custom_install_sibling(tmp_path: Path) -> None:
-    executable = tmp_path / "Riot Games" / "League of Legends" / "LeagueClientUx.exe"
+@pytest.mark.parametrize("installation", ["League of Legends", "League of Legends (PBE)"])
+def test_verified_league_lockfile_finds_custom_install_sibling(tmp_path: Path, installation: str) -> None:
+    executable = tmp_path / "Riot Games" / installation / "LeagueClientUx.exe"
     executable.parent.mkdir(parents=True)
     executable.write_bytes(b"fixture")
     (executable.parent / "lockfile").write_text(

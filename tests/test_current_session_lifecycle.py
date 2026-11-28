@@ -109,6 +109,13 @@ def test_live_league_stats_and_private_selection_identity_survive_normalization(
     assert "DoNotReveal" not in repr(result)
 
 
+def test_pbe_tft_session_is_marked_in_the_match_view():
+    pbe = LiveGame("tft", "Normal", None, None, phase="lobby", patchline="pbe")
+    assert CurrentGameService()._league_session_view(pbe, SimpleNamespace())["patchline"] == "pbe"
+    live = LiveGame("tft", "Normal", None, None, phase="lobby")
+    assert "patchline" not in CurrentGameService()._league_session_view(live, SimpleNamespace())
+
+
 def test_valorant_live_takes_priority_over_league_readycheck(monkeypatch):
     service, _ = detector(monkeypatch, session(phase="readycheck"), {"game": "VALORANT", "phase": "live"})
     assert service.detect()["game"] == "VALORANT"

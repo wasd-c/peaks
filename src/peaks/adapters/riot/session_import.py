@@ -42,7 +42,11 @@ from yaml.events import (  # type: ignore[import-untyped]
     SequenceEndEvent,
 )
 
-from peaks.domain.regions import normalize_league_region, normalize_valorant_region
+from peaks.domain.regions import (
+    league_region_from_userinfo,
+    normalize_league_region,
+    normalize_valorant_region,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -954,19 +958,12 @@ class RiotSessionImporter:
             account_payload = payload
         game_name = account_payload.get("gameName", account_payload.get("game_name"))
         tag_line = account_payload.get("tagLine", account_payload.get("tag_line"))
-        league_payload = payload.get("lol")
-        league_regions = {
-            region for region in (
-                normalize_league_region(payload.get("cpid")),
-                normalize_league_region(league_payload.get("cpid")) if isinstance(league_payload, Mapping) else None,
-            ) if region is not None
-        }
         try:
             identity = AuthenticatedRiotIdentity(
                 puuid=subject,
                 game_name=game_name if isinstance(game_name, str) else None,
                 tag_line=tag_line if isinstance(tag_line, str) else None,
-                league_region=next(iter(league_regions)) if len(league_regions) == 1 else None,
+                league_region=league_region_from_userinfo(payload),
             )
         except ValueError as exc:
             raise SessionAuthorizationError("Riot returned invalid account identity data") from exc

@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from math import isfinite
 from typing import Any, cast
 from urllib.parse import quote
 
-from peaks.domain.regions import LEAGUE_PLATFORM_ALIASES, normalize_league_region
+from peaks.domain.regions import (
+    LEAGUE_PLATFORM_ALIASES,
+    league_region_from_userinfo,
+    normalize_league_region,
+)
 
 from .client import RiotClientError, RiotClientHTTP, RiotClientUnavailable
 from .discovery import RiotLockfile, discover_verified_league_lockfile, running_process_names
@@ -16,6 +20,7 @@ from .discovery import RiotLockfile, discover_verified_league_lockfile, running_
 LEAGUE_LIVE_DATA_PORT = 2999
 CURRENT_SUMMONER_PATH = "/lol-summoner/v1/current-summoner"
 REGION_LOCALE_PATH = "/riotclient/region-locale"
+PLAYER_SESSION_PATH = "/player-session-lifecycle/v1/session"
 SUMMONER_LOOKUP_PATH = "/lol-summoner/v1/summoners"
 RANKED_STATS_PATH = "/lol-ranked/v1/ranked-stats/"
 CURRENT_RANKED_STATS_PATH = "/lol-ranked/v1/current-ranked-stats"
@@ -130,6 +135,8 @@ class LiveGame:
     game_id: str | None = None
     own_puuid: str | None = field(default=None, repr=False)
     team_mode: str | None = None
+    # Riot patchline when it is not the live game, e.g. "pbe".
+    patchline: str | None = None
 
     @property
     def is_tft(self) -> bool:
@@ -281,6 +288,22 @@ def normalize_platform_region(value: object) -> str | None:
     ):
         return None
     return normalize_league_region(value)
+
+
+def league_region_from_player_session(session: Mapping[str, object], puuid: str) -> str | None:
+    """Use platform claims only from the matching Riot Client identity."""
+    userinfo = session.get("userInfo")
+    if session.get("puuid") != puuid or not isinstance(userinfo, Mapping) or userinfo.get("sub") != puuid:
+        return None
+    return league_region_from_userinfo(userinfo)
+
+
+def read_riot_session_league_region(get_json: Callable[[str], object], puuid: str) -> str | None:
+    try:
+        session = get_json(PLAYER_SESSION_PATH)
+    except RiotClientError:
+        return None
+    return league_region_from_player_session(session, puuid) if isinstance(session, Mapping) else None
 
 
 def parse_summoner_profile(
@@ -753,6 +776,15 @@ class LeagueClient:
         ))
 
     def current_session(self) -> LiveGame | None:
+        """Return the current session, marked when the client is on PBE."""
+        game = self._current_session()
+        if game is None:
+            return None
+        locale = _mapping(self._session_read(REGION_LOCALE_PATH))
+        region = locale.get("region")
+        return replace(game, patchline="pbe") if isinstance(region, str) and region.casefold() == "pbe" else game
+
+    def _current_session(self) -> LiveGame | None:
         """Read the signed-in League/TFT lobby, selection, or active game.
 
         Gameflow is authoritative on exit: a lingering live-data endpoint or

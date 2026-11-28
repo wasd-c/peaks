@@ -294,7 +294,7 @@ def _looks_like_league_client_executable(path: Path) -> bool:
     return (
         path.name.casefold() in {"leagueclient.exe", "leagueclientux.exe"}
         and len(parts) >= 3
-        and parts[-2] == "league of legends"
+        and parts[-2] in {"league of legends", "league of legends (pbe)"}
         and "riot games" in parts[:-2]
     )
 

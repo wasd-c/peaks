@@ -385,6 +385,11 @@ const LEAGUE_PHASES = new Map<unknown, string>([
   ['pregame', 'Champion select'], ['live', 'In game'],
 ])
 
+const VALORANT_PHASES = new Map<unknown, string>([
+  ['lobby', 'In lobby'], ['matchmaking', 'Finding a match'], ['readycheck', 'Match found'],
+  ['pregame', 'Agent select'], ['live', 'In game'],
+])
+
 const record = (value: unknown): RecordValue | undefined => (
   value !== null && typeof value === 'object' && !Array.isArray(value) ? value as RecordValue : undefined
 )
@@ -473,9 +478,10 @@ function leagueActivity(match: RecordValue, teams: RecordValue[]): DiscordActivi
   const self = selves.length === 1 && optionalFalse(selves[0].hidden) ? selves[0] : undefined
   const champion = !tft && choosing && self ? championLookup.get(key(self.agent) ?? '') : undefined
   const map = !tft ? leagueMapLookup.get(key(match.map) ?? '') : undefined
-  const details = tft ? 'Playing Teamfight Tactics'
+  const pbe = match.patchline === 'pbe' ? ' (PBE)' : ''
+  const details = (tft ? 'Playing Teamfight Tactics'
     : champion ? `${champion.name}${map ? ` on ${map}` : ' in League of Legends'}`
-      : map && choosing ? `Playing on ${map}` : 'Playing League of Legends'
+      : map && choosing ? `Playing on ${map}` : 'Playing League of Legends') + pbe
   const parts = [leagueMode(match, tft)]
   if (!playing) parts.push(tft && match.phase === 'pregame' ? 'Getting ready' : phase)
 
@@ -505,7 +511,7 @@ function leagueActivity(match: RecordValue, teams: RecordValue[]): DiscordActivi
     state: parts.join(' · '),
     assets: {
       large_image: tft ? DISCORD_TFT_IMAGE : champion?.image ?? LEAGUE_DEFAULT_IMAGE,
-      large_text: tft ? 'Teamfight Tactics' : champion ? `${champion.name} · League of Legends` : 'League of Legends',
+      large_text: (tft ? 'Teamfight Tactics' : champion ? `${champion.name} · League of Legends` : 'League of Legends') + pbe,
       small_image: DISCORD_PEAKS_IMAGE,
       small_text: 'Peaks',
     },
@@ -528,21 +534,23 @@ export function buildDiscordActivity(snapshot: unknown): DiscordActivity | null 
   if (match.game === 'League of Legends' || match.game === 'Teamfight Tactics') {
     return LEAGUE_PHASES.has(match.phase) ? leagueActivity(match, teams) : null
   }
-  if (match.game !== 'VALORANT' || (match.phase !== 'live' && match.phase !== 'pregame')) return null
+  if (match.game !== 'VALORANT' || !VALORANT_PHASES.has(match.phase)) return null
+  const inMatch = match.phase === 'live' || match.phase === 'pregame'
   const selves = teams.flatMap(team => (team.players as RecordValue[])
     .filter(player => player.self === true)
     .map(player => ({player, team})))
   const self = selves.length === 1 && optionalFalse(selves[0].player.hidden) ? selves[0] : undefined
-  const map = mapLookup.get(key(match.map) ?? '')
-  const agent = self ? agentLookup.get(key(self.player.agent) ?? '') : undefined
+  // A lobby's map is only a custom-game setting, not where the user is playing.
+  const map = inMatch ? mapLookup.get(key(match.map) ?? '') : undefined
+  const agent = inMatch && self ? agentLookup.get(key(self.player.agent) ?? '') : undefined
   const verb = match.phase === 'live' && self ? performance(self.player.stats) : 'Playing'
   const details = map ? `${verb} on ${map.name}` : verb === 'Playing' ? 'Playing VALORANT' : `${verb} in VALORANT`
   const mode = gameMode(match.queue) ?? gameMode(match.queueId) ?? gameMode(match.modeId) ?? gameMode(match.mode)
     ?? (map?.skirmish ? 'Skirmish' : 'VALORANT')
   const parts = [mode]
 
-  if (match.phase === 'pregame') {
-    parts.push('Agent select')
+  if (match.phase !== 'live') {
+    parts.push(VALORANT_PHASES.get(match.phase)!)
   } else if (self && teams.length === 2 && match.freeForAll !== true && mode !== 'Deathmatch') {
     const ownScore = roundScore(self.team.score)
     const opponent = teams.find(team => team !== self.team)

@@ -196,6 +196,16 @@ def test_client_tft_works_when_liveclientdata_is_unavailable() -> None:
     assert lcu.closed and live.closed
 
 
+def test_pbe_league_client_marks_its_session() -> None:
+    payloads: dict[str, object] = {GAMEFLOW_PHASE_PATH: "Lobby", LOBBY_PATH: lobby(), CURRENT_SUMMONER_PATH: OWN}
+    client, _, _ = client_with({**payloads, "/riotclient/region-locale": {"region": "PBE", "locale": "en_US"}})
+    assert client.current_session().patchline == "pbe"
+    client, _, _ = client_with({**payloads, "/riotclient/region-locale": {"region": "EUW", "locale": "en_GB"}})
+    assert client.current_session().patchline is None
+    client, _, _ = client_with(payloads)
+    assert client.current_session().patchline is None
+
+
 def test_client_authoritative_exit_does_not_read_stale_live_data() -> None:
     client, _, live = client_with({GAMEFLOW_PHASE_PATH: "None"}, {"/liveclientdata/allgamedata": {"gameData": {"gameMode": "CLASSIC"}}})
     assert client.current_session() is None

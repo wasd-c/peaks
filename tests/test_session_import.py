@@ -613,6 +613,7 @@ def test_close_releases_injected_transport(tmp_path: Path) -> None:
 @pytest.mark.parametrize(("metadata", "expected"), [
     ({"cpid": "EUW1"}, "EUW"),
     ({"lol": {"cpid": "eun1"}}, "EUNE"),
+    ({"lol": {"cpid": "PBE1"}}, "PBE"),
     ({"cpid": "NA1", "lol": {"cpid": "na"}}, "NA"),
     ({"cpid": "NA1", "lol": {"cpid": "euw1"}}, None),
     ({"cpid": "global"}, None),

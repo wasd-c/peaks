@@ -39,6 +39,7 @@ MAX_TAIL_BYTES = 2 * 1024 * 1024
 MAX_REPORT_BYTES = 1024 * 1024
 MAX_AGE_SECONDS = 90 * 86_400
 _PLATFORMS = {normalize_league_region(value.value): value.value.upper() for value in PlatformRouting}
+_PLATFORMS["PBE"] = "PBE1"
 _EVENT = re.compile(
     r"^\[(?P<time>\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}:\d{3})\]"
     r"\[\s*\d+\]RGIOPHttp: UTFTLeagueFoundationClient::PostEogStatsBlock: Query Start"

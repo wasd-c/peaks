@@ -100,6 +100,7 @@ def test_rejects_wrong_identity_and_invalid_final_evidence(tmp_path: Path, chang
 @pytest.mark.parametrize(("game_id", "platform", "expected"), [
     (123, "EUW", "EUW1_123"), ("EUW1_123", "euw1", "EUW1_123"),
     (123, "EUNE", "EUN1_123"), (123, "KR", "KR_123"),
+    (123, "PBE", "PBE1_123"), ("PBE1_123", "pbe1", "PBE1_123"), ("NA1_123", "PBE", None),
     ("NA1_123", "EUW", None), ("tft-123", "EUW", None),
     (True, "EUW", None), (123, "GLOBAL", None), (0, "EUW", None),
 ])

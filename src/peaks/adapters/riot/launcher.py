@@ -9,9 +9,11 @@ from pathlib import Path
 from time import sleep
 
 from peaks.domain.models import Game
+from peaks.domain.regions import normalize_league_region
 
 from .client import RiotClientError, RiotClientHTTP
 from .discovery import default_paths, discover_riot_client, read_install_manifest
+from .league import PLAYER_SESSION_PATH, league_region_from_player_session
 
 # These are Riot's desktop shortcut product IDs, including TFT's own entry.
 _PRODUCTS = {
@@ -66,14 +68,17 @@ def open_riot_client() -> None:
         raise RuntimeError("Riot Client could not open. Start it and try again.") from None
 
 
-def launch_game(game: Game | str, *, expected_puuid: str | None = None) -> None:
+def launch_game(
+    game: Game | str, *, expected_puuid: str | None = None, league_region: str | None = None,
+) -> None:
     """Launch through Riot's game API; use a shortcut only to start a closed client.
 
     QR approval precedes the desktop client's next sign-in poll. An automatic
     launch must wait for that selected identity rather than launch for an old
     session or merely leave the product's page open.
     """
-    product = _PRODUCTS[Game.parse(game)]
+    game = Game.parse(game)
+    product = _PRODUCTS[game]
     if platform.system() != "Windows":
         raise RuntimeError("Game launch is available on Windows only.")
     discovered = discover_riot_client()
@@ -81,37 +86,51 @@ def launch_game(game: Game | str, *, expected_puuid: str | None = None) -> None:
         try:
             with RiotClientHTTP(discovered.lockfile, timeout=3.0) as client:
                 session_product = _SESSION_PRODUCTS.get(product)
-                context_prepared = False
+                routed_subject = None
+                prepared_context = None
+                patchline = "live"
                 for attempt in range(30):
                     try:
                         authorization = client.get_json("/rso-auth/v1/authorization")
                         subject = authorization.get("subject") if isinstance(authorization, dict) else None
-                        identity_ready = isinstance(subject, str) and bool(subject) and (expected_puuid is None or subject == expected_puuid)
-                        entitlements = client.get_json("/entitlements/v1/token") if identity_ready else None
+                        if not isinstance(subject, str) or not subject or (expected_puuid is not None and subject != expected_puuid):
+                            raise RiotClientError("Riot Client has not signed in to the selected account")
+                        entitlements = client.get_json("/entitlements/v1/token")
                         credentials_ready = (
-                            identity_ready
-                            and isinstance(entitlements, dict)
+                            isinstance(entitlements, dict)
                             and entitlements.get("subject") == subject
                             and bool(entitlements.get("accessToken"))
                             and bool(entitlements.get("token"))
                         )
-                        if credentials_ready and session_product is not None and not context_prepared:
+                        if credentials_ready and game != Game.VALORANT and routed_subject != subject:
+                            player_session = client.get_json(PLAYER_SESSION_PATH)
+                            if not isinstance(player_session, dict) or player_session.get("puuid") != subject:
+                                # The local client can briefly retain the previous account's session.
+                                raise RiotClientError("Riot Client is still switching accounts")
+                            region = league_region_from_player_session(player_session, subject)
+                            if region is None and subject == expected_puuid:
+                                region = normalize_league_region(league_region)
+                            patchline = "pbe" if region == "PBE" else "live"
+                            routed_subject = subject
+                        product_path = f"/product-launcher/v1/products/{product}/patchlines/{patchline}"
+                        context = {"productId": session_product, "patchlineId": patchline}
+                        if credentials_ready and session_product is not None and prepared_context != (subject, patchline):
                             # QR signs in to Riot, but an account switch can
                             # leave its game session PendingProductContext.
                             # Starting League then opens an empty client.
                             response = client.request("PUT", "/player-session-lifecycle/v1/product-context", json_body={
-                                "productContext": {"productId": session_product, "patchlineId": "live"},
+                                "productContext": context,
                             })
                             if not 200 <= response.status_code < 300:
                                 raise RuntimeError("Riot Client could not prepare the game session. Open Riot Client and try again.")
-                            context_prepared = True
-                        session = client.get_json("/player-session-lifecycle/v1/session") if credentials_ready and session_product is not None else None
+                            prepared_context = (subject, patchline)
+                        session = client.get_json(PLAYER_SESSION_PATH) if credentials_ready and session_product is not None else None
                         ready = credentials_ready if session_product is None else (
                             isinstance(session, dict)
                             and session.get("loginState") == "Authorized"
                             and session.get("actionRequired") is False
                             and session.get("puuid") == subject
-                            and session.get("productContext") == {"productId": session_product, "patchlineId": "live"}
+                            and session.get("productContext") == context
                         )
                         if ready:
                             config_status = client.get_json("/client-config/v1/status/player")
@@ -123,7 +142,7 @@ def launch_game(game: Game | str, *, expected_puuid: str | None = None) -> None:
                             edge_url = client.get_json("/client-config/v2/config/lol.client_settings.league_edge.url")
                             ready = isinstance(edge_url, str) and bool(edge_url)
                         if ready:
-                            ready = client.get_json(f"/product-launcher/v1/products/{product}/patchlines/live/eligibility") is True
+                            ready = client.get_json(f"{product_path}/eligibility") is True
                     except RiotClientError:
                         ready = False
                     if ready:
@@ -136,7 +155,7 @@ def launch_game(game: Game | str, *, expected_puuid: str | None = None) -> None:
                 # Riot returns only once the product startup has progressed;
                 # the short readiness timeout would falsely report a failure.
                 client.timeout = 30.0
-                response = client.request("POST", f"/product-launcher/v1/products/{product}/patchlines/live")
+                response = client.request("POST", product_path)
                 if not 200 <= response.status_code < 300:
                     raise RuntimeError("Riot Client could not start the game. Check its sign-in and update status, then try again.")
             return

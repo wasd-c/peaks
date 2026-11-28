@@ -770,12 +770,13 @@ class Bridge:
 
                         matches = [_match(match) for game in Game for match in list_matches(str(item.id), game=game, limit=20)]
                         matches.sort(key=lambda match: match.get("playedAtTimestamp", 0), reverse=True)
+                league_region = normalize_league_region(item.region)
                 loaded.append(
                     {
                         "id": str(item.id),
                         "riotId": riot_id,
-                        "region": str(item.region).upper(),
-                        "leagueRegion": normalize_league_region(item.region),
+                        "region": league_region or str(item.region).upper(),
+                        "leagueRegion": league_region,
                         "valorantRegion": normalize_valorant_region(getattr(item, "valorant_region", None)),
                         **({"accountIcon": {
                             "game": item.account_icon.game.label,
@@ -883,12 +884,14 @@ class Bridge:
             launch_game(game)
         else:
             account = next((item for item in self.accounts if str(item.get("id", "")) == after_qr_account_id), None)
-            puuid = str(account.get("puuid") or "").strip() if account else ""
-            if not puuid:
+            if account is None or not (puuid := str(account.get("puuid") or "").strip()):
                 raise ValueError("The selected account identity is incomplete")
             # Approval is acknowledged before Riot's desktop QR polling catches up.
             sleep(QR_GAME_LAUNCH_DELAY_SECONDS)
-            launch_game(game, expected_puuid=puuid)
+            launch_game(
+                game, expected_puuid=puuid,
+                league_region=normalize_league_region(account.get("leagueRegion") or account.get("region")),
+            )
         return "Launch request sent to Riot Client."
 
     def _refresh_account_secret_flags(self) -> None:
@@ -1799,19 +1802,20 @@ class Bridge:
         for account in accounts:
             snapshots: list[dict[str, Any]] = []
             region = str(account.get("region") or "").strip().upper()
+            original_region = region
             puuid = account.get("puuid")
-            if region not in _RIOT_API_PLATFORM_REGIONS and isinstance(puuid, str) and puuid:
+            if normalize_league_region(region) is None and isinstance(puuid, str) and puuid:
                 recover_region = getattr(local_service, "owned_league_platform_region", None)
                 if callable(recover_region):
                     try:
-                        recovered = str(recover_region(puuid) or "").strip().upper()
+                        recovered = normalize_league_region(recover_region(puuid))
                     except Exception as exc:
-                        recovered = ""
+                        recovered = None
                         self._logger.info(
                             "bridge.account.region_recovery_unavailable error_type=%s",
                             type(exc).__name__,
                         )
-                    if recovered in _RIOT_API_PLATFORM_REGIONS:
+                    if recovered:
                         stored = self._repository.get_account(str(account.get("id", "")))
                         if stored is not None:
                             self._repository.add_account(replace(stored, region=recovered))
@@ -1822,7 +1826,7 @@ class Bridge:
                                 "bridge.account.region_recovered region=%s",
                                 recovered.casefold(),
                             )
-            if provider is not None:
+            if provider is not None and region != "PBE":
                 if region not in _RIOT_API_PLATFORM_REGIONS:
                     unknown_remote_regions += 1
                     self._logger.info(
@@ -1877,7 +1881,10 @@ class Bridge:
                 snapshots.append(local_snapshot)
 
             if not snapshots:
-                unavailable += 1
+                if region != original_region:
+                    updated += 1
+                else:
+                    unavailable += 1
                 continue
             for snapshot in snapshots:
                 self._persist_account_snapshot(str(account.get("id", "")), snapshot)

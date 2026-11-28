@@ -59,6 +59,8 @@ _REGIONS: dict[str, tuple[str, str]] = {
 def league_platform_id(region: object) -> str | None:
     """Resolve a known League/TFT region to its canonical match-ID prefix."""
     known = normalize_league_region(region)
+    if known == "PBE":
+        return "PBE1"
     route = _REGIONS.get(known or "")
     return route[1].upper() if route else None
 
@@ -797,9 +799,9 @@ class RiotSearchService:
         return result
 
     def search_player(self, query: str, *, region: str = "", game: str = "all") -> list[dict[str, Any]]:
-        region_label = region.strip().upper()
+        region_label = normalize_league_region(region.strip()) or region.strip().upper()
         routes = _REGIONS.get(region_label)
-        if region_label and routes is None:
+        if region_label and region_label != "PBE" and routes is None:
             raise ValueError("Choose a supported Riot platform region")
         requested = game.strip().lower()
         if requested not in {
@@ -1255,6 +1257,7 @@ class CurrentGameService:
             "privacyNote": "Streamer mode respected — hidden identities stay hidden.",
             "freeForAll": session.game == "tft" and phase == "live" and not duos,
             **({"teamMode": "duos"} if duos else {}),
+            **({"patchline": "pbe"} if getattr(session, "patchline", None) == "pbe" else {}),
             "teams": teams,
         }
         if session.map_name:
@@ -1691,13 +1694,7 @@ class CurrentGameService:
             client.close()
 
     def owned_league_platform_region(self, puuid: str) -> str | None:
-        """Return the active owned account's authoritative League/TFT shard.
-
-        The League local client is used only after its lockfile PID is bound to
-        a live League client owner in the Riot installation. The current
-        summoner PUUID must then exactly match ``puuid`` before the platform
-        value is read. Riot ID tags and locale/IP are never used as guesses.
-        """
+        """Read the League/TFT platform from an identity-bound local session."""
 
         supported = platform.system() == "Windows"
         valid_account = self._valid_owned_puuid(puuid)
@@ -1711,38 +1708,48 @@ class CurrentGameService:
             return None
 
         from peaks.adapters.riot.client import RiotClientHTTP
-        from peaks.adapters.riot.discovery import discover_verified_league_lockfile
+        from peaks.adapters.riot.discovery import (
+            discover_riot_client,
+            discover_verified_league_lockfile,
+        )
         from peaks.adapters.riot.league import (
             CURRENT_SUMMONER_PATH,
             REGION_LOCALE_PATH,
             normalize_platform_region,
+            read_riot_session_league_region,
         )
 
-        lockfile = discover_verified_league_lockfile()
-        if lockfile is None:
+        league_lockfile = discover_verified_league_lockfile()
+        if league_lockfile is not None:
+            try:
+                with RiotClientHTTP(league_lockfile) as client:
+                    summoner = client.get_json(CURRENT_SUMMONER_PATH)
+                    if isinstance(summoner, Mapping) and summoner.get("puuid") == puuid:
+                        locale = client.get_json(REGION_LOCALE_PATH)
+                        if isinstance(locale, Mapping) and (region := normalize_platform_region(locale.get("region"))):
+                            LOGGER.info("current_game.owned_region.complete region=%s", region.casefold())
+                            return region
+            except Exception as exc:
+                LOGGER.info(
+                    "current_game.owned_region.unavailable reason=local_request error_type=%s",
+                    type(exc).__name__,
+                )
+
+        riot_lockfile = discover_riot_client().lockfile
+        if riot_lockfile is None:
             LOGGER.info("current_game.owned_region.unavailable reason=lockfile")
             return None
         try:
-            with RiotClientHTTP(lockfile) as client:
-                summoner = client.get_json(CURRENT_SUMMONER_PATH)
-                if not isinstance(summoner, dict) or summoner.get("puuid") != puuid:
-                    LOGGER.info("current_game.owned_region.unavailable reason=identity_mismatch")
-                    return None
-                region_locale = client.get_json(REGION_LOCALE_PATH)
+            with RiotClientHTTP(riot_lockfile) as client:
+                region = read_riot_session_league_region(client.get_json, puuid)
         except Exception as exc:
             LOGGER.info(
                 "current_game.owned_region.unavailable reason=local_request error_type=%s",
                 type(exc).__name__,
             )
             return None
-        if not isinstance(region_locale, dict):
-            LOGGER.info("current_game.owned_region.unavailable reason=region_payload")
-            return None
-        region = normalize_platform_region(region_locale.get("region"))
-        if region is None:
-            LOGGER.info("current_game.owned_region.unavailable reason=unsupported_region")
-            return None
-        LOGGER.info("current_game.owned_region.complete region=%s", region.casefold())
+        if region is not None:
+            LOGGER.info("current_game.owned_region.complete region=%s", region.casefold())
         return region
 
     @staticmethod

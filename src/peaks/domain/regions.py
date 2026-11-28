@@ -1,5 +1,7 @@
 """Exact Riot routing values, never inferred from tags, country or IP."""
 
+from collections.abc import Mapping
+
 LEAGUE_PLATFORM_ALIASES = {
     "br": "BR",
     "br1": "BR",
@@ -21,6 +23,8 @@ LEAGUE_PLATFORM_ALIASES = {
     "na1": "NA",
     "oc1": "OCE",
     "oce": "OCE",
+    "pbe": "PBE",
+    "pbe1": "PBE",
     "ph": "PH",
     "ph2": "PH",
     "ru": "RU",
@@ -42,6 +46,15 @@ def normalize_league_region(value: object) -> str | None:
     if not isinstance(value, str) or not value or len(value) > 16:
         return None
     return LEAGUE_PLATFORM_ALIASES.get(value.casefold())
+
+
+def league_region_from_userinfo(payload: Mapping[str, object]) -> str | None:
+    league = payload.get("lol")
+    top_level = normalize_league_region(payload.get("cpid"))
+    product = normalize_league_region(league.get("cpid")) if isinstance(league, Mapping) else None
+    if top_level and product and top_level != product:
+        return None
+    return product or top_level
 
 
 def normalize_valorant_region(value: object) -> str | None:

@@ -26,6 +26,12 @@ describe('account regions', () => {
     expect(accountRegionForGame(account, 'League of Legends')).toBeUndefined()
     expect(accountRegionForGame(account, 'VALORANT')).toBeUndefined()
   })
+  it('shows the PBE platform for League and TFT independently of VALORANT', () => {
+    const pbe = {...account, region: 'pbe1', valorantRegion: 'EU'}
+    expect(accountRegionLabels(pbe)).toEqual(['LoL/TFT: PBE', 'VALORANT: EU'])
+    expect(accountRegionForGame(pbe, 'Teamfight Tactics')).toBe('PBE')
+    expect(accountRegionForGame({...account, valorantRegion: 'PBE'}, 'League of Legends')).toBeUndefined()
+  })
   it('ignores unsupported values and cross-game platform labels', () => {
     const invalid = {...account, leagueRegion: 'EU', valorantRegion: 'EUW'}
     expect(accountRegionLabel(invalid)).toBe('Region not detected')

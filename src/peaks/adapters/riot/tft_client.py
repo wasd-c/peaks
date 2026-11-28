@@ -295,15 +295,23 @@ class StandaloneTftClient:
         except (RiotClientError, RiotClientUnavailable):
             return None
 
-    def product_phase(self) -> str | None:
+    def product_session(self) -> tuple[str | None, str | None]:
+        """Return the TFT session's phase and its non-live patchline, if any."""
         sessions = self._read(EXTERNAL_SESSIONS_PATH)
         if not isinstance(sessions, dict):
-            return None
+            return None, None
         for session in list(sessions.values())[:32]:
             if isinstance(session, dict) and session.get("productId") == "teamfighttactics":
                 phase = session.get("phase")
-                return phase if isinstance(phase, str) and len(phase) <= 40 else None
-        return None
+                patchline = session.get("patchlineId")
+                return (
+                    phase if isinstance(phase, str) and len(phase) <= 40 else None,
+                    "pbe" if patchline == "pbe" else None,
+                )
+        return None, None
+
+    def product_phase(self) -> str | None:
+        return self.product_session()[0]
 
     def owner(self) -> str | None:
         token = self._read(ENTITLEMENTS_PATH)
@@ -318,7 +326,7 @@ class StandaloneTftClient:
         log = read_log_state(self.logs_directory / "TFT.log")
         if log is None:
             return None
-        product_phase = self.product_phase()
+        product_phase, patchline = self.product_session()
         in_game = log.game_id is not None and log.game_id not in log.ended and (
             log.lobby_state == "InGame" or product_phase == "Gameplay"
         )
@@ -343,6 +351,7 @@ class StandaloneTftClient:
                 game_id=str(log.game_id),
                 own_puuid=own,
                 team_mode="duos" if duos else "free-for-all",
+                patchline=patchline,
             )
         if log.lobby_state == "Matchmaking" or log.matchmaking_phase is not None:
             phase = {"AFK_CHECK": "readycheck", "CHAMPION_SELECT": "pregame"}.get(log.matchmaking_phase or "", "matchmaking")
@@ -355,6 +364,7 @@ class StandaloneTftClient:
             game="tft", game_mode=queue_name(queue), map_name=None, game_time=None,
             phase=phase, queue_id=queue, own_puuid=own,
             team_mode="duos" if is_tft_double_up(queue) else "free-for-all",
+            patchline=patchline,
         )
 
     def detect(self) -> LiveGame | None:

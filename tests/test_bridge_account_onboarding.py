@@ -629,7 +629,8 @@ def test_manual_refresh_reports_active_riot_identity_mismatch() -> None:
         bridge.handle("refresh", {"accountId": "owned-puuid"})
 
 
-def test_global_account_recovers_identity_bound_league_region_before_remote_refresh() -> None:
+@pytest.mark.parametrize(("detected", "region"), [("EUW", "EUW"), ("PBE1", "PBE")])
+def test_global_account_recovers_identity_bound_league_region_before_refresh(detected: str, region: str) -> None:
     bridge, repository, _ = _bridge(_result())
     repository.add_account(
         Account("owned-puuid", "Peak Player", "EUW", "GLOBAL", "owned-puuid")
@@ -638,7 +639,7 @@ def test_global_account_recovers_identity_bound_league_region_before_remote_refr
     bridge.settings["riotApiConfigured"] = True
     recovered_puuids: list[str] = []
     bridge._account_refresh_factory = lambda: SimpleNamespace(
-        owned_league_platform_region=lambda puuid: recovered_puuids.append(puuid) or "EUW",
+        owned_league_platform_region=lambda puuid: recovered_puuids.append(puuid) or detected,
         owned_valorant_snapshot=lambda _puuid: None,
     )
     provider_calls: list[tuple[str, str]] = []
@@ -656,9 +657,9 @@ def test_global_account_recovers_identity_bound_league_region_before_remote_refr
     state = bridge.handle("refresh", {"accountId": "owned-puuid"})
 
     assert recovered_puuids == ["owned-puuid"]
-    assert provider_calls == [("Peak Player#EUW", "EUW")]
-    assert state["accounts"][0]["region"] == "EUW"
-    assert repository.accounts["owned-puuid"].region == "euw"
+    assert provider_calls == ([("Peak Player#EUW", "EUW")] if region == "EUW" else [])
+    assert state["accounts"][0]["leagueRegion"] == region
+    assert repository.accounts["owned-puuid"].region == region.casefold()
 
 
 def _live_match_bridge(

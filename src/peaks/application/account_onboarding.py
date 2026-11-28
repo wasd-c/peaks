@@ -26,6 +26,7 @@ from peaks.adapters.riot.discovery import (
     discover_riot_client,
     running_process_names,
 )
+from peaks.adapters.riot.league import read_riot_session_league_region
 from peaks.adapters.riot.session_import import (
     ALLOWED_COOKIE_NAMES,
     MAX_REFRESH_TOKEN_LENGTH,
@@ -281,6 +282,10 @@ class AccountOnboardingService:
                     "Riot local session identity does not match the active account"
                 )
             self._logger.info("account_onboarding.local.identity.verified")
+            if identity.league_region is None:
+                region = read_riot_session_league_region(client.get_json, subject)
+                if region is not None:
+                    identity = replace(identity, league_region=region)
             if not import_session:
                 return AccountOnboardingResult(identity=identity, source="local_client")
             cookies, refresh_token, session_identity = self._try_import_session_authorization(importer, expected_puuid=subject)

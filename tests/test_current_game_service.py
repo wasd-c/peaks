@@ -781,6 +781,7 @@ def test_owned_league_region_requires_exact_summoner_identity_and_closes_client(
         "discover_verified_league_lockfile",
         lambda: lockfile,
     )
+    monkeypatch.setattr(riot_discovery, "discover_riot_client", lambda: SimpleNamespace(lockfile=None))
     monkeypatch.setattr(riot_client, "RiotClientHTTP", FakeLocal)
 
     assert CurrentGameService().owned_league_platform_region("owned-puuid") is None
@@ -827,6 +828,25 @@ def test_owned_league_region_returns_only_allowlisted_authoritative_platform(
     ]
     assert "owned-puuid" not in caplog.text
     assert "must-not-be-used" not in caplog.text
+
+
+@pytest.mark.parametrize(("subject", "expected"), [("owned-puuid", "PBE"), ("other-puuid", None)])
+def test_owned_league_region_uses_riot_player_session_without_a_matching_league_client(
+    monkeypatch: pytest.MonkeyPatch, subject: str, expected: str | None,
+) -> None:
+    league_lockfile, riot_lockfile = object(), object()
+    mock_http = MagicMock()
+    mock_http.return_value.__enter__.return_value = mock_http.return_value
+    mock_http.return_value.get_json.side_effect = [
+        {"puuid": "other-league-summoner"},
+        {"puuid": "owned-puuid", "userInfo": {"sub": subject, "lol": {"cpid": "PBE1"}}},
+    ]
+    monkeypatch.setattr(platform, "system", lambda: "Windows")
+    monkeypatch.setattr(riot_discovery, "discover_verified_league_lockfile", lambda: league_lockfile)
+    monkeypatch.setattr(riot_discovery, "discover_riot_client", lambda: SimpleNamespace(lockfile=riot_lockfile))
+    monkeypatch.setattr(riot_client, "RiotClientHTTP", mock_http)
+
+    assert CurrentGameService().owned_league_platform_region("owned-puuid") == expected
 
 
 @pytest.mark.parametrize("value", ["", "global", "EUW<script>", " euw1", 1])

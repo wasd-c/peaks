@@ -134,7 +134,7 @@ def test_active_valorant_retries_verified_lockfile_and_binds_entitlement_subject
         source="local_client",
     )
     assert result.cookies is None
-    assert client.endpoints == [RIOT_ENTITLEMENTS_PATH]
+    assert client.endpoints == [RIOT_ENTITLEMENTS_PATH, "/player-session-lifecycle/v1/session"]
     assert importer.identity_tokens == ["ACCESS-TOKEN-SECRET"]
     assert delays == [0.01]
     assert client.closed and importer.closed

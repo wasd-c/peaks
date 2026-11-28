@@ -75,14 +75,18 @@ def append(directory: Path, *lines: str) -> None:
     os.utime(directory / "TFT.log", (NOW - 1, NOW - 1))
 
 
-def client(directory: Path, *, running: bool = True, product_phase: str | None = None) -> StandaloneTftClient:
+def client(
+    directory: Path, *, running: bool = True, product_phase: str | None = None, patchline: str = "live",
+) -> StandaloneTftClient:
     riot = Mock()
 
     def get_json(path: str) -> object:
         if path == "/entitlements/v1/token":
             return {"subject": "owner"}
         if path == "/product-session/v1/external-sessions":
-            return {"token-like-key": {"productId": "teamfighttactics", "phase": product_phase}} if product_phase else {}
+            return {"token-like-key": {
+                "productId": "teamfighttactics", "patchlineId": patchline, "phase": product_phase,
+            }} if product_phase else {}
         raise AssertionError(path)
 
     riot.get_json.side_effect = get_json
@@ -139,6 +143,14 @@ def test_live_roster_comes_from_the_matching_stats_file(tmp_path: Path) -> None:
 def test_riot_gameplay_phase_confirms_a_match_before_the_lobby_state(tmp_path: Path) -> None:
     append(tmp_path, lobby("Matchmaking"), IN_PROGRESS)
     assert client(tmp_path, product_phase="Gameplay").current_session().phase == "live"
+
+
+def test_pbe_patchline_comes_from_the_riot_product_session(tmp_path: Path) -> None:
+    append(tmp_path, lobby("SoloMode"), rms("parties/v1/notifications/tft", {"queueId": QUEUE}))
+    assert client(tmp_path, product_phase="Idle", patchline="pbe").current_session().patchline == "pbe"
+    append(tmp_path, IN_PROGRESS, lobby("InGame"))
+    assert client(tmp_path, product_phase="Gameplay", patchline="pbe").current_session().patchline == "pbe"
+    assert client(tmp_path, product_phase="Gameplay").current_session().patchline is None
 
 
 def test_closed_client_reports_nothing(tmp_path: Path) -> None:

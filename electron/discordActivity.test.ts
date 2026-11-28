@@ -67,6 +67,16 @@ describe('League and TFT Discord activity', () => {
     })
   })
 
+  it('marks TFT and League PBE sessions', () => {
+    const tft = buildDiscordActivity(leagueSnapshot(true, {patchline: 'pbe'}))
+    expect(tft?.details).toBe('Playing Teamfight Tactics (PBE)')
+    expect(tft?.assets.large_text).toBe('Teamfight Tactics (PBE)')
+    const league = buildDiscordActivity(leagueSnapshot(false, {patchline: 'pbe'}))
+    expect(league?.details).toBe("Ahri on Summoner's Rift (PBE)")
+    expect(league?.assets.large_text).toBe('Ahri · League of Legends (PBE)')
+    expect(buildDiscordActivity(leagueSnapshot(true, {patchline: 'private-value'}))?.details).toBe('Playing Teamfight Tactics')
+  })
+
   it.each([
     ['lobby', 'In lobby'], ['matchmaking', 'Finding a match'],
     ['readycheck', 'Match found'], ['pregame', 'Champion select'],
@@ -266,6 +276,28 @@ describe('Discord activity projection', () => {
     expect(activity?.details).toBe('Playing on Ascent')
     expect(activity?.state).toBe('Competitive · Agent select')
     expect(activity?.party?.size).toEqual([5, 5])
+  })
+
+  it.each([
+    ['lobby', 'In lobby'], ['matchmaking', 'Finding a match'], ['readycheck', 'Match found'],
+  ])('shows a VALORANT %s without a match map, agent or score', (phase, label) => {
+    const activity = buildDiscordActivity(snapshot(undefined, {
+      phase, mode: 'competitive', queue: 'competitive', partySize: 2, partyMax: 5, elapsed: '1:05',
+      map: 'Ascent', teams: [{name: 'Your party', players: [{...selfPlayer(), agent: undefined}]}],
+    }))
+    expect(activity?.details).toBe('Playing VALORANT')
+    expect(activity?.state).toBe(`Competitive · ${label}`)
+    expect(activity?.party?.size).toEqual([2, 5])
+    expect(activity?.assets).not.toHaveProperty('large_image')
+  })
+
+  it('shows a solo VALORANT lobby without a queue as VALORANT', () => {
+    const activity = buildDiscordActivity(snapshot(undefined, {
+      phase: 'lobby', mode: 'Party', map: undefined, partySize: 1, partyMax: 5,
+      teams: [{name: 'Your party', players: [selfPlayer()]}],
+    }))
+    expect(activity?.state).toBe('VALORANT · In lobby')
+    expect(activity?.assets).not.toHaveProperty('large_image')
   })
 
   it.each([undefined, null, 0, 21, -1, 2.5, '2', NaN])('omits invalid or absent party size %j', partySize => {
